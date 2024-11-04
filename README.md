@@ -1,21 +1,22 @@
 # activeviam-projet
 
-## Description
+## Requirements
 
-This is the last year project of the InfoNum students of CentraleSupélec, in partnership with ActiveViam.
+- [Node.js](https://nodejs.org) version 20.
+- [Yarn](https://yarnpkg.com) (latest version).
 
-## Usage
+## Getting Started
 
-- Install the dependencies:
+First, install the dependencies:
 
 ```bash
-cd front
-yarn install:ci
+yarn install:ci"
 ```
 
-- Run the front:
+Then, run the development server:
 
 ```bash
 yarn dev
 ```
 
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
