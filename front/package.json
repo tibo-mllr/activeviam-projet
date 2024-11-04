@@ -15,19 +15,21 @@
     "install:ci": "yarn install --frozen-lockfile"
   },
   "dependencies": {
+    "next": "^15.0.2",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "next": "^15.0.2"
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "typescript": "^5.6.3",
     "@types/node": "^20.17.6",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^15.0.2",
+    "eslint-plugin-deprecation": "^3.0.0",
+    "eslint-plugin-import-helpers": "^2.0.1",
+    "eslint-plugin-react-hooks": "^5.0.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14",
-    "eslint": "^8.57.1",
-    "eslint-config-next": "^15.0.2"
+    "typescript": "^5.6.3"
   }
 }
-
