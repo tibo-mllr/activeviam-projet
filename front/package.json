@@ -11,7 +11,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "install:ci": "yarn install --frozen-lockfile"
   },
   "dependencies": {
     "react": "^18.3.1",
