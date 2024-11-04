@@ -2,6 +2,11 @@
   "name": "front",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "yarn@1.22.22",
+  "engines": {
+    "node": "20",
+    "yarn": "^1.22"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -24,3 +29,4 @@
     "eslint-config-next": "15.0.2"
   }
 }
+
