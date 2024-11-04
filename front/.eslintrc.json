@@ -4,17 +4,19 @@
     "next/typescript",
     "plugin:@typescript-eslint/recommended",
     "plugin:deprecation/recommended",
-    "plugin:react-hooks/recommended"
+    "plugin:react-hooks/recommended",
+    "plugin:prettier/recommended"
   ],
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "ecmaVersion": 11,
-    "sourceType": "module",
-    "project": ["./tsconfig.json"]
+    "project": "tsconfig.json",
+    "sourceType": "module"
   },
   "plugins": [
     "@typescript-eslint/eslint-plugin",
     "eslint-plugin-import-helpers",
-    "eslint-plugin-react-hooks"
+    "eslint-plugin-react-hooks",
+    "eslint-plugin-prettier"
   ],
   "rules": {
     "prefer-const": "error",
@@ -44,4 +46,3 @@
   ],
   "root": true
 }
-
