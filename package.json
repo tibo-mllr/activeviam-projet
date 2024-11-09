@@ -16,6 +16,7 @@
     "install:ci": "yarn install --frozen-lockfile"
   },
   "dependencies": {
+    "formik": "^2.4.6",
     "next": "^15.0.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
