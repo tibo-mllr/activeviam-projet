@@ -6,8 +6,8 @@ import { Formik, Form, Field } from "formik";
 import React, { useState } from "react";
 import { FC } from "react";
 
-const DEFAULT_URL = 
- "https://activepivot-ranch.activeviam.com:6100/activeviam/pivot/rest/v9/cube/query/mdx/queryplan";
+const DEFAULT_URL =
+  "https://activepivot-ranch.activeviam.com:6100/activeviam/pivot/rest/v9/cube/query/mdx/queryplan";
 
 const SubmitQueryPage: FC = () => {
   const [response, setResponse] = useState<string | null>(null);
