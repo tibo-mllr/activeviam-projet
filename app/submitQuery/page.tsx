@@ -1,19 +1,23 @@
 // app/submitQuery/page.tsx
 
-'use client';
+"use client";
+import { Formik, Form, Field } from "formik";
+import axios from "axios";
+import React, { useState } from "react";
 
-import React, { useState } from 'react';
-import { Formik, Form, Field } from 'formik';
-import axios from 'axios';
 
-const DEFAULT_URL = 'https://activepivot-ranch.activeviam.com:6100/activeviam/pivot/rest/v9/cube/query/mdx/queryplan';
+const DEFAULT_URL = "https://activepivot-ranch.activeviam.com:6100/activeviam/pivot/rest/v9/cube/query/mdx/queryplan";
 
 const SubmitQueryPage = () => {
   const [response, setResponse] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Formular submission
-  const handleSubmit = async (values: { url: string; username: string; password: string; text: string }) => {
+  const handleSubmit = async (values: {
+     url: string;
+     username: string;
+     password: string;
+     text: string }) => {
     try {
       setError(null);
       setResponse(null);
