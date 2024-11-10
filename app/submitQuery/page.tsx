@@ -24,12 +24,12 @@ const SubmitQueryPage: FC = () => {
       setResponse(null);
       // POST using Axios
       const res = await axios.post(values.url, values.text, {
-        auth: { // Basic authentification
+        auth: {
           username: values.username,
           password: values.password,
         },
         headers: {
-          'Content-Type': 'application/json', // Json type
+          "Content-Type": "application/json", // Json type
         },
       });
 
@@ -42,7 +42,9 @@ const SubmitQueryPage: FC = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 p-6">
       <div className="w-full max-w-lg bg-white shadow-lg rounded-lg p-8">
-        <h1 className="text-2xl font-semibold text-center mb-6">Send an MDX request</h1>
+        <h1 className="text-2xl font-semibold text-center mb-6">
+          Send an MDX request
+        </h1>
 
         <Formik
           initialValues={{
@@ -56,9 +58,10 @@ const SubmitQueryPage: FC = () => {
           {() => (
             <Form className="space-y-4">
               <div>
-                <label 
-                  htmlFor="url" 
-                  className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="url"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   URL :
                 </label>
                 <Field
@@ -70,9 +73,10 @@ const SubmitQueryPage: FC = () => {
               </div>
 
               <div>
-                <label 
-                  htmlFor="username" 
-                  className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="username"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   User :
                 </label>
                 <Field
@@ -84,9 +88,10 @@ const SubmitQueryPage: FC = () => {
               </div>
 
               <div>
-                <label 
-                  htmlFor="password" 
-                  className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Password :
                 </label>
                 <Field
@@ -99,9 +104,10 @@ const SubmitQueryPage: FC = () => {
               </div>
 
               <div>
-                <label 
+                <label
                   htmlFor="text"
-                  className="block text-sm font-medium text-gray-700">
+                  className="block text-sm font-medium text-gray-700"
+                >
                   MDX request:
                 </label>
                 <Field
