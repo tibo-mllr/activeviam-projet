@@ -8,7 +8,7 @@ import { FC } from "react";
 
 const DEFAULT_URL = "https://activepivot-ranch.activeviam.com:6100/activeviam/pivot/rest/v9/cube/query/mdx/queryplan";
 
-const SubmitQueryPage = () => {
+const SubmitQueryPage: FC = () => {
   const [response, setResponse] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,7 +56,9 @@ const SubmitQueryPage = () => {
           {() => (
             <Form className="space-y-4">
               <div>
-                <label htmlFor="url" className="block text-sm font-medium text-gray-700">
+                <label 
+                  htmlFor="url" 
+                  className="block text-sm font-medium text-gray-700">
                   URL :
                 </label>
                 <Field
@@ -68,7 +70,9 @@ const SubmitQueryPage = () => {
               </div>
 
               <div>
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                <label 
+                  htmlFor="username" 
+                  className="block text-sm font-medium text-gray-700">
                   User :
                 </label>
                 <Field
@@ -80,7 +84,9 @@ const SubmitQueryPage = () => {
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                <label 
+                  htmlFor="password" 
+                  className="block text-sm font-medium text-gray-700">
                   Password :
                 </label>
                 <Field
@@ -93,7 +99,9 @@ const SubmitQueryPage = () => {
               </div>
 
               <div>
-                <label htmlFor="text" className="block text-sm font-medium text-gray-700">
+                <label 
+                  htmlFor="text"
+                  className="block text-sm font-medium text-gray-700">
                   MDX request:
                 </label>
                 <Field
@@ -117,21 +125,21 @@ const SubmitQueryPage = () => {
         </Formik>
 
         {response && (
-        <div className="mt-6 p-4 bg-green-100 text-green-700 rounded-md">
-          <div className="flex justify-between items-center mb-2">
-            <h2 className="font-medium text-lg">Server reply:</h2>
-            <button
-              onClick={() => navigator.clipboard.writeText(response)}
-              className="text-sm text-blue-600 hover:text-blue-800 underline"
-            >
-              Copy response
-            </button>
+          <div className="mt-6 p-4 bg-green-100 text-green-700 rounded-md">
+            <div className="flex justify-between items-center mb-2">
+              <h2 className="font-medium text-lg">Server reply:</h2>
+              <button
+                onClick={() => navigator.clipboard.writeText(response)}
+                className="text-sm text-blue-600 hover:text-blue-800 underline"
+              >
+                Copy response
+              </button>
+            </div>
+            <pre className="whitespace-pre-wrap text-sm bg-white p-2 rounded-md text-gray-800">
+              {response}
+            </pre>
           </div>
-          <pre className="whitespace-pre-wrap text-sm bg-white p-2 rounded-md text-gray-800">
-            {response}
-          </pre>
-        </div>
-      )}
+        )}
 
         {error && (
           <div className="mt-6 p-4 bg-red-100 text-red-700 rounded-md">
