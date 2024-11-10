@@ -12,19 +12,19 @@ const SubmitQueryPage = () => {
   const [response, setResponse] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Fonction de soumission de formulaire
+  // Formular submission
   const handleSubmit = async (values: { url: string; username: string; password: string; text: string }) => {
     try {
       setError(null);
       setResponse(null);
-
+      // POST using Axios
       const res = await axios.post(values.url, values.text, {
-        auth: {
+        auth: { // Basic authentification
           username: values.username,
           password: values.password,
         },
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json', // Json type
         },
       });
 
