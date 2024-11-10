@@ -1,10 +1,7 @@
-// app/submitQuery/page.tsx
-
 "use client";
 import axios from "axios";
 import { Formik, Form, Field } from "formik";
-import React, { useState } from "react";
-import { FC } from "react";
+import { FC, useState } from "react";
 
 const DEFAULT_URL =
   "https://activepivot-ranch.activeviam.com:6100/activeviam/pivot/rest/v9/cube/query/mdx/queryplan";
