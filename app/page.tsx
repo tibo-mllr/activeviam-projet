@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import React from "react";
+import { FC } from "react";
 
-
-const HomePage = () => {
+const HomePage: FC = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 text-gray-800 p-4">
       <div className="max-w-md p-6 bg-white rounded-lg shadow-sm text-center">

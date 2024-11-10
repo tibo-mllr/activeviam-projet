@@ -1,10 +1,10 @@
 // app/submitQuery/page.tsx
 
 "use client";
-import { Formik, Form, Field } from "formik";
 import axios from "axios";
+import { Formik, Form, Field } from "formik";
 import React, { useState } from "react";
-
+import { FC } from "react";
 
 const DEFAULT_URL = "https://activepivot-ranch.activeviam.com:6100/activeviam/pivot/rest/v9/cube/query/mdx/queryplan";
 
@@ -14,10 +14,11 @@ const SubmitQueryPage = () => {
 
   // Formular submission
   const handleSubmit = async (values: {
-     url: string;
-     username: string;
-     password: string;
-     text: string }) => {
+    url: string;
+    username: string;
+    password: string;
+    text: string;
+    }) => {
     try {
       setError(null);
       setResponse(null);
@@ -34,7 +35,7 @@ const SubmitQueryPage = () => {
 
       setResponse(JSON.stringify(res.data, null, 2));
     } catch (err) {
-      setError('Error: ' + String(err));
+      setError("Error: " + String(err));
     }
   };
 
@@ -46,9 +47,9 @@ const SubmitQueryPage = () => {
         <Formik
           initialValues={{
             url: DEFAULT_URL,
-            username: '',
-            password: '',
-            text: '',
+            username: "",
+            password: "",
+            text: "",
           }}
           onSubmit={handleSubmit}
         >
