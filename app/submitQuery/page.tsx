@@ -55,68 +55,36 @@ const SubmitQueryPage: FC = () => {
         >
           {() => (
             <Form className="space-y-4">
-              <div>
-                <label
-                  htmlFor="url"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  URL :
-                </label>
-                <Field
-                  id="url"
-                  name="url"
-                  placeholder={DEFAULT_URL}
-                  className="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
+              <Field
+                id="url"
+                name="url"
+                placeholder={DEFAULT_URL}
+                className="block w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              />
 
-              <div>
-                <label
-                  htmlFor="username"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  User :
-                </label>
-                <Field
-                  id="username"
-                  name="username"
-                  placeholder="Enter user"
-                  className="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
+              <Field
+                id="username"
+                name="username"
+                placeholder="Enter user"
+                className="block w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              />
 
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Password :
-                </label>
-                <Field
-                  id="password"
-                  name="password"
-                  type="password"
-                  placeholder="Enter password"
-                  className="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
+              <Field
+                id="password"
+                name="password"
+                type="password"
+                placeholder="Enter password"
+                className="block w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              />
 
-              <div>
-                <label
-                  htmlFor="text"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  MDX request:
-                </label>
-                <Field
-                  as="textarea"
-                  id="text"
-                  name="text"
-                  placeholder="Enter MDX request"
-                  className="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  rows="6"
-                />
-              </div>
+              <Field
+                as="textarea"
+                id="text"
+                name="text"
+                placeholder="Enter MDX request"
+                className="block w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                rows="6"
+              />
 
               <button
                 type="submit"
