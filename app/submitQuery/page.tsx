@@ -1,12 +1,12 @@
 "use client";
 import axios from "axios";
 import { Formik, Form, Field } from "formik";
-import { FC, useState } from "react";
+import { useState, ReactElement } from "react";
 
 const DEFAULT_URL =
   "https://activepivot-ranch.activeviam.com:6100/activeviam/pivot/rest/v9/cube/query/mdx/queryplan";
 
-const SubmitQueryPage: FC = () => {
+export default function SubmitQueryPage(): ReactElement {
   const [response, setResponse] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -121,6 +121,4 @@ const SubmitQueryPage: FC = () => {
       </div>
     </div>
   );
-};
-
-export default SubmitQueryPage;
+}
