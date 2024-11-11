@@ -10,7 +10,7 @@
 First, install the dependencies:
 
 ```bash
-yarn install:ci"
+yarn install:ci
 ```
 
 Then, run the development server:

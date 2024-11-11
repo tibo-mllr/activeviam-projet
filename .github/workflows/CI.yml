@@ -20,8 +20,11 @@ jobs:
       - name: Install dependencies
         run: yarn install:ci
 
-      - name: Lint
-        run: yarn lint
+      - name: Vulnerability scan
+        run: yarn audit
 
       - name: Build
         run: yarn build
+
+      - name: Lint
+        run: yarn lint
