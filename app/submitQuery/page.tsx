@@ -20,8 +20,11 @@ export default function SubmitQueryPage(): ReactElement {
     try {
       setError(null);
       setResponse(null);
+
+      const payload = { mdx: values.text };
+
       // POST using Axios
-      const res = await axios.post(values.url, values.text, {
+      const res = await axios.post(values.url, payload, {
         auth: {
           username: values.username,
           password: values.password,
