@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/',
-        destination: '/submitQuery',
+        destination: '/submit-query',
         permanent: true,
       },
     ];
