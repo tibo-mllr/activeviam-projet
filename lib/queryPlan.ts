@@ -1,15 +1,39 @@
-type EmptyObject = Record<string, never>; // Not a true type but it seems some objects are really meant to be empty
+// A lot of the types here are inferred from the JSON response of the query plan endpoint
+// I think quite a few `string` types could be enums, but I'm not sure what the possible values are
+
+type Context = {
+  IBranch: string;
+  ISubCubeProperties: string;
+  IAsOfEpoch: string;
+  IQueryMonitoring: string;
+  IQueriesResultLimit: string;
+};
+
+type PlanInfo = {
+  pivotType: string;
+  pivotId: string;
+  epoch: string;
+  branch: string;
+  retrieverType: string;
+  mdxPass: string;
+  contextValues: Context;
+  rangeSharing: number;
+  missedPrefetchBehavior: string;
+  aggregatesCache: string;
+  globalTimings: Record<string, number>;
+  continuous: boolean;
+};
 
 type Location = {
   dimension: string;
   hierarchy: string;
   level: string[];
-  path: EmptyObject[];
+  path: string[];
 };
 
 type TimingInfo = Record<string, number[]>;
 
-type Retrieval = {
+type AggregateRetrieval = {
   retrievalId: number;
   partialProviderName: string;
   type: string;
@@ -51,8 +75,8 @@ type QuerySummary = {
 };
 
 export type QueryPlan = {
-  planInfo: EmptyObject;
-  aggregateRetrievals: Retrieval[];
+  planInfo: PlanInfo;
+  aggregateRetrievals: AggregateRetrieval[];
   dependencies: Dependencies;
   databaseRetrievals: DatabaseRetrieval[];
   databaseDependencies: Dependencies;
