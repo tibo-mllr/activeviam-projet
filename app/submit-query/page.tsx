@@ -1,4 +1,5 @@
 "use client";
+import { QueryPlan } from "@/lib";
 import axios from "axios";
 import { Formik, Form, Field } from "formik";
 import { useState, ReactElement } from "react";
@@ -7,7 +8,7 @@ const DEFAULT_URL =
   "https://activepivot-ranch.activeviam.com:6100/activeviam/pivot/rest/v9/cube/query/mdx/queryplan";
 
 export default function SubmitQueryPage(): ReactElement {
-  const [response, setResponse] = useState<string | null>(null);
+  const [response, setResponse] = useState<QueryPlan | null>();
   const [error, setError] = useState<string | null>(null);
 
   // Formular submission
@@ -24,7 +25,7 @@ export default function SubmitQueryPage(): ReactElement {
       const payload = { mdx: values.text };
 
       // POST using Axios
-      const res = await axios.post(values.url, payload, {
+      const res = await axios.post<QueryPlan>(values.url, payload, {
         auth: {
           username: values.username,
           password: values.password,
@@ -34,7 +35,7 @@ export default function SubmitQueryPage(): ReactElement {
         },
       });
 
-      setResponse(JSON.stringify(res.data, null, 2));
+      setResponse(res.data);
     } catch (err) {
       setError("Error: " + String(err));
     }
@@ -104,14 +105,18 @@ export default function SubmitQueryPage(): ReactElement {
             <div className="flex justify-between items-center mb-2">
               <h2 className="font-medium text-lg">Server reply:</h2>
               <button
-                onClick={() => navigator.clipboard.writeText(response)}
+                onClick={() =>
+                  navigator.clipboard.writeText(
+                    JSON.stringify(response, null, 2),
+                  )
+                }
                 className="text-sm text-blue-600 hover:text-blue-800 underline dark:text-blue-400 dark:hover:text-blue-300"
               >
                 Copy response
               </button>
             </div>
             <pre className="whitespace-pre-wrap text-sm bg-white p-2 rounded-md text-gray-800 dark:bg-gray-900 dark:text-gray-100">
-              {response}
+              {JSON.stringify(response, null, 2)}
             </pre>
           </div>
         )}
