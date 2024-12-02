@@ -7,8 +7,8 @@ export async function postData(
   username: string,
   password: string,
 ): Promise<QueryPlan> {
-  try {
-    const response = await axios.post<QueryPlan>(url, payload, {
+  const response = await axios
+    .post<QueryPlan>(url, payload, {
       auth: {
         username,
         password,
@@ -16,9 +16,10 @@ export async function postData(
       headers: {
         "Content-Type": "application/json", // Json type
       },
+    })
+    .catch(function (error) {
+      throw error;
     });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+
+  return response.data;
 }
