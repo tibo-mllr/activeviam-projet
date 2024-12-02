@@ -1,6 +1,6 @@
 "use client";
 import { QueryPlan } from "@/lib";
-import axios from "axios";
+import { postData } from "@/lib/axios-post";
 import { Formik, Form, Field } from "formik";
 import { useState, ReactElement } from "react";
 
@@ -25,17 +25,9 @@ export default function SubmitQueryPage(): ReactElement {
       const payload = { mdx: values.text };
 
       // POST using Axios
-      const res = await axios.post<QueryPlan>(values.url, payload, {
-        auth: {
-          username: values.username,
-          password: values.password,
-        },
-        headers: {
-          "Content-Type": "application/json", // Json type
-        },
-      });
+      const res = await postData<QueryPlan>(values.url, payload, values.username, values.password);
+      setResponse(res);
 
-      setResponse(res.data);
     } catch (err) {
       setError("Error: " + String(err));
     }
