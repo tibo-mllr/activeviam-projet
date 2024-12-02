@@ -1,6 +1,6 @@
 "use client";
 import { QueryPlan } from "@/lib";
-import { postData } from "@/lib/axios-post";
+import { postData } from "@/lib";
 import { Formik, Form, Field } from "formik";
 import { useState, ReactElement } from "react";
 
