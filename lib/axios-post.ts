@@ -1,7 +1,11 @@
-import axios from 'axios';
-import { QueryPlan } from "@/lib";
+import axios from "axios";
 
-export async function postData<QueryPlan>(url: string, payload: any, username: string, password: string): Promise<QueryPlan> {
+export async function postData<QueryPlan>(
+  url: string,
+  payload: { mdx: string },
+  username: string,
+  password: string,
+): Promise<QueryPlan> {
   try {
     const response = await axios.post<QueryPlan>(url, payload, {
       auth: {
