@@ -1,6 +1,5 @@
 "use client";
-import { QueryPlan } from "@/lib";
-import { postData } from "@/lib";
+import { QueryPlan, postData } from "@/lib";
 import { Formik, Form, Field } from "formik";
 import { useState, ReactElement } from "react";
 
@@ -25,7 +24,7 @@ export default function SubmitQueryPage(): ReactElement {
       const payload = { mdx: values.text };
 
       // POST using Axios
-      const res = await postData<QueryPlan>(
+      const res = await postData(
         values.url,
         payload,
         values.username,
