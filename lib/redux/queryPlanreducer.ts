@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { QueryPlan } from "../queryPlan";
 
-type State = QueryPlan | "";
+type State = QueryPlan[] | "";
 
 const initialState = "" as State;
 

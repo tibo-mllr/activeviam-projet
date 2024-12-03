@@ -2,6 +2,7 @@ import { Header } from "@/components";
 import type { Metadata } from "next";
 import "./globals.css";
 import type { ReactElement } from "react";
+import StoreProvider from "./StoreProvider";
 
 export const metadata: Metadata = {
   title: {
@@ -19,8 +20,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Header />
-        <main>{children}</main>
+        <StoreProvider>
+          <Header />
+          <main>{children}</main>
+        </StoreProvider>
       </body>
     </html>
   );
