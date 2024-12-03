@@ -1,3 +1,4 @@
+import { Header } from "@/components";
 import type { Metadata } from "next";
 import "./globals.css";
 import type { ReactElement } from "react";
@@ -17,7 +18,10 @@ export default function RootLayout({
 }>): ReactElement {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Header />
+        <main>{children}</main>
+      </body>
     </html>
   );
 }
