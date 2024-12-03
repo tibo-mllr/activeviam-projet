@@ -1,14 +1,18 @@
 "use client";
-import { QueryPlan, postRequest } from "@/lib";
+import { postRequest } from "@/lib";
+import { getQueryPlan, setQueryPlan, useAppDispatch } from "@/lib/redux";
 import { Formik, Form, Field } from "formik";
 import { useState, ReactElement } from "react";
+import { useSelector } from "react-redux";
 
 const DEFAULT_URL =
   "https://activepivot-ranch.activeviam.com:6100/activeviam/pivot/rest/v9/cube/query/mdx/queryplan";
 
 export default function SubmitQueryPage(): ReactElement {
-  const [response, setResponse] = useState<QueryPlan | null>();
   const [error, setError] = useState<string | null>(null);
+
+  const dispatch = useAppDispatch();
+  const queryPlan = useSelector(getQueryPlan);
 
   // Formular submission
   const handleSubmit = async (values: {
@@ -19,7 +23,7 @@ export default function SubmitQueryPage(): ReactElement {
   }): Promise<void> => {
     try {
       setError(null);
-      setResponse(null);
+      dispatch(setQueryPlan(""));
 
       const payload = { mdx: values.text };
 
@@ -30,7 +34,7 @@ export default function SubmitQueryPage(): ReactElement {
         values.username,
         values.password,
       );
-      setResponse(res);
+      dispatch(setQueryPlan(res));
     } catch (err) {
       setError("Error: " + String(err));
     }
@@ -95,14 +99,14 @@ export default function SubmitQueryPage(): ReactElement {
           )}
         </Formik>
 
-        {response && (
+        {queryPlan && (
           <div className="mt-6 p-4 bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-300 rounded-md">
             <div className="flex justify-between items-center mb-2">
               <h2 className="font-medium text-lg">Server reply:</h2>
               <button
                 onClick={() =>
                   navigator.clipboard.writeText(
-                    JSON.stringify(response, null, 2),
+                    JSON.stringify(queryPlan, null, 2),
                   )
                 }
                 className="text-sm text-blue-600 hover:text-blue-800 underline dark:text-blue-400 dark:hover:text-blue-300"
@@ -111,7 +115,7 @@ export default function SubmitQueryPage(): ReactElement {
               </button>
             </div>
             <pre className="whitespace-pre-wrap text-sm bg-white p-2 rounded-md text-gray-800 dark:bg-gray-900 dark:text-gray-100">
-              {JSON.stringify(response, null, 2)}
+              {JSON.stringify(queryPlan, null, 2)}
             </pre>
           </div>
         )}
