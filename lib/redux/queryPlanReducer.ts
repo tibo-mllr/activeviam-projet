@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { QueryPlan } from "../queryPlan";
+import { QueryPlan } from "../types";
 
 type State = QueryPlan | "";
 

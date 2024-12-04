@@ -1,5 +1,5 @@
 "use client";
-import { postRequest } from "@/lib";
+import { postRequest } from "@/lib/functions";
 import { getQueryPlan, setQueryPlan, useAppDispatch } from "@/lib/redux";
 import { Formik, Form, Field } from "formik";
 import { useState, ReactElement } from "react";
