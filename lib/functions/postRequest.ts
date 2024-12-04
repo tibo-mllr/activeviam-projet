@@ -1,4 +1,4 @@
-import { QueryPlan } from "@/lib";
+import type { QueryPlan } from "@/lib/types";
 import axios from "axios";
 
 export async function postRequest(
