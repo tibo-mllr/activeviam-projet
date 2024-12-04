@@ -1,6 +1,7 @@
 "use client";
 import { postRequest } from "@/lib/functions";
 import { getQueryPlan, setQueryPlan, useAppDispatch } from "@/lib/redux";
+import { isAxiosError } from "axios";
 import { Formik, Form, Field } from "formik";
 import { useState, ReactElement } from "react";
 import { useSelector } from "react-redux";
@@ -36,14 +37,17 @@ export default function SubmitQueryPage(): ReactElement {
       );
       dispatch(setQueryPlan(res));
     } catch (err) {
-      setError("Error: " + String(err));
+      if (isAxiosError(err)) setError(`Error: ${err.message}`);
+      else setError(`Error: ${err}`);
+
+      console.error(err);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+    <div className="flex items-center justify-center min-h-screen p-6">
       <div className="w-full max-w-lg bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8">
-        <h1 className="text-2xl font-semibold text-center mb-6 text-gray-900 dark:text-gray-100">
+        <h1 className="text-2xl font-semibold text-center mb-6">
           Send an MDX request
         </h1>
 
