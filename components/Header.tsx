@@ -1,18 +1,20 @@
-import { Button } from "@mui/material";
+import { AppBar, Button, Container, Toolbar } from "@mui/material";
 import Link from "next/link";
 import { ReactElement } from "react";
 
 export function Header(): ReactElement {
   return (
-    <header>
-      <div className="w-full bg-white dark:bg-gray-800 shadow-lg p-2 flex flex-row justify-start items-start">
-        <Link href="/submit-query">
-          <Button variant="outlined">Query</Button>
-        </Link>
-        <Link href="/visualize" className="px-4">
-          <Button variant="outlined">Visualization</Button>
-        </Link>
-      </div>
-    </header>
+    <AppBar position="static" enableColorOnDark color="inherit">
+      <Container maxWidth={false} disableGutters>
+        <Toolbar sx={{ gap: 2 }}>
+          <Link href="/submit-query">
+            <Button variant="outlined">Query</Button>
+          </Link>
+          <Link href="/visualize">
+            <Button variant="outlined">Visualization</Button>
+          </Link>
+        </Toolbar>
+      </Container>
+    </AppBar>
   );
 }
