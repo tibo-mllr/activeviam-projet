@@ -1,4 +1,4 @@
-import { Header, StoreProvider } from "@/components";
+import { Header, Providers } from "@/components";
 import type { Metadata } from "next";
 import "./globals.css";
 import type { ReactElement } from "react";
@@ -19,10 +19,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <StoreProvider>
+        <Providers>
           <Header />
           <main>{children}</main>
-        </StoreProvider>
+        </Providers>
       </body>
     </html>
   );
