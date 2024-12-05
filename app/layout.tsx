@@ -1,4 +1,5 @@
 import { Header, Providers } from "@/components";
+import { Box } from "@mui/material";
 import type { Metadata } from "next";
 import "./globals.css";
 import type { ReactElement } from "react";
@@ -21,7 +22,19 @@ export default function RootLayout({
       <body>
         <Providers>
           <Header />
-          <main>{children}</main>
+          <main>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 4,
+              }}
+            >
+              {children}
+            </Box>
+          </main>
         </Providers>
       </body>
     </html>
