@@ -2,7 +2,7 @@
 import { postRequest } from "@/lib/functions";
 import { getQueryPlan, setQueryPlan, useAppDispatch } from "@/lib/redux";
 import { CopyAll } from "@mui/icons-material";
-import { Button } from "@mui/material";
+import { Button, TextField } from "@mui/material";
 import { isAxiosError } from "axios";
 import { Formik, Form, Field } from "formik";
 import { useState, ReactElement } from "react";
@@ -65,34 +65,43 @@ export default function SubmitQueryPage(): ReactElement {
           {() => (
             <Form className="space-y-4">
               <Field
+                as={TextField}
                 id="url"
                 name="url"
-                placeholder={DEFAULT_URL}
-                className="block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:focus:ring-blue-400"
+                label="URL"
+                placeholder="Enter URL"
+                sx={{ width: "100%" }}
               />
 
               <Field
+                as={TextField}
                 id="username"
                 name="username"
+                label="Username"
                 placeholder="Enter user"
-                className="block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:focus:ring-blue-400"
+                sx={{ width: "100%" }}
               />
 
               <Field
+                as={TextField}
                 id="password"
                 name="password"
+                label="Password"
                 type="password"
                 placeholder="Enter password"
-                className="block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:focus:ring-blue-400"
+                sx={{ width: "100%" }}
               />
 
               <Field
-                as="textarea"
+                as={TextField}
                 id="text"
                 name="text"
+                multiline
+                minRows={6}
+                maxRows={12}
+                label="MDX request"
                 placeholder="Enter MDX request"
-                className="block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:focus:ring-blue-400"
-                rows="6"
+                sx={{ width: "100%" }}
               />
 
               <Button type="submit" variant="contained" className="w-full">
