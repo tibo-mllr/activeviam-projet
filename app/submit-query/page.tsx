@@ -1,6 +1,8 @@
 "use client";
 import { postRequest } from "@/lib/functions";
 import { getQueryPlan, setQueryPlan, useAppDispatch } from "@/lib/redux";
+import { CopyAll } from "@mui/icons-material";
+import { Button } from "@mui/material";
 import { isAxiosError } from "axios";
 import { Formik, Form, Field } from "formik";
 import { useState, ReactElement } from "react";
@@ -93,12 +95,9 @@ export default function SubmitQueryPage(): ReactElement {
                 rows="6"
               />
 
-              <button
-                type="submit"
-                className="w-full py-2 px-4 bg-blue-600 text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
-              >
+              <Button type="submit" variant="contained" className="w-full">
                 Send
-              </button>
+              </Button>
             </Form>
           )}
         </Formik>
@@ -107,16 +106,18 @@ export default function SubmitQueryPage(): ReactElement {
           <div className="mt-6 p-4 bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-300 rounded-md">
             <div className="flex justify-between items-center mb-2">
               <h2 className="font-medium text-lg">Server reply:</h2>
-              <button
+              <Button
                 onClick={() =>
                   navigator.clipboard.writeText(
                     JSON.stringify(queryPlan, null, 2),
                   )
                 }
-                className="text-sm text-blue-600 hover:text-blue-800 underline dark:text-blue-400 dark:hover:text-blue-300"
+                variant="text"
+                endIcon={<CopyAll />}
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
               >
                 Copy response
-              </button>
+              </Button>
             </div>
             <pre className="whitespace-pre-wrap text-sm bg-white p-2 rounded-md text-gray-800 dark:bg-gray-900 dark:text-gray-100">
               {JSON.stringify(queryPlan, null, 2)}
