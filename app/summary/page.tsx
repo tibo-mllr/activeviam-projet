@@ -1,3 +1,5 @@
+"use client";
+
 import { getQueryPlan } from "@/lib/redux";
 import { Typography, Card, CardContent } from "@mui/material";
 import { ReactElement } from "react";
