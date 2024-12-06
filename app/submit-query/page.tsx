@@ -32,25 +32,27 @@ export default function SubmitQueryPage(): ReactElement {
     password: string;
     text: string;
   }): Promise<void> => {
-    try {
-      setError(null);
-      dispatch(setQueryPlan(""));
-
+    setError(null);
+    dispatch(setQueryPlan(""));
+    if (values.text != "") {
       const payload = { mdx: values.text };
+      try {
+        // POST using Axios
+        const res = await postRequest(
+          values.url,
+          payload,
+          values.username,
+          values.password,
+        );
+        dispatch(setQueryPlan(res));
+      } catch (err) {
+        if (isAxiosError(err)) setError(`Error: ${err.message}`);
+        else setError(`Error: ${err}`);
 
-      // POST using Axios
-      const res = await postRequest(
-        values.url,
-        payload,
-        values.username,
-        values.password,
-      );
-      dispatch(setQueryPlan(res));
-    } catch (err) {
-      if (isAxiosError(err)) setError(`Error: ${err.message}`);
-      else setError(`Error: ${err}`);
-
-      console.error(err);
+        console.error(err);
+      }
+    } else {
+      setError(`Query area is empty`);
     }
   };
 
