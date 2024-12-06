@@ -1,7 +1,18 @@
 "use client";
 import { postRequest } from "@/lib/functions";
 import { getQueryPlan, setQueryPlan, useAppDispatch } from "@/lib/redux";
-import { Formik, Form, Field } from "formik";
+import { CopyAll } from "@mui/icons-material";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  Grid2,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { isAxiosError } from "axios";
+import { Field, Form, Formik } from "formik";
 import { useState, ReactElement } from "react";
 import { useSelector } from "react-redux";
 
@@ -36,96 +47,132 @@ export default function SubmitQueryPage(): ReactElement {
       );
       dispatch(setQueryPlan(res));
     } catch (err) {
-      setError("Error: " + String(err));
+      if (isAxiosError(err)) setError(`Error: ${err.message}`);
+      else setError(`Error: ${err}`);
+
+      console.error(err);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
-      <div className="w-full max-w-lg bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8">
-        <h1 className="text-2xl font-semibold text-center mb-6 text-gray-900 dark:text-gray-100">
-          Send an MDX request
-        </h1>
+    <Card sx={{ width: "40%", padding: 4 }}>
+      <CardHeader title="Send an MDX request" />
 
-        <Formik
-          initialValues={{
-            url: DEFAULT_URL,
-            username: "",
-            password: "",
-            text: "",
-          }}
-          onSubmit={handleSubmit}
-        >
-          {() => (
-            <Form className="space-y-4">
-              <Field
-                id="url"
-                name="url"
-                placeholder={DEFAULT_URL}
-                className="block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:focus:ring-blue-400"
-              />
+      <CardContent>
+        <Grid2 container spacing={4}>
+          <Grid2>
+            <Formik
+              initialValues={{
+                url: DEFAULT_URL,
+                username: "",
+                password: "",
+                text: "",
+              }}
+              onSubmit={handleSubmit}
+            >
+              {() => (
+                <Form className="space-y-4">
+                  <Field
+                    as={TextField}
+                    id="url"
+                    name="url"
+                    label="URL"
+                    placeholder="Enter URL"
+                    sx={{ width: "100%" }}
+                  />
 
-              <Field
-                id="username"
-                name="username"
-                placeholder="Enter user"
-                className="block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:focus:ring-blue-400"
-              />
+                  <Field
+                    as={TextField}
+                    id="username"
+                    name="username"
+                    label="Username"
+                    placeholder="Enter user"
+                    sx={{ width: "100%" }}
+                  />
 
-              <Field
-                id="password"
-                name="password"
-                type="password"
-                placeholder="Enter password"
-                className="block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:focus:ring-blue-400"
-              />
+                  <Field
+                    as={TextField}
+                    id="password"
+                    name="password"
+                    label="Password"
+                    type="password"
+                    placeholder="Enter password"
+                    sx={{ width: "100%" }}
+                  />
 
-              <Field
-                as="textarea"
-                id="text"
-                name="text"
-                placeholder="Enter MDX request"
-                className="block w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:focus:ring-blue-400"
-                rows="6"
-              />
+                  <Field
+                    as={TextField}
+                    id="text"
+                    name="text"
+                    multiline
+                    minRows={6}
+                    maxRows={12}
+                    label="MDX request"
+                    placeholder="Enter MDX request"
+                    sx={{ width: "100%" }}
+                  />
 
-              <button
-                type="submit"
-                className="w-full py-2 px-4 bg-blue-600 text-white font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
+                  <Button type="submit" variant="contained" className="w-full">
+                    Send
+                  </Button>
+                </Form>
+              )}
+            </Formik>
+          </Grid2>
+
+          {queryPlan && (
+            <Grid2
+              container
+              spacing={2}
+              padding={3}
+              borderRadius={2}
+              className="bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-300"
+            >
+              <Grid2
+                container
+                size={12}
+                spacing={2}
+                justifyContent="space-between"
               >
-                Send
-              </button>
-            </Form>
+                <Grid2 className="font-medium text-lg">Server reply:</Grid2>
+                <Grid2>
+                  <Button
+                    onClick={() =>
+                      navigator.clipboard.writeText(
+                        JSON.stringify(queryPlan, null, 2),
+                      )
+                    }
+                    variant="text"
+                    endIcon={<CopyAll />}
+                    className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+                  >
+                    Copy response
+                  </Button>
+                </Grid2>
+              </Grid2>
+              <Typography
+                whiteSpace="pre-wrap"
+                borderRadius={1}
+                padding={2}
+                className="text-sm bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-100"
+              >
+                {JSON.stringify(queryPlan, null, 2)}
+              </Typography>
+            </Grid2>
           )}
-        </Formik>
 
-        {queryPlan && (
-          <div className="mt-6 p-4 bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-300 rounded-md">
-            <div className="flex justify-between items-center mb-2">
-              <h2 className="font-medium text-lg">Server reply:</h2>
-              <button
-                onClick={() =>
-                  navigator.clipboard.writeText(
-                    JSON.stringify(queryPlan, null, 2),
-                  )
-                }
-                className="text-sm text-blue-600 hover:text-blue-800 underline dark:text-blue-400 dark:hover:text-blue-300"
-              >
-                Copy response
-              </button>
-            </div>
-            <pre className="whitespace-pre-wrap text-sm bg-white p-2 rounded-md text-gray-800 dark:bg-gray-900 dark:text-gray-100">
-              {JSON.stringify(queryPlan, null, 2)}
-            </pre>
-          </div>
-        )}
-
-        {error && (
-          <div className="mt-6 p-4 bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-300 rounded-md">
-            <p>{error}</p>
-          </div>
-        )}
-      </div>
-    </div>
+          {error && (
+            <Grid2
+              size={12}
+              padding={2}
+              borderRadius={1}
+              className="bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-300"
+            >
+              <p>{error}</p>
+            </Grid2>
+          )}
+        </Grid2>
+      </CardContent>
+    </Card>
   );
 }

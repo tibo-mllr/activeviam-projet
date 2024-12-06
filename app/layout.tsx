@@ -1,4 +1,5 @@
-import { Header, StoreProvider } from "@/components";
+import { Header, Providers } from "@/components";
+import { Box } from "@mui/material";
 import type { Metadata } from "next";
 import "./globals.css";
 import type { ReactElement } from "react";
@@ -19,10 +20,22 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <StoreProvider>
+        <Providers>
           <Header />
-          <main>{children}</main>
-        </StoreProvider>
+          <main>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 4,
+              }}
+            >
+              {children}
+            </Box>
+          </main>
+        </Providers>
       </body>
     </html>
   );
