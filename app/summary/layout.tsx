@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "Summary",
 };
 
-export default function VisualizationLayout({
+export default function SummaryLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
