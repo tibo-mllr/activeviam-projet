@@ -6,8 +6,8 @@ export async function postRequest(
   payload: { mdx: string },
   username: string,
   password: string,
-): Promise<QueryPlan> {
-  const response = await axios.post<QueryPlan>(url, payload, {
+): Promise<QueryPlan[]> {
+  const response = await axios.post<QueryPlan[]>(url, payload, {
     auth: {
       username,
       password,
