@@ -67,7 +67,7 @@ type Filter = {
 type QuerySummary = {
   measures: string[];
   totalRetrievals: number;
-  retrievalCountByType: Record<string, number>;
+  retrievalsCountByType: Record<string, number>;
   partitioningCountByType: Record<string, number>;
   resultSizeByPartitioning: Record<string, number>;
   partialProviders: string[];
