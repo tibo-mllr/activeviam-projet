@@ -148,7 +148,7 @@ export default function SubmitQueryPage(): ReactElement {
                     endIcon={<CopyAll />}
                     className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
                   >
-                    Copy response
+                    Copy Query Plan
                   </Button>
                 </Grid2>
               </Grid2>
