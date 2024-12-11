@@ -8,11 +8,12 @@ import {
   CardContent,
   CardHeader,
   Grid2,
+  Switch,
   TextField,
   Typography,
 } from "@mui/material";
 import { isAxiosError } from "axios";
-import { Field, Form, Formik } from "formik";
+import { Formik, Field, Form } from "formik";
 import { useState, ReactElement } from "react";
 import { useSelector } from "react-redux";
 
@@ -21,11 +22,12 @@ const DEFAULT_URL =
 
 export default function SubmitQueryPage(): ReactElement {
   const [error, setError] = useState<string | null>(null);
+  const [isManualMode, setIsManualMode] = useState<boolean>(false);
+  const [manualQueryPlan, setManualQueryPlan] = useState<string>("");
 
   const dispatch = useAppDispatch();
   const queryPlan = useSelector(getQueryPlan);
 
-  // Formular submission
   const handleSubmit = async (values: {
     url: string;
     username: string;
@@ -56,71 +58,127 @@ export default function SubmitQueryPage(): ReactElement {
     }
   };
 
+  const handleManualSubmit = (): void => {
+    try {
+      setError(null);
+      dispatch(setQueryPlan(""));
+      if (!manualQueryPlan.trim()) {
+        setError("Query plan cannot be empty.");
+        return;
+      }
+
+      dispatch(setQueryPlan(JSON.parse(manualQueryPlan)));
+    } catch {
+      setError("Invalid JSON format in query plan.");
+    }
+  };
+
   return (
     <Card sx={{ width: "40%", padding: 4 }}>
-      <CardHeader title="Send an MDX request" />
+      <CardHeader
+        title="Send an MDX request"
+        action={
+          // Toggle Switch
+          <Grid2>
+            <Typography>Manual Mode</Typography>
+            <Switch
+              checked={isManualMode}
+              onChange={() => setIsManualMode((prev) => !prev)}
+            />
+          </Grid2>
+        }
+      />
 
       <CardContent>
         <Grid2 container spacing={4}>
-          <Grid2>
-            <Formik
-              initialValues={{
-                url: DEFAULT_URL,
-                username: "",
-                password: "",
-                text: "",
-              }}
-              onSubmit={handleSubmit}
-            >
-              {() => (
-                <Form className="space-y-4">
-                  <Field
-                    as={TextField}
-                    id="url"
-                    name="url"
-                    label="URL"
-                    placeholder="Enter URL"
-                    sx={{ width: "100%" }}
-                  />
+          {!isManualMode ? (
+            <Grid2>
+              {/* POST mode */}
+              <Formik
+                initialValues={{
+                  url: DEFAULT_URL,
+                  username: "",
+                  password: "",
+                  text: "",
+                }}
+                onSubmit={handleSubmit}
+              >
+                {() => (
+                  <Form className="space-y-4">
+                    <Field
+                      as={TextField}
+                      id="url"
+                      name="url"
+                      label="URL"
+                      placeholder="Enter URL"
+                      sx={{ width: "100%" }}
+                    />
 
-                  <Field
-                    as={TextField}
-                    id="username"
-                    name="username"
-                    label="Username"
-                    placeholder="Enter user"
-                    sx={{ width: "100%" }}
-                  />
+                    <Field
+                      as={TextField}
+                      id="username"
+                      name="username"
+                      label="Username"
+                      placeholder="Enter user"
+                      sx={{ width: "100%" }}
+                    />
 
-                  <Field
-                    as={TextField}
-                    id="password"
-                    name="password"
-                    label="Password"
-                    type="password"
-                    placeholder="Enter password"
-                    sx={{ width: "100%" }}
-                  />
+                    <Field
+                      as={TextField}
+                      id="password"
+                      name="password"
+                      label="Password"
+                      type="password"
+                      placeholder="Enter password"
+                      sx={{ width: "100%" }}
+                    />
 
-                  <Field
-                    as={TextField}
-                    id="text"
-                    name="text"
-                    multiline
-                    minRows={6}
-                    maxRows={12}
-                    label="MDX request"
-                    placeholder="Enter MDX request"
-                    sx={{ width: "100%" }}
-                  />
+                    <Field
+                      as={TextField}
+                      id="text"
+                      name="text"
+                      multiline
+                      minRows={6}
+                      maxRows={12}
+                      label="MDX request"
+                      placeholder="Enter MDX request"
+                      sx={{ width: "100%" }}
+                    />
 
-                  <Button type="submit" variant="contained" className="w-full">
-                    Send
-                  </Button>
-                </Form>
-              )}
-            </Formik>
-          </Grid2>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      className="w-full"
+                    >
+                      Send and receive query plan
+                    </Button>
+                  </Form>
+                )}
+              </Formik>
+            </Grid2>
+          ) : (
+            <Grid2>
+              {/* Manual mode */}
+              <Typography>Enter your Query Plan manually:</Typography>
+              <TextField
+                multiline
+                minRows={6}
+                maxRows={12}
+                placeholder="Enter Query Plan JSON"
+                sx={{ width: "100%" }}
+                value={manualQueryPlan}
+                onChange={(e) => setManualQueryPlan(e.target.value)} // Update state
+              />
+
+              <Button
+                variant="contained"
+                onClick={handleManualSubmit}
+                sx={{ mt: 2 }}
+              >
+                Submit Query Plan
+              </Button>
+            </Grid2>
+          )}
 
           {queryPlan && (
             <Grid2
@@ -136,7 +194,9 @@ export default function SubmitQueryPage(): ReactElement {
                 spacing={2}
                 justifyContent="space-between"
               >
-                <Grid2 className="font-medium text-lg">Server reply:</Grid2>
+                <Grid2 className="font-medium text-lg">
+                  Saved query plan :
+                </Grid2>
                 <Grid2>
                   <Button
                     onClick={() =>
