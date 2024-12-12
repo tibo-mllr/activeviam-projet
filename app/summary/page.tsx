@@ -11,6 +11,10 @@ import {
   ListItemText,
   TextField,
   Box,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import { ReactElement, useState } from "react";
 import { useSelector } from "react-redux";
@@ -18,8 +22,10 @@ import { useSelector } from "react-redux";
 export default function SummaryPage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
 
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
-  if (queryPlan == "") {
+
+  if (queryPlan == "" || queryPlan.length === 0) {
     // Default display
     return (
       <Card>
@@ -30,16 +36,16 @@ export default function SummaryPage(): ReactElement {
     );
   }
 
-  // If we have a queryPlan loaded
-  const [selectPass0] = queryPlan;
+  // Select the currently active query plan
+  const selectedQueryPlan = queryPlan[selectedIndex];
   const filteredMeasures = Object.entries(
-    selectPass0.querySummary.measures,
+    selectedQueryPlan.querySummary.measures,
   ).filter(
     ([key, value]) =>
       key.toLowerCase().includes(searchTerm.toLowerCase()) ||
       value.toLowerCase().includes(searchTerm.toLowerCase()),
   );
-  const { aggregateRetrievals, databaseRetrievals } = selectPass0;
+  const { aggregateRetrievals, databaseRetrievals } = selectedQueryPlan;
 
   let aggregateRetrievalsElapsedTime = 0;
   let aggregateRetrievalsExecutionContextElapsedTime = 0;
@@ -75,17 +81,42 @@ export default function SummaryPage(): ReactElement {
   });
 
   const TimeElapsedMetrics = {
-    "Total elasped time from aggregateRetrievals":
+    "Total elapsed time from aggregateRetrievals":
       aggregateRetrievalsElapsedTime,
-    "Total elasped time from aggregate Retrievals (execution context)":
+    "Total elapsed time from aggregate Retrievals (execution context)":
       aggregateRetrievalsExecutionContextElapsedTime,
-    "Total elasped time from databaseRetrievals": databaseRetrievalsElapsedTime,
-    "Total elasped time from database Retrievals (execution context)":
+    "Total elapsed time from databaseRetrievals": databaseRetrievalsElapsedTime,
+    "Total elapsed time from database Retrievals (execution context)":
       databaseRetrievalsExecutionContextElapsedTime,
   };
 
   return (
     <Grid2 container spacing={1}>
+      <Card>
+        <CardContent>
+          <FormControl fullWidth>
+            <InputLabel id="query-plan-select-label">
+              Select Query Plan
+            </InputLabel>
+            <Select
+              labelId="query-plan-select-label"
+              value={selectedIndex}
+              onChange={(e) => {
+                const selectedIndex = e.target.value as number;
+                setSelectedIndex(selectedIndex);
+              }}
+              label="Select Query Plan"
+            >
+              {queryPlan.map((plan, index) => (
+                <MenuItem key={index} value={index}>
+                  {queryPlan[index].planInfo.mdxPass}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardContent>
           <Grid2 container spacing={2}>
@@ -102,24 +133,32 @@ export default function SummaryPage(): ReactElement {
           </Grid2>
         </CardContent>
       </Card>
+
       <Card>
         <CardContent>
           <Grid2 container spacing={2}>
             <Grid2>
               <Typography variant="h6">Global timings</Typography>
-              <List dense sx={{ marginLeft: 4 }}>
-                {Object.entries(selectPass0.planInfo.globalTimings).map(
-                  ([key, value]) => (
-                    <ListItem key={key} disablePadding>
-                      <ListItemText primary={`${key} : ${value} ms`} />
-                    </ListItem>
-                  ),
-                )}
-              </List>
+              {selectedQueryPlan.planInfo?.globalTimings ? (
+                <List dense sx={{ marginLeft: 4 }}>
+                  {Object.entries(selectedQueryPlan.planInfo.globalTimings).map(
+                    ([key, value]) => (
+                      <ListItem key={key} disablePadding>
+                        <ListItemText primary={`${key} : ${value} ms`} />
+                      </ListItem>
+                    ),
+                  )}
+                </List>
+              ) : (
+                <Typography variant="body2" sx={{ marginLeft: 4 }}>
+                  No global timings available.
+                </Typography>
+              )}
             </Grid2>
           </Grid2>
         </CardContent>
       </Card>
+
       <Card>
         <CardContent>
           <Grid2 container direction="column" spacing={2}>
@@ -168,11 +207,11 @@ export default function SummaryPage(): ReactElement {
               }}
             >
               <Typography variant="body1" fontWeight="bold">
-                Retrievals ({selectPass0.querySummary.totalRetrievals}) :
+                Retrievals ({selectedQueryPlan.querySummary.totalRetrievals}) :
               </Typography>
               <List dense sx={{ marginLeft: 4 }}>
                 {Object.entries(
-                  selectPass0.querySummary.retrievalsCountByType,
+                  selectedQueryPlan.querySummary.retrievalsCountByType,
                 ).map(([key, value]) => (
                   <ListItem key={key} disablePadding>
                     <ListItemText primary={`${key} : ${value}`} />
@@ -190,17 +229,24 @@ export default function SummaryPage(): ReactElement {
             >
               <Typography variant="body1" fontWeight="bold">
                 Partial Providers (
-                {selectPass0.querySummary.partialProviders.length}) :
+                {selectedQueryPlan.querySummary?.partialProviders?.length || 0})
+                :
               </Typography>
-              <List dense sx={{ marginLeft: 4 }}>
-                {Object.entries(selectPass0.querySummary.partialProviders).map(
-                  ([key, value]) => (
+              {selectedQueryPlan.querySummary?.partialProviders ? (
+                <List dense sx={{ marginLeft: 4 }}>
+                  {Object.entries(
+                    selectedQueryPlan.querySummary.partialProviders,
+                  ).map(([key, value]) => (
                     <ListItem key={key} disablePadding>
                       <ListItemText primary={value} />
                     </ListItem>
-                  ),
-                )}
-              </List>
+                  ))}
+                </List>
+              ) : (
+                <Typography variant="body2" sx={{ marginLeft: 4 }}>
+                  No partial providers available.
+                </Typography>
+              )}
             </Box>
 
             <Box
@@ -215,7 +261,7 @@ export default function SummaryPage(): ReactElement {
               </Typography>
               <List dense sx={{ marginLeft: 4 }}>
                 {Object.entries(
-                  selectPass0.querySummary.partitioningCountByType,
+                  selectedQueryPlan.querySummary.partitioningCountByType,
                 ).map(([key, value]) => (
                   <ListItem key={key} disablePadding>
                     <ListItemText primary={`${key} : ${value}`} />
@@ -236,7 +282,7 @@ export default function SummaryPage(): ReactElement {
               </Typography>
               <List dense sx={{ marginLeft: 4 }}>
                 {Object.entries(
-                  selectPass0.querySummary.resultSizeByPartitioning,
+                  selectedQueryPlan.querySummary.resultSizeByPartitioning,
                 ).map(([key, value]) => (
                   <ListItem key={key} disablePadding>
                     <ListItemText primary={`${key} : ${value}`} />
