@@ -39,47 +39,40 @@ export default function SummaryPage(): ReactElement {
       key.toLowerCase().includes(searchTerm.toLowerCase()) ||
       value.toLowerCase().includes(searchTerm.toLowerCase()),
   );
-  const { aggregateRetrievals } = selectPass0;
-  const { databaseRetrievals } = selectPass0;
+  const { aggregateRetrievals, databaseRetrievals } = selectPass0;
 
   let aggregateRetrievalsElapsedTime = 0;
   let aggregateRetrievalsExecutionContextElapsedTime = 0;
-
-  for (let i = 0; i < aggregateRetrievals.length; i++) {
-    aggregateRetrievalsElapsedTime += aggregateRetrievals[
-      i
-    ].timingInfo.elapsedTime.reduce((acc, num) => acc + num, 0);
-
-    if (
-      aggregateRetrievals[i].timingInfo.executionContextElapsedTime !==
-      undefined
-    ) {
-      aggregateRetrievalsExecutionContextElapsedTime += aggregateRetrievals[
-        i
-      ].timingInfo.executionContextElapsedTime.reduce(
-        (acc, num) => acc + num,
-        0,
-      );
-    }
-  }
   let databaseRetrievalsElapsedTime = 0;
   let databaseRetrievalsExecutionContextElapsedTime = 0;
-  for (let i = 0; i < databaseRetrievals.length; i++) {
-    databaseRetrievalsElapsedTime += databaseRetrievals[
-      i
-    ].timingInfo.elapsedTime.reduce((acc, num) => acc + num, 0);
 
-    if (
-      databaseRetrievals[i].timingInfo.executionContextElapsedTime !== undefined
-    ) {
-      databaseRetrievalsExecutionContextElapsedTime += databaseRetrievals[
-        i
-      ].timingInfo.executionContextElapsedTime.reduce(
-        (acc, num) => acc + num,
-        0,
-      );
+  aggregateRetrievals.forEach((retrieval) => {
+    aggregateRetrievalsElapsedTime += retrieval.timingInfo.elapsedTime.reduce(
+      (acc, num) => acc + num,
+      0,
+    );
+    if (retrieval.timingInfo.executionContextElapsedTime !== undefined) {
+      aggregateRetrievalsExecutionContextElapsedTime +=
+        retrieval.timingInfo.executionContextElapsedTime.reduce(
+          (acc, num) => acc + num,
+          0,
+        );
     }
-  }
+  });
+
+  databaseRetrievals.forEach((retrieval) => {
+    databaseRetrievalsElapsedTime += retrieval.timingInfo.elapsedTime.reduce(
+      (acc, num) => acc + num,
+      0,
+    );
+    if (retrieval.timingInfo.executionContextElapsedTime !== undefined) {
+      databaseRetrievalsExecutionContextElapsedTime +=
+        retrieval.timingInfo.executionContextElapsedTime.reduce(
+          (acc, num) => acc + num,
+          0,
+        );
+    }
+  });
 
   const TimeElapsedMetrics = {
     "Total elasped time from aggregateRetrievals":
