@@ -31,7 +31,7 @@ type Location = {
   path: string[];
 };
 
-type TimingInfo = Record<string, number[]>;
+export type TimingInfo = Record<string, number[]>;
 
 export type AggregateRetrieval = {
   retrievalId: number;
