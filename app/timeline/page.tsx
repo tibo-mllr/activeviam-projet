@@ -68,6 +68,7 @@ export default function TimelinePage(): ReactElement {
     };
   }, [scale]);
 
+  // Adjust scale at render and when container width changes
   useEffect(() => {
     setScale(containerWidth / maxEnd);
   }, [containerWidth, maxEnd]);
@@ -78,12 +79,12 @@ export default function TimelinePage(): ReactElement {
 
   const timeline = buildTimeline(aggregateRetrievals);
 
+  // Find the maximum end time to calculate the content width
   maxEnd = Math.max(
     ...Object.values(timeline).flatMap((timings) =>
       timings.map(([, end]) => end),
     ),
   );
-
   const contentWidth = maxEnd * scale;
 
   return (
