@@ -94,30 +94,32 @@ export default function SummaryPage(): ReactElement {
 
   return (
     <Grid2 container spacing={1}>
-      <Card>
-        <CardContent>
-          <FormControl fullWidth>
-            <InputLabel id="query-plan-select-label">
-              Select Query Plan
-            </InputLabel>
-            <Select
-              labelId="query-plan-select-label"
-              value={selectedIndex}
-              onChange={(e) => {
-                const selectedIndex = e.target.value as number;
-                setSelectedIndex(selectedIndex);
-              }}
-              label="Select Query Plan"
-            >
-              {queryPlan.map((plan, index) => (
-                <MenuItem key={index} value={index}>
-                  {queryPlan[index].planInfo.mdxPass}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </CardContent>
-      </Card>
+      {queryPlan.length >= 2 && (
+        <Card>
+          <CardContent>
+            <FormControl fullWidth>
+              <InputLabel id="query-plan-select-label">
+                Select Query Plan
+              </InputLabel>
+              <Select
+                labelId="query-plan-select-label"
+                value={selectedIndex}
+                onChange={(e) => {
+                  const selectedIndex = e.target.value as number;
+                  setSelectedIndex(selectedIndex);
+                }}
+                label="Select Query Plan"
+              >
+                {queryPlan.map((plan, index) => (
+                  <MenuItem key={index} value={index}>
+                    {queryPlan[index].planInfo.mdxPass}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardContent>
