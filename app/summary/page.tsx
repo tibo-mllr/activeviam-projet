@@ -21,7 +21,6 @@ import { useSelector } from "react-redux";
 
 export default function SummaryPage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
-  console.log(queryPlan);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -45,10 +44,12 @@ export default function SummaryPage(): ReactElement {
       key.toLowerCase().includes(searchTerm.toLowerCase()) ||
       value.toLowerCase().includes(searchTerm.toLowerCase()),
   );
-  const { aggregateRetrievals } = selectedQueryPlan;
 
-  const aggregateRetrievalsElapsedTimeByRetrieval: Record<string, number> = {};
-  const aggregateRetrievalsExecutionContextElapsedTimeByRetrieval: Record<
+  const { aggregateRetrievals, databaseRetrievals } = selectedQueryPlan;
+
+  // aggregate retrievals calculations
+  const aggregateRetrievalsElapsedTimeRecord: Record<string, number> = {};
+  const aggregateRetrievalsExecutionContextElapsedTimeRecord: Record<
     string,
     number
   > = {};
@@ -59,14 +60,10 @@ export default function SummaryPage(): ReactElement {
       0,
     );
 
-    if (
-      aggregateRetrievalsElapsedTimeByRetrieval[retrieval.type] !== undefined
-    ) {
-      aggregateRetrievalsElapsedTimeByRetrieval[retrieval.type] +=
-        elapsedTimeSum;
+    if (aggregateRetrievalsElapsedTimeRecord[retrieval.type] !== undefined) {
+      aggregateRetrievalsElapsedTimeRecord[retrieval.type] += elapsedTimeSum;
     } else {
-      aggregateRetrievalsElapsedTimeByRetrieval[retrieval.type] =
-        elapsedTimeSum;
+      aggregateRetrievalsElapsedTimeRecord[retrieval.type] = elapsedTimeSum;
     }
 
     if (retrieval.timingInfo.executionContextElapsedTime !== undefined) {
@@ -77,18 +74,40 @@ export default function SummaryPage(): ReactElement {
         );
 
       if (
-        aggregateRetrievalsExecutionContextElapsedTimeByRetrieval[
-          retrieval.type
-        ] !== undefined
+        aggregateRetrievalsExecutionContextElapsedTimeRecord[retrieval.type] !==
+        undefined
       ) {
-        aggregateRetrievalsExecutionContextElapsedTimeByRetrieval[
-          retrieval.type
-        ] += executionContextElapsedTimeSum;
+        aggregateRetrievalsExecutionContextElapsedTimeRecord[retrieval.type] +=
+          executionContextElapsedTimeSum;
       } else {
-        aggregateRetrievalsExecutionContextElapsedTimeByRetrieval[
-          retrieval.type
-        ] = executionContextElapsedTimeSum;
+        aggregateRetrievalsExecutionContextElapsedTimeRecord[retrieval.type] =
+          executionContextElapsedTimeSum;
       }
+    }
+  });
+
+  // database retrievals calculation : only one type 'databaseRetrieval' here
+  let databaseRetrievalsElapsedTime = 0;
+  let databaseRetrievalsExecutionContextElapsedTime = 0;
+  const databaseRetrievalsElapsedTimeRecord = {
+    databaseRetrieval: databaseRetrievalsElapsedTime,
+  };
+  const databaseRetrievalsExecutionContextElapsedTimeRecord = {
+    databaseRetrieval: databaseRetrievalsExecutionContextElapsedTime,
+  };
+
+  databaseRetrievals.forEach((retrieval) => {
+    databaseRetrievalsElapsedTime += retrieval.timingInfo.elapsedTime.reduce(
+      (acc, num) => acc + num,
+      0,
+    );
+
+    if (retrieval.timingInfo.executionContextElapsedTime !== undefined) {
+      databaseRetrievalsExecutionContextElapsedTime +=
+        retrieval.timingInfo.executionContextElapsedTime.reduce(
+          (acc, num) => acc + num,
+          0,
+        );
     }
   });
 
@@ -123,7 +142,7 @@ export default function SummaryPage(): ReactElement {
 
       <Card>
         <CardContent>
-          <Typography variant="h6">Elapsed timings</Typography>
+          <Typography variant="h6">Elapsed timings of retrievals</Typography>
           <Grid2 container spacing={2}>
             <Box
               sx={{
@@ -133,17 +152,36 @@ export default function SummaryPage(): ReactElement {
               }}
             >
               <Grid2>
-                <Typography variant="body1" fontWeight="bold">
-                  Elasped times
+                <Typography
+                  variant="body1"
+                  fontWeight="bold"
+                  marginBlockEnd={1}
+                >
+                  Elasped timings
+                </Typography>
+                <Typography variant="body2" marginLeft={2}>
+                  Aggregate
                 </Typography>
                 <List dense sx={{ marginLeft: 4 }}>
-                  {Object.entries(
-                    aggregateRetrievalsElapsedTimeByRetrieval,
-                  ).map(([key, value]) => (
-                    <ListItem key={key} disablePadding>
-                      <ListItemText primary={`${key} : ${value} ms`} />
-                    </ListItem>
-                  ))}
+                  {Object.entries(aggregateRetrievalsElapsedTimeRecord).map(
+                    ([key, value]) => (
+                      <ListItem key={key} disablePadding>
+                        <ListItemText primary={`${key} : ${value} ms`} />
+                      </ListItem>
+                    ),
+                  )}
+                </List>
+                <Typography variant="body2" marginLeft={2}>
+                  Database
+                </Typography>
+                <List dense sx={{ marginLeft: 4 }}>
+                  {Object.entries(databaseRetrievalsElapsedTimeRecord).map(
+                    ([key, value]) => (
+                      <ListItem key={key} disablePadding>
+                        <ListItemText primary={`${key} : ${value} ms`} />
+                      </ListItem>
+                    ),
+                  )}
                 </List>
               </Grid2>
             </Box>
@@ -155,12 +193,31 @@ export default function SummaryPage(): ReactElement {
               }}
             >
               <Grid2>
-                <Typography variant="body1" fontWeight="bold">
-                  Elasped times (execution context)
+                <Typography
+                  variant="body1"
+                  fontWeight="bold"
+                  marginBlockEnd={1}
+                >
+                  Elasped timings (execution context)
+                </Typography>
+                <Typography variant="body2" marginLeft={2}>
+                  Aggregate
                 </Typography>
                 <List dense sx={{ marginLeft: 4 }}>
                   {Object.entries(
-                    aggregateRetrievalsExecutionContextElapsedTimeByRetrieval,
+                    aggregateRetrievalsExecutionContextElapsedTimeRecord,
+                  ).map(([key, value]) => (
+                    <ListItem key={key} disablePadding>
+                      <ListItemText primary={`${key} : ${value} ms`} />
+                    </ListItem>
+                  ))}
+                </List>
+                <Typography variant="body2" marginLeft={2}>
+                  Database
+                </Typography>
+                <List dense sx={{ marginLeft: 4 }}>
+                  {Object.entries(
+                    databaseRetrievalsExecutionContextElapsedTimeRecord,
                   ).map(([key, value]) => (
                     <ListItem key={key} disablePadding>
                       <ListItemText primary={`${key} : ${value} ms`} />
