@@ -40,6 +40,34 @@ export default function TimelinePage(): ReactElement {
     return () => resizeObserver.disconnect();
   }, []);
 
+  // Handle zoom with mouse wheel
+  useEffect(() => {
+    function handleWheel(event: WheelEvent): void {
+      if (!containerRef.current) return;
+
+      const { deltaX, deltaY } = event;
+
+      // Prevent horizontal scrolling (with trackpad)
+      if (Math.abs(deltaY) > Math.abs(deltaX)) {
+        event.preventDefault(); // Prevent page scroll
+        const direction = event.deltaY > 0 ? -1 : 1;
+        const zoomFactor = 0.8;
+        const newScale = Math.max(
+          0,
+          Math.min(100, scale + direction * zoomFactor),
+        );
+        setScale(newScale);
+      }
+    }
+
+    const container = containerRef.current;
+    if (container) container.addEventListener("wheel", handleWheel);
+
+    return () => {
+      if (container) container.removeEventListener("wheel", handleWheel);
+    };
+  }, [scale]);
+
   useEffect(() => {
     setScale(containerWidth / maxEnd);
   }, [containerWidth, maxEnd]);
