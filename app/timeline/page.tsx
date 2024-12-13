@@ -23,6 +23,7 @@ export default function TimelinePage(): ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
   let maxEnd = 0;
 
+  // Keep track of container width
   useEffect(() => {
     function handleResize(): void {
       if (containerRef.current) {
@@ -30,11 +31,10 @@ export default function TimelinePage(): ReactElement {
       }
     }
 
-    // Create a ResizeObserver to monitor size changes
     const resizeObserver = new ResizeObserver(() => handleResize());
     if (containerRef.current) {
       resizeObserver.observe(containerRef.current);
-      handleResize(); // Initialize width on mount
+      handleResize();
     }
 
     return () => resizeObserver.disconnect();
@@ -56,6 +56,8 @@ export default function TimelinePage(): ReactElement {
     ),
   );
 
+  const contentWidth = maxEnd * scale;
+
   return (
     <Box padding={2} width="100%">
       <Typography variant="h4" gutterBottom>
@@ -74,22 +76,31 @@ export default function TimelinePage(): ReactElement {
           Fit entire timeline
         </Button>
       </FormGroup>
-      <Grid2
-        container
-        spacing={2}
-        direction="column"
+      <Box
+        sx={{
+          width: "100%",
+          overflowX: "auto",
+          paddingY: 2,
+        }}
         ref={containerRef}
-        marginY={2}
       >
-        {Object.entries(timeline).map(([core, timings]) => (
-          <CoreTimeline
-            key={core}
-            core={core}
-            timings={timings}
-            scale={scale}
-          />
-        ))}
-      </Grid2>
+        <Grid2
+          container
+          spacing={2}
+          direction="column"
+          width={`${contentWidth}px`}
+          marginY={2}
+        >
+          {Object.entries(timeline).map(([core, timings]) => (
+            <CoreTimeline
+              key={core}
+              core={core}
+              timings={timings}
+              scale={scale}
+            />
+          ))}
+        </Grid2>
+      </Box>
     </Box>
   );
 }
