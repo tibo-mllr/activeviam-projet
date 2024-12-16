@@ -13,8 +13,12 @@ import {
 import {
   Box,
   Button,
+  FormControl,
   FormGroup,
   Grid2,
+  InputLabel,
+  MenuItem,
+  Select,
   Slider,
   Typography,
 } from "@mui/material";
@@ -23,6 +27,7 @@ import { useSelector } from "react-redux";
 
 export default function TimelinePage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
   const [showDialog, setShowDialog] = useState<boolean>(false);
   const [selectedRetrieval, setSelectedRetrieval] = useState<
@@ -87,7 +92,7 @@ export default function TimelinePage(): ReactElement {
 
   if (!queryPlan) return <>Please send a query to see the graph</>;
 
-  const [{ aggregateRetrievals, databaseRetrievals }] = queryPlan;
+  const { aggregateRetrievals, databaseRetrievals } = queryPlan[selectedIndex];
 
   const openRetrievalDialog = (retrievalId: number, type: TimingType): void => {
     let retrieval: AggregateRetrieval | DatabaseRetrieval | undefined;
@@ -119,6 +124,24 @@ export default function TimelinePage(): ReactElement {
       <Typography variant="h4" gutterBottom>
         Timeline
       </Typography>
+      <FormControl sx={{ padding: 2 }}>
+        <InputLabel id="query-plan-select-label">Select Query Plan</InputLabel>
+        <Select
+          labelId="query-plan-select-label"
+          value={selectedIndex}
+          onChange={(e) => {
+            const selectedIndex = e.target.value as number;
+            setSelectedIndex(selectedIndex);
+          }}
+          label="Select Query Plan"
+        >
+          {queryPlan.map((plan, index) => (
+            <MenuItem key={index} value={index}>
+              {queryPlan[index].planInfo.mdxPass}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
       <FormGroup row sx={{ justifyContent: "space-between" }}>
         <Slider
           sx={{ width: { xs: "100%", md: "80%" } }}
