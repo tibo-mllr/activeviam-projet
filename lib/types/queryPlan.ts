@@ -33,7 +33,7 @@ type Location = {
 
 type TimingInfo = Record<string, number[]>;
 
-type AggregateRetrieval = {
+export type AggregateRetrieval = {
   retrievalId: number;
   partialProviderName: string;
   type: string;
