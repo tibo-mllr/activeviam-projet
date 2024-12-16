@@ -1,8 +1,10 @@
 "use client";
 
 import { CoreTimeline } from "@/components";
+import RetrievalDialog from "@/components/timeline/RetrievalDialog";
 import { buildTimeline } from "@/lib/functions";
 import { getQueryPlan } from "@/lib/redux";
+import { AggregateRetrieval, emptyAggregateRetrieval } from "@/lib/types";
 import {
   Box,
   Button,
@@ -16,6 +18,10 @@ import { useSelector } from "react-redux";
 
 export default function TimelinePage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
+
+  const [showDialog, setShowDialog] = useState<boolean>(false);
+  const [selectedRetrieval, setSelectedRetrieval] =
+    useState<AggregateRetrieval>(emptyAggregateRetrieval);
 
   const [scale, setScale] = useState<number>(50);
 
@@ -77,6 +83,16 @@ export default function TimelinePage(): ReactElement {
 
   const [{ aggregateRetrievals }] = queryPlan;
 
+  const openRetrievalDialog = (retrievalId: number): void => {
+    const retrieval = aggregateRetrievals.find(
+      (r) => r.retrievalId === retrievalId,
+    );
+    if (retrieval) {
+      setSelectedRetrieval(retrieval);
+      setShowDialog(true);
+    }
+  };
+
   const timeline = buildTimeline(aggregateRetrievals);
 
   // Find the maximum end time to calculate the content width
@@ -126,10 +142,16 @@ export default function TimelinePage(): ReactElement {
               core={core}
               timings={timings}
               scale={scale}
+              openRetrievalDialog={openRetrievalDialog}
             />
           ))}
         </Grid2>
       </Box>
+      <RetrievalDialog
+        retrieval={selectedRetrieval}
+        open={showDialog}
+        setOpen={setShowDialog}
+      />
     </Box>
   );
 }

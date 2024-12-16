@@ -1,17 +1,19 @@
 import { TimelineTiming } from "@/lib/types";
-import { Box, Tooltip } from "@mui/material";
+import { Box, Button, Tooltip } from "@mui/material";
 import { ReactElement } from "react";
 
 type CoreTimelineProps = {
   core: string;
   timings: TimelineTiming[];
   scale: number;
+  openRetrievalDialog: (retrievalId: number) => void;
 };
 
 export function CoreTimeline({
   core,
   timings,
   scale,
+  openRetrievalDialog,
 }: CoreTimelineProps): ReactElement {
   return (
     <Box
@@ -35,15 +37,19 @@ export function CoreTimeline({
             </>
           }
         >
-          <Box
-            width={(end - start) * scale}
-            height="100%"
-            position="absolute"
-            left={start * scale}
-            border={1}
-            borderColor="black"
-            borderRadius={2}
-            bgcolor="primary.dark"
+          <Button
+            sx={{
+              width: (end - start) * scale,
+              height: "100%",
+              position: "absolute",
+              left: start * scale,
+              border: 1,
+              borderColor: "black",
+              borderRadius: 2,
+              bgcolor: "primary.dark",
+              padding: 0,
+            }}
+            onClick={() => openRetrievalDialog(retrievalId)}
           />
         </Tooltip>
       ))}

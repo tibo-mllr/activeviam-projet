@@ -47,6 +47,20 @@ export type AggregateRetrieval = {
   underlyingDataNodes: string[];
 };
 
+export const emptyAggregateRetrieval: AggregateRetrieval = {
+  retrievalId: 0,
+  partialProviderName: "",
+  type: "",
+  partitioning: "",
+  location: [],
+  measures: [],
+  filterId: 0,
+  measureProvider: "",
+  resultSizes: [],
+  timingInfo: {},
+  underlyingDataNodes: [],
+};
+
 type DatabaseRetrieval = {
   store: string;
   fields: string[];
