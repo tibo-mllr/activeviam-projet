@@ -82,7 +82,7 @@ export default function TimelinePage(): ReactElement {
   // Find the maximum end time to calculate the content width
   maxEnd = Math.max(
     ...Object.values(timeline).flatMap((timings) =>
-      timings.map(([, end]) => end),
+      timings.map(({ end }) => end),
     ),
   );
   const contentWidth = maxEnd * scale;
