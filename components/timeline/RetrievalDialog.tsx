@@ -1,10 +1,10 @@
-import { AggregateRetrieval } from "@/lib/types";
+import { AggregateRetrieval, DatabaseRetrieval } from "@/lib/types";
 import { Close } from "@mui/icons-material";
 import { Dialog, DialogContent, DialogTitle, IconButton } from "@mui/material";
 import { type ReactElement } from "react";
 
 type RetrievalDialogProps = {
-  retrieval: AggregateRetrieval;
+  retrieval: AggregateRetrieval | DatabaseRetrieval;
   open: boolean;
   setOpen: (open: boolean) => void;
 };

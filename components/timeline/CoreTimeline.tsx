@@ -1,4 +1,4 @@
-import { TimelineTiming } from "@/lib/types";
+import { TimelineTiming, TimingType } from "@/lib/types";
 import { Box, Button, Tooltip } from "@mui/material";
 import { ReactElement } from "react";
 
@@ -6,7 +6,7 @@ type CoreTimelineProps = {
   core: string;
   timings: TimelineTiming[];
   scale: number;
-  openRetrievalDialog: (retrievalId: number) => void;
+  openRetrievalDialog: (retrievalId: number, type: TimingType) => void;
 };
 
 export function CoreTimeline({
@@ -49,7 +49,7 @@ export function CoreTimeline({
               bgcolor: "primary.dark",
               padding: 0,
             }}
-            onClick={() => openRetrievalDialog(retrievalId)}
+            onClick={() => openRetrievalDialog(retrievalId, type)}
           />
         </Tooltip>
       ))}

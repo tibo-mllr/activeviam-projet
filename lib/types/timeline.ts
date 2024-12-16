@@ -1,8 +1,11 @@
+export type TimingType =
+  | "AggregateRetrieval"
+  | "AggregateRetrievalExecutionContext"
+  | "DatabaseRetrieval"
+  | "DatabaseRetrievalExecutionContext";
+
 export type TimelineTiming = {
-  type:
-    | "AggregateRetrieval"
-    | "AggregateRetrievalExecutionContext"
-    | "DatabaseRetrieval";
+  type: TimingType;
   retrievalId: number;
   start: number;
   end: number;

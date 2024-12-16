@@ -1,10 +1,18 @@
-import { AggregateRetrieval, Timeline, TimelineTiming } from "../types";
+import {
+  AggregateRetrieval,
+  DatabaseRetrieval,
+  Timeline,
+  TimelineTiming,
+} from "../types";
 
-export function buildTimeline(retrievals: AggregateRetrieval[]): Timeline {
+export function buildTimeline(
+  aggregateRetrievals: AggregateRetrieval[],
+  databaseRetrievals: DatabaseRetrieval[],
+): Timeline {
   const allTimings: TimelineTiming[] = [];
 
-  for (const retrieval of retrievals) {
-    const { timingInfo, retrievalId } = retrieval;
+  for (const aggregateRetrieval of aggregateRetrievals) {
+    const { timingInfo, retrievalId } = aggregateRetrieval;
     Object.entries(timingInfo).map(([key, values]) => {
       if (key === "startTime") {
         values.map((value, index) => {
@@ -26,6 +34,35 @@ export function buildTimeline(retrievals: AggregateRetrieval[]): Timeline {
               end: value + elapsedTime,
               retrievalId,
               type: "AggregateRetrievalExecutionContext",
+            });
+        });
+      }
+    });
+  }
+
+  for (const databaseRetrieval of databaseRetrievals) {
+    const { timingInfo, retrievalId } = databaseRetrieval;
+    Object.entries(timingInfo).map(([key, values]) => {
+      if (key === "startTime") {
+        values.map((value, index) => {
+          const elapsedTime = timingInfo["elapsedTime"][index];
+          if (elapsedTime !== 0)
+            allTimings.push({
+              start: value,
+              end: value + elapsedTime,
+              retrievalId,
+              type: "DatabaseRetrieval",
+            });
+        });
+      } else if (key === "executionContextStartTime") {
+        values.map((value, index) => {
+          const elapsedTime = timingInfo["executionContextElapsedTime"][index];
+          if (elapsedTime !== 0)
+            allTimings.push({
+              start: value,
+              end: value + elapsedTime,
+              retrievalId,
+              type: "DatabaseRetrievalExecutionContext",
             });
         });
       }

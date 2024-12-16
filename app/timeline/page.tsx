@@ -4,7 +4,12 @@ import { CoreTimeline } from "@/components";
 import RetrievalDialog from "@/components/timeline/RetrievalDialog";
 import { buildTimeline } from "@/lib/functions";
 import { getQueryPlan } from "@/lib/redux";
-import { AggregateRetrieval, emptyAggregateRetrieval } from "@/lib/types";
+import {
+  AggregateRetrieval,
+  DatabaseRetrieval,
+  emptyAggregateRetrieval,
+  TimingType,
+} from "@/lib/types";
 import {
   Box,
   Button,
@@ -20,8 +25,9 @@ export default function TimelinePage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
 
   const [showDialog, setShowDialog] = useState<boolean>(false);
-  const [selectedRetrieval, setSelectedRetrieval] =
-    useState<AggregateRetrieval>(emptyAggregateRetrieval);
+  const [selectedRetrieval, setSelectedRetrieval] = useState<
+    AggregateRetrieval | DatabaseRetrieval
+  >(emptyAggregateRetrieval);
 
   const [scale, setScale] = useState<number>(50);
 
@@ -81,19 +87,24 @@ export default function TimelinePage(): ReactElement {
 
   if (!queryPlan) return <>Please send a query to see the graph</>;
 
-  const [{ aggregateRetrievals }] = queryPlan;
+  const [{ aggregateRetrievals, databaseRetrievals }] = queryPlan;
 
-  const openRetrievalDialog = (retrievalId: number): void => {
-    const retrieval = aggregateRetrievals.find(
-      (r) => r.retrievalId === retrievalId,
-    );
+  const openRetrievalDialog = (retrievalId: number, type: TimingType): void => {
+    let retrieval: AggregateRetrieval | DatabaseRetrieval | undefined;
+    if (type === "AggregateRetrieval")
+      retrieval = aggregateRetrievals.find(
+        (r) => r.retrievalId === retrievalId,
+      );
+    else if (type === "DatabaseRetrieval")
+      retrieval = databaseRetrievals.find((r) => r.retrievalId === retrievalId);
+
     if (retrieval) {
       setSelectedRetrieval(retrieval);
       setShowDialog(true);
     }
   };
 
-  const timeline = buildTimeline(aggregateRetrievals);
+  const timeline = buildTimeline(aggregateRetrievals, databaseRetrievals);
 
   // Find the maximum end time to calculate the content width
   maxEnd = Math.max(

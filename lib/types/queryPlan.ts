@@ -61,7 +61,7 @@ export const emptyAggregateRetrieval: AggregateRetrieval = {
   underlyingDataNodes: [],
 };
 
-type DatabaseRetrieval = {
+export type DatabaseRetrieval = {
   store: string;
   fields: string[];
   joinedMeasure: string[];
