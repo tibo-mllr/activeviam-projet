@@ -16,7 +16,10 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+ChartJS.register(ArcElement, Tooltip, Legend);
 import { ReactElement, useState } from "react";
+import { Pie } from "react-chartjs-2";
 import { useSelector } from "react-redux";
 
 export default function SummaryPage(): ReactElement {
@@ -111,6 +114,38 @@ export default function SummaryPage(): ReactElement {
     }
   });
 
+  const pieChartElaspedTimingsData = {
+    labels: Object.keys({
+      ...aggregateRetrievalsElapsedTimeRecord,
+      ...databaseRetrievalsElapsedTimeRecord,
+    }),
+    datasets: [
+      {
+        label: "Elapsed Time (ms)",
+        data: Object.values({
+          ...aggregateRetrievalsElapsedTimeRecord,
+          ...databaseRetrievalsElapsedTimeRecord,
+        }),
+        backgroundColor: [
+          "#FF6384",
+          "#36A2EB",
+          "#FFCE56",
+          "#4BC0C0",
+          "#9966FF",
+          "#FF9F40",
+        ],
+        hoverBackgroundColor: [
+          "#FF6384",
+          "#36A2EB",
+          "#FFCE56",
+          "#4BC0C0",
+          "#9966FF",
+          "#FF9F40",
+        ],
+      },
+    ],
+  };
+
   return (
     <Grid2 container spacing={1}>
       {queryPlan.length >= 2 && (
@@ -171,6 +206,7 @@ export default function SummaryPage(): ReactElement {
                     ),
                   )}
                 </List>
+
                 <Typography variant="body2" marginLeft={2}>
                   Database
                 </Typography>
@@ -183,6 +219,7 @@ export default function SummaryPage(): ReactElement {
                     ),
                   )}
                 </List>
+                <Pie data={pieChartElaspedTimingsData} />
               </Grid2>
             </Box>
             <Box
