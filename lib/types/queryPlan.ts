@@ -33,7 +33,7 @@ type Location = {
 
 type TimingInfo = Record<string, number[]>;
 
-type AggregateRetrieval = {
+export type AggregateRetrieval = {
   retrievalId: number;
   partialProviderName: string;
   type: string;
@@ -47,7 +47,21 @@ type AggregateRetrieval = {
   underlyingDataNodes: string[];
 };
 
-type DatabaseRetrieval = {
+export const emptyAggregateRetrieval: AggregateRetrieval = {
+  retrievalId: 0,
+  partialProviderName: "",
+  type: "",
+  partitioning: "",
+  location: [],
+  measures: [],
+  filterId: 0,
+  measureProvider: "",
+  resultSizes: [],
+  timingInfo: {},
+  underlyingDataNodes: [],
+};
+
+export type DatabaseRetrieval = {
   store: string;
   fields: string[];
   joinedMeasure: string[];
