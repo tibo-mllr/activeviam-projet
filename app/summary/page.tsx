@@ -146,6 +146,33 @@ export default function SummaryPage(): ReactElement {
     ],
   };
 
+  const pieChartNumberOfRetrievalsData = {
+    labels: Object.keys(selectedQueryPlan.querySummary.retrievalsCountByType),
+    datasets: [
+      {
+        data: Object.values(
+          selectedQueryPlan.querySummary.retrievalsCountByType,
+        ),
+        backgroundColor: [
+          "#FF6384",
+          "#36A2EB",
+          "#FFCE56",
+          "#4BC0C0",
+          "#9966FF",
+          "#FF9F40",
+        ],
+        hoverBackgroundColor: [
+          "#FF6384",
+          "#36A2EB",
+          "#FFCE56",
+          "#4BC0C0",
+          "#9966FF",
+          "#FF9F40",
+        ],
+      },
+    ],
+  };
+
   return (
     <Grid2 container spacing={1}>
       {queryPlan.length >= 2 && (
@@ -351,6 +378,7 @@ export default function SummaryPage(): ReactElement {
                   </ListItem>
                 ))}
               </List>
+              <Pie data={pieChartNumberOfRetrievalsData} />
             </Box>
 
             <Box
