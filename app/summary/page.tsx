@@ -64,7 +64,7 @@ export default function SummaryPage(): ReactElement {
   // associating a color for each retrieval type
   const retrievalsColors: Record<string, string> = {};
   Object.entries(selectedQueryPlan.querySummary.retrievalsCountByType).forEach(
-    ([key, value]) => {
+    ([key]) => {
       retrievalsColors[key] = COLORS[colorIndex % COLORS.length];
       colorIndex++;
     },
@@ -109,13 +109,14 @@ export default function SummaryPage(): ReactElement {
     }
   });
   // database retrievals calculation
+  // there is only one type 'DatabaseRetrieval', and it is not specified in the databaseRetrievals data
   let databaseRetrievalsElapsedTime = 0;
   let databaseRetrievalsExecutionContextElapsedTime = 0;
   const databaseRetrievalsElapsedTimeRecord = {
-    databaseRetrieval: databaseRetrievalsElapsedTime,
+    DatabaseRetrieval: databaseRetrievalsElapsedTime,
   };
   const databaseRetrievalsExecutionContextElapsedTimeRecord = {
-    databaseRetrieval: databaseRetrievalsExecutionContextElapsedTime,
+    DatabaseRetrieval: databaseRetrievalsExecutionContextElapsedTime,
   };
 
   databaseRetrievals.forEach((retrieval) => {
@@ -137,14 +138,14 @@ export default function SummaryPage(): ReactElement {
   const pieDataElapsedTimings = [
     ...Object.entries(aggregateRetrievalsElapsedTimeRecord)
       .sort((a, b) => b[1] - a[1])
-      .map(([key, value], index) => ({
+      .map(([key, value]) => ({
         name: key,
         value,
         fill: retrievalsColors[key],
       })),
     ...Object.entries(databaseRetrievalsElapsedTimeRecord)
       .sort((a, b) => b[1] - a[1])
-      .map(([key, value], index) => ({
+      .map(([key, value]) => ({
         name: key,
         value,
         fill: retrievalsColors[key],
@@ -155,7 +156,7 @@ export default function SummaryPage(): ReactElement {
     selectedQueryPlan.querySummary.retrievalsCountByType,
   )
     .sort((a, b) => b[1] - a[1])
-    .map(([key, value], index) => ({
+    .map(([key, value]) => ({
       name: key,
       value,
       fill: retrievalsColors[key],
@@ -228,7 +229,7 @@ export default function SummaryPage(): ReactElement {
                 <List dense sx={{ marginLeft: 4 }}>
                   {Object.entries(aggregateRetrievalsElapsedTimeRecord)
                     .sort((a, b) => b[1] - a[1])
-                    .map(([key, value], index) => (
+                    .map(([key, value]) => (
                       <ListItem key={key} disablePadding>
                         <Box
                           sx={{
@@ -248,7 +249,7 @@ export default function SummaryPage(): ReactElement {
                 <List dense sx={{ marginLeft: 4 }}>
                   {Object.entries(databaseRetrievalsElapsedTimeRecord)
                     .sort((a, b) => b[1] - a[1])
-                    .map(([key, value], index) => (
+                    .map(([key, value]) => (
                       <ListItem key={key} disablePadding>
                         <Box
                           sx={{
@@ -413,7 +414,7 @@ export default function SummaryPage(): ReactElement {
                     selectedQueryPlan.querySummary.retrievalsCountByType,
                   )
                     .sort((a, b) => b[1] - a[1])
-                    .map(([key, value], index) => (
+                    .map(([key, value]) => (
                       <ListItem key={key} disablePadding>
                         <Box
                           sx={{
