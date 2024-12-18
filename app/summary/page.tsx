@@ -21,22 +21,17 @@ import { useSelector } from "react-redux";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
 const COLORS = [
-  "#0088FE",
-  "#00C49F",
-  "#FFBB28",
-  "#FF8042",
-  "#FF6666",
-  "#A8DADC",
-  "#457B9D",
-  "#F1FAEE",
-  "#1D3557",
-  "#E63946",
-  "#F4A261",
-  "#2A9D8F",
-  "#264653",
-  "#E76F51",
-  "#F1C6C6",
+  "#FF0000",
+  "#0000FF",
+  "#00FF00",
+  "#FFFF00",
+  "#800080",
+  "#FFA500",
+  "#808080",
+  "#A52A2A",
 ];
+
+let colorIndex = 0;
 
 export default function SummaryPage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
@@ -65,6 +60,15 @@ export default function SummaryPage(): ReactElement {
   );
 
   const { aggregateRetrievals, databaseRetrievals } = selectedQueryPlan;
+
+  // associating a color for each retrieval type
+  const retrievalsColors: Record<string, string> = {};
+  Object.entries(selectedQueryPlan.querySummary.retrievalsCountByType).forEach(
+    ([key, value]) => {
+      retrievalsColors[key] = COLORS[colorIndex % COLORS.length];
+      colorIndex++;
+    },
+  );
 
   // aggregate retrievals calculations
   const aggregateRetrievalsElapsedTimeRecord: Record<string, number> = {};
@@ -136,18 +140,14 @@ export default function SummaryPage(): ReactElement {
       .map(([key, value], index) => ({
         name: key,
         value,
-        fill: COLORS[index % COLORS.length],
+        fill: retrievalsColors[key],
       })),
     ...Object.entries(databaseRetrievalsElapsedTimeRecord)
       .sort((a, b) => b[1] - a[1])
       .map(([key, value], index) => ({
         name: key,
         value,
-        fill: COLORS[
-          (index +
-            Object.entries(aggregateRetrievalsElapsedTimeRecord).length) %
-            COLORS.length
-        ],
+        fill: retrievalsColors[key],
       })),
   ];
 
@@ -158,7 +158,7 @@ export default function SummaryPage(): ReactElement {
     .map(([key, value], index) => ({
       name: key,
       value,
-      fill: COLORS[index % COLORS.length],
+      fill: retrievalsColors[key],
     }));
   return (
     <Grid2 container spacing={1}>
@@ -234,7 +234,7 @@ export default function SummaryPage(): ReactElement {
                           sx={{
                             width: 12,
                             height: 12,
-                            backgroundColor: COLORS[index % COLORS.length],
+                            backgroundColor: retrievalsColors[key],
                             marginRight: 1,
                           }}
                         />
@@ -254,14 +254,7 @@ export default function SummaryPage(): ReactElement {
                           sx={{
                             width: 12,
                             height: 12,
-                            backgroundColor:
-                              COLORS[
-                                (index +
-                                  Object.entries(
-                                    aggregateRetrievalsElapsedTimeRecord,
-                                  ).length) %
-                                  COLORS.length
-                              ],
+                            backgroundColor: retrievalsColors[key],
                             marginRight: 1,
                           }}
                         />
@@ -426,7 +419,7 @@ export default function SummaryPage(): ReactElement {
                           sx={{
                             width: 12,
                             height: 12,
-                            backgroundColor: COLORS[index % COLORS.length],
+                            backgroundColor: retrievalsColors[key],
                             marginRight: 1,
                           }}
                         />
