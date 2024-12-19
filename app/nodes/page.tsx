@@ -1,11 +1,7 @@
 "use client";
 
+import { getSlowestNodes } from "@/lib/functions/slowestNodes";
 import { getQueryPlan } from "@/lib/redux";
-import {
-  AggregateRetrieval,
-  DatabaseRetrieval,
-  TimingInfo,
-} from "@/lib/types/queryPlan";
 import {
   Box,
   Table,
@@ -16,51 +12,18 @@ import {
   TableRow,
   Typography,
   Paper,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
-import { ReactElement, useMemo } from "react";
+import { ReactElement, useState } from "react";
 import { useSelector } from "react-redux";
-
-interface ProcessedNode {
-  id: string;
-  type: "Aggregate" | "Database";
-  totalTiming: number;
-}
-
-const calculateTotalTiming = (timingInfo: TimingInfo): number => {
-  return Object.values(timingInfo)
-    .flat()
-    .reduce((sum, value) => sum + value, 0);
-};
 
 export default function NodesPage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
 
-  const slowestNodes: ProcessedNode[] = useMemo(() => {
-    if (!queryPlan || queryPlan.length === 0) return [];
-
-    const allNodes: ProcessedNode[] = queryPlan.flatMap((queryPlan) => {
-      const aggregateNodes: ProcessedNode[] = queryPlan.aggregateRetrievals.map(
-        (node: AggregateRetrieval) => ({
-          id: `Aggregate-${node.retrievalId}`,
-          type: "Aggregate",
-          totalTiming: calculateTotalTiming(node.timingInfo),
-        }),
-      );
-
-      const databaseNodes: ProcessedNode[] = queryPlan.databaseRetrievals.map(
-        (node: DatabaseRetrieval) => ({
-          id: `Database-${node.retrievalId}`,
-          type: "Database",
-          totalTiming: calculateTotalTiming(node.timingInfo),
-        }),
-      );
-
-      return [...aggregateNodes, ...databaseNodes];
-    });
-
-    // Sort nodes by totalTiming in descending order and take the top 10
-    return allNodes.sort((a, b) => b.totalTiming - a.totalTiming).slice(0, 10);
-  }, [queryPlan]);
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
   if (!queryPlan || queryPlan.length === 0) {
     return (
@@ -68,18 +31,46 @@ export default function NodesPage(): ReactElement {
     );
   }
 
+  const { aggregateRetrievals, databaseRetrievals } = queryPlan[selectedIndex];
+
+  const slowestNodes = getSlowestNodes(
+    aggregateRetrievals,
+    databaseRetrievals,
+    10,
+  );
+
   return (
     <Box padding={2} width="100%">
       <Typography variant="h4" gutterBottom>
         Top 10 Slowest Nodes
       </Typography>
+
+      <FormControl sx={{ padding: 2 }}>
+        <InputLabel id="query-plan-select-label">Select Query Plan</InputLabel>
+        <Select
+          labelId="query-plan-select-label"
+          value={selectedIndex}
+          onChange={(e) => {
+            const selectedIndex = e.target.value as number;
+            setSelectedIndex(selectedIndex);
+          }}
+          label="Select Query Plan"
+        >
+          {queryPlan.map((plan, index) => (
+            <MenuItem key={index} value={index}>
+              {queryPlan[index].planInfo.mdxPass}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
               <TableCell>Node ID</TableCell>
               <TableCell>Type</TableCell>
-              <TableCell align="right">Total Timing (ms)</TableCell>
+              <TableCell align="right">Timing (ms)</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -87,9 +78,7 @@ export default function NodesPage(): ReactElement {
               <TableRow key={node.id}>
                 <TableCell>{node.id}</TableCell>
                 <TableCell>{node.type}</TableCell>
-                <TableCell align="right">
-                  {node.totalTiming.toFixed(2)}
-                </TableCell>
+                <TableCell align="right">{node.timing.toFixed(2)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
