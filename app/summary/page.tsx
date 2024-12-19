@@ -212,8 +212,8 @@ export default function SummaryPage(): ReactElement {
                     cy="50%"
                     outerRadius={100}
                   >
-                    {pieDataElapsedTimings.map((entry, index) => (
-                      <Cell key={index} fill={entry.fill} />
+                    {pieDataElapsedTimings.map((entry) => (
+                      <Cell key={entry.name} fill={entry.fill} />
                     ))}
                   </Pie>
                 </PieChart>
@@ -398,8 +398,8 @@ export default function SummaryPage(): ReactElement {
                     cy="50%"
                     outerRadius={100}
                   >
-                    {pieDataRetrievalsByType.map((entry, index) => (
-                      <Cell key={index} fill={entry.fill} />
+                    {pieDataRetrievalsByType.map((entry) => (
+                      <Cell key={entry.name} fill={entry.fill} />
                     ))}
                   </Pie>
                 </PieChart>
