@@ -16,6 +16,8 @@ import {
   Select,
   FormControl,
   InputLabel,
+  Grid2,
+  Slider,
 } from "@mui/material";
 import { ReactElement, useState } from "react";
 import { useSelector } from "react-redux";
@@ -24,6 +26,7 @@ export default function NodesPage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
 
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const [numberOfNodes, setNumberOfNodes] = useState<number>(10);
 
   if (!queryPlan || queryPlan.length === 0) {
     return (
@@ -36,13 +39,13 @@ export default function NodesPage(): ReactElement {
   const slowestNodes = getSlowestNodes(
     aggregateRetrievals,
     databaseRetrievals,
-    10,
+    numberOfNodes,
   );
 
   return (
     <Box padding={2} width="100%">
       <Typography variant="h4" gutterBottom>
-        Top 10 Slowest Nodes
+        {`Top ${numberOfNodes} Slowest Nodes`}
       </Typography>
 
       <FormControl sx={{ padding: 2 }}>
@@ -63,6 +66,19 @@ export default function NodesPage(): ReactElement {
           ))}
         </Select>
       </FormControl>
+
+      <Grid2>
+        <InputLabel id="query-plan-select-number-of-nodes">
+          Select the number of nodes
+        </InputLabel>
+        <Slider
+          sx={{ width: { xs: "100%", md: "30%" } }}
+          value={numberOfNodes}
+          onChange={(_event, value) => setNumberOfNodes(value as number)}
+          min={1}
+          max={aggregateRetrievals.length + databaseRetrievals.length}
+        />
+      </Grid2>
 
       <TableContainer component={Paper}>
         <Table>
