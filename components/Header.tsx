@@ -19,6 +19,9 @@ export function Header(): ReactElement {
           <Link href="/timeline">
             <Button variant="outlined">Timeline</Button>
           </Link>
+          <Link href="/nodes">
+            <Button variant="outlined">Nodes</Button>
+          </Link>
         </Toolbar>
       </Container>
     </AppBar>
