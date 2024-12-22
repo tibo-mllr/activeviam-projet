@@ -18,6 +18,20 @@ import {
 } from "@mui/material";
 import { ReactElement, useState } from "react";
 import { useSelector } from "react-redux";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+
+const COLORS = [
+  "#FF0000",
+  "#0000FF",
+  "#00FF00",
+  "#FFFF00",
+  "#800080",
+  "#FFA500",
+  "#808080",
+  "#A52A2A",
+];
+
+let colorIndex = 0;
 
 export default function SummaryPage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
@@ -46,6 +60,15 @@ export default function SummaryPage(): ReactElement {
   );
 
   const { aggregateRetrievals, databaseRetrievals } = selectedQueryPlan;
+
+  // associating a color for each retrieval type
+  const retrievalsColors: Record<string, string> = {};
+  Object.entries(selectedQueryPlan.querySummary.retrievalsCountByType).forEach(
+    ([key]) => {
+      retrievalsColors[key] = COLORS[colorIndex % COLORS.length];
+      colorIndex++;
+    },
+  );
 
   // aggregate retrievals calculations
   const aggregateRetrievalsElapsedTimeRecord: Record<string, number> = {};
@@ -85,15 +108,15 @@ export default function SummaryPage(): ReactElement {
       }
     }
   });
-
-  // database retrievals calculation : only one type 'databaseRetrieval' here
+  // database retrievals calculation
+  // there is only one type 'DatabaseRetrieval', and it is not specified in the databaseRetrievals data
   let databaseRetrievalsElapsedTime = 0;
   let databaseRetrievalsExecutionContextElapsedTime = 0;
   const databaseRetrievalsElapsedTimeRecord = {
-    databaseRetrieval: databaseRetrievalsElapsedTime,
+    DatabaseRetrieval: databaseRetrievalsElapsedTime,
   };
   const databaseRetrievalsExecutionContextElapsedTimeRecord = {
-    databaseRetrieval: databaseRetrievalsExecutionContextElapsedTime,
+    DatabaseRetrieval: databaseRetrievalsExecutionContextElapsedTime,
   };
 
   databaseRetrievals.forEach((retrieval) => {
@@ -111,6 +134,33 @@ export default function SummaryPage(): ReactElement {
     }
   });
 
+  // Data for the PieCharts
+  const pieDataElapsedTimings = [
+    ...Object.entries(aggregateRetrievalsElapsedTimeRecord)
+      .sort((a, b) => b[1] - a[1])
+      .map(([key, value]) => ({
+        name: key,
+        value,
+        fill: retrievalsColors[key],
+      })),
+    ...Object.entries(databaseRetrievalsElapsedTimeRecord)
+      .sort((a, b) => b[1] - a[1])
+      .map(([key, value]) => ({
+        name: key,
+        value,
+        fill: retrievalsColors[key],
+      })),
+  ];
+
+  const pieDataRetrievalsByType = Object.entries(
+    selectedQueryPlan.querySummary.retrievalsCountByType,
+  )
+    .sort((a, b) => b[1] - a[1])
+    .map(([key, value]) => ({
+      name: key,
+      value,
+      fill: retrievalsColors[key],
+    }));
   return (
     <Grid2 container spacing={1}>
       {queryPlan.length >= 2 && (
@@ -149,56 +199,73 @@ export default function SummaryPage(): ReactElement {
                 border: "1px solid #ccc",
                 padding: 2,
                 marginTop: 2,
+                display: "flex",
               }}
             >
-              <Grid2>
-                <Typography
-                  variant="body1"
-                  fontWeight="bold"
-                  marginBlockEnd={1}
-                >
-                  Elasped timings
+              <ResponsiveContainer width="40%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={pieDataElapsedTimings}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                  >
+                    {pieDataElapsedTimings.map((entry) => (
+                      <Cell key={entry.name} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+
+              <Box sx={{ marginLeft: 2, flex: 1 }}>
+                <Typography variant="body1" fontWeight="bold" marginBottom={1}>
+                  Elapsed timings
                 </Typography>
                 <Typography variant="body2" marginLeft={2}>
                   Aggregate
                 </Typography>
                 <List dense sx={{ marginLeft: 4 }}>
-                  {Object.entries(aggregateRetrievalsElapsedTimeRecord).map(
-                    ([key, value]) => (
+                  {Object.entries(aggregateRetrievalsElapsedTimeRecord)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, value]) => (
                       <ListItem key={key} disablePadding>
+                        <Box
+                          sx={{
+                            width: 12,
+                            height: 12,
+                            backgroundColor: retrievalsColors[key],
+                            marginRight: 1,
+                          }}
+                        />
                         <ListItemText primary={`${key} : ${value} ms`} />
                       </ListItem>
-                    ),
-                  )}
+                    ))}
                 </List>
                 <Typography variant="body2" marginLeft={2}>
                   Database
                 </Typography>
                 <List dense sx={{ marginLeft: 4 }}>
-                  {Object.entries(databaseRetrievalsElapsedTimeRecord).map(
-                    ([key, value]) => (
+                  {Object.entries(databaseRetrievalsElapsedTimeRecord)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, value]) => (
                       <ListItem key={key} disablePadding>
+                        <Box
+                          sx={{
+                            width: 12,
+                            height: 12,
+                            backgroundColor: retrievalsColors[key],
+                            marginRight: 1,
+                          }}
+                        />
                         <ListItemText primary={`${key} : ${value} ms`} />
                       </ListItem>
-                    ),
-                  )}
+                    ))}
                 </List>
-              </Grid2>
-            </Box>
-            <Box
-              sx={{
-                border: "1px solid #ccc",
-                padding: 2,
-                marginTop: 2,
-              }}
-            >
-              <Grid2>
-                <Typography
-                  variant="body1"
-                  fontWeight="bold"
-                  marginBlockEnd={1}
-                >
-                  Elasped timings (execution context)
+
+                <Typography variant="body1" fontWeight="bold" marginBottom={1}>
+                  Elapsed timings (execution context)
                 </Typography>
                 <Typography variant="body2" marginLeft={2}>
                   Aggregate
@@ -206,11 +273,20 @@ export default function SummaryPage(): ReactElement {
                 <List dense sx={{ marginLeft: 4 }}>
                   {Object.entries(
                     aggregateRetrievalsExecutionContextElapsedTimeRecord,
-                  ).map(([key, value]) => (
-                    <ListItem key={key} disablePadding>
-                      <ListItemText primary={`${key} : ${value} ms`} />
-                    </ListItem>
-                  ))}
+                  )
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, value]) => (
+                      <ListItem key={key} disablePadding>
+                        <Box
+                          sx={{
+                            width: 12,
+                            height: 12,
+                            marginRight: 1,
+                          }}
+                        />
+                        <ListItemText primary={`${key} : ${value} ms`} />
+                      </ListItem>
+                    ))}
                 </List>
                 <Typography variant="body2" marginLeft={2}>
                   Database
@@ -218,13 +294,22 @@ export default function SummaryPage(): ReactElement {
                 <List dense sx={{ marginLeft: 4 }}>
                   {Object.entries(
                     databaseRetrievalsExecutionContextElapsedTimeRecord,
-                  ).map(([key, value]) => (
-                    <ListItem key={key} disablePadding>
-                      <ListItemText primary={`${key} : ${value} ms`} />
-                    </ListItem>
-                  ))}
+                  )
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, value]) => (
+                      <ListItem key={key} disablePadding>
+                        <Box
+                          sx={{
+                            width: 12,
+                            height: 12,
+                            marginRight: 1,
+                          }}
+                        />
+                        <ListItemText primary={`${key} : ${value} ms`} />
+                      </ListItem>
+                    ))}
                 </List>
-              </Grid2>
+              </Box>
             </Box>
           </Grid2>
         </CardContent>
@@ -300,20 +385,50 @@ export default function SummaryPage(): ReactElement {
                 border: "1px solid #ccc",
                 padding: 2,
                 marginTop: 2,
+                display: "flex",
               }}
             >
-              <Typography variant="body1" fontWeight="bold">
-                Retrievals ({selectedQueryPlan.querySummary.totalRetrievals}) :
-              </Typography>
-              <List dense sx={{ marginLeft: 4 }}>
-                {Object.entries(
-                  selectedQueryPlan.querySummary.retrievalsCountByType,
-                ).map(([key, value]) => (
-                  <ListItem key={key} disablePadding>
-                    <ListItemText primary={`${key} : ${value}`} />
-                  </ListItem>
-                ))}
-              </List>
+              <ResponsiveContainer width="40%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={pieDataRetrievalsByType}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                  >
+                    {pieDataRetrievalsByType.map((entry) => (
+                      <Cell key={entry.name} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+              <Box sx={{ marginLeft: 2, flex: 1 }}>
+                <Typography variant="body1" fontWeight="bold">
+                  Retrievals ({selectedQueryPlan.querySummary.totalRetrievals})
+                  :
+                </Typography>
+                <List dense sx={{ marginLeft: 4 }}>
+                  {Object.entries(
+                    selectedQueryPlan.querySummary.retrievalsCountByType,
+                  )
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, value]) => (
+                      <ListItem key={key} disablePadding>
+                        <Box
+                          sx={{
+                            width: 12,
+                            height: 12,
+                            backgroundColor: retrievalsColors[key],
+                            marginRight: 1,
+                          }}
+                        />
+                        <ListItemText primary={`${key} : ${value}`} />
+                      </ListItem>
+                    ))}
+                </List>
+              </Box>
             </Box>
 
             <Box
