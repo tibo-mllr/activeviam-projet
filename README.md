@@ -48,5 +48,7 @@ Get general information and statistics about the query plan
 ## Authors
 
 Thibault MULLER
+
 Alexandre CORREIA
+
 Timothée VARGENAU

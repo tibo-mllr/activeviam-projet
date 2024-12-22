@@ -10,6 +10,7 @@ _Provide a description of the changes made in this pull request._
 # How to test:
 
 Launch the app `yarn dev`
+
 Go to page:
 
 _Provide steps to test the changes made in this pull request._
