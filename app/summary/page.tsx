@@ -71,6 +71,13 @@ export default function SummaryPage(): ReactElement {
       colorIndex++;
     },
   );
+  // associating a color for each group type
+  const groupColors: Record<string, string> = {
+    Database: COLORS[0],
+    Engine: COLORS[1],
+    Network: COLORS[2],
+    Providers: COLORS[3],
+  };
 
   // grouped data about the retrievals
   const retrievalsGroupedElapsedTimeRecord: Record<string, number> = {
@@ -200,13 +207,8 @@ export default function SummaryPage(): ReactElement {
     }
   });
 
-  console.log("------");
-  console.log(retrievalsGroupedNumberByTypeRecord);
-  console.log(retrievalsGroupedElapsedTimeRecord);
-  console.log(retrievalsGroupedExecutionContextElapsedTimeRecord);
-
   // Data for the PieCharts
-  const pieDataElapsedTimings = [
+  const pieDataElapsedTimingsNotGrouped = [
     ...Object.entries(aggregateRetrievalsElapsedTimeRecord)
       .sort((a, b) => b[1] - a[1])
       .map(([key, value]) => ({
@@ -223,13 +225,36 @@ export default function SummaryPage(): ReactElement {
       })),
   ];
 
-  const pieDataRetrievalsByType = Object.entries(retrievalsNumberByTypeRecord)
+  const pieDataElaspedTimingsGrouped = Object.entries(
+    retrievalsGroupedElapsedTimeRecord,
+  )
+    .sort((a, b) => b[1] - a[1])
+    .map(([key, value]) => ({
+      name: key,
+      value,
+      fill: groupColors[key],
+    }));
+
+  const pieDataRetrievalsByTypeNotGrouped = Object.entries(
+    retrievalsNumberByTypeRecord,
+  )
     .sort((a, b) => b[1] - a[1])
     .map(([key, value]) => ({
       name: key,
       value,
       fill: retrievalsColors[key],
     }));
+
+  const pieDataRetrievalsByTypeGrouped = Object.entries(
+    retrievalsGroupedNumberByTypeRecord,
+  )
+    .sort((a, b) => b[1] - a[1])
+    .map(([key, value]) => ({
+      name: key,
+      value,
+      fill: groupColors[key],
+    }));
+
   return (
     <Grid2 container spacing={1}>
       {queryPlan.length >= 2 && (
@@ -270,123 +295,214 @@ export default function SummaryPage(): ReactElement {
             />
           </Grid2>
           <Grid2 container spacing={2}>
-            <Box
-              sx={{
-                border: "1px solid #ccc",
-                padding: 2,
-                marginTop: 2,
-                display: "flex",
-              }}
-            >
-              <ResponsiveContainer width="40%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={pieDataElapsedTimings}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
+            {!isGroupedTimings ? (
+              <Box
+                sx={{
+                  border: "1px solid #ccc",
+                  padding: 2,
+                  marginTop: 2,
+                  display: "flex",
+                }}
+              >
+                <ResponsiveContainer width={300} height={300}>
+                  <PieChart>
+                    <Pie
+                      data={pieDataElapsedTimingsNotGrouped}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      isAnimationActive={false}
+                    >
+                      {pieDataElapsedTimingsNotGrouped.map((entry) => (
+                        <Cell key={entry.name} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+
+                <Box sx={{ marginLeft: 2, flex: 1 }}>
+                  <Typography
+                    variant="body1"
+                    fontWeight="bold"
+                    marginBottom={1}
                   >
-                    {pieDataElapsedTimings.map((entry) => (
-                      <Cell key={entry.name} fill={entry.fill} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
+                    Elapsed timings
+                  </Typography>
+                  <Typography variant="body2" marginLeft={2}>
+                    Aggregate
+                  </Typography>
+                  <List dense sx={{ marginLeft: 4 }}>
+                    {Object.entries(aggregateRetrievalsElapsedTimeRecord)
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([key, value]) => (
+                        <ListItem key={key} disablePadding>
+                          <Box
+                            sx={{
+                              width: 12,
+                              height: 12,
+                              backgroundColor: retrievalsColors[key],
+                              marginRight: 1,
+                            }}
+                          />
+                          <ListItemText primary={`${key} : ${value} ms`} />
+                        </ListItem>
+                      ))}
+                  </List>
+                  <Typography variant="body2" marginLeft={2}>
+                    Database
+                  </Typography>
+                  <List dense sx={{ marginLeft: 4 }}>
+                    {Object.entries(databaseRetrievalsElapsedTimeRecord)
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([key, value]) => (
+                        <ListItem key={key} disablePadding>
+                          <Box
+                            sx={{
+                              width: 12,
+                              height: 12,
+                              backgroundColor: retrievalsColors[key],
+                              marginRight: 1,
+                            }}
+                          />
+                          <ListItemText primary={`${key} : ${value} ms`} />
+                        </ListItem>
+                      ))}
+                  </List>
 
-              <Box sx={{ marginLeft: 2, flex: 1 }}>
-                <Typography variant="body1" fontWeight="bold" marginBottom={1}>
-                  Elapsed timings
-                </Typography>
-                <Typography variant="body2" marginLeft={2}>
-                  Aggregate
-                </Typography>
-                <List dense sx={{ marginLeft: 4 }}>
-                  {Object.entries(aggregateRetrievalsElapsedTimeRecord)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([key, value]) => (
-                      <ListItem key={key} disablePadding>
-                        <Box
-                          sx={{
-                            width: 12,
-                            height: 12,
-                            backgroundColor: retrievalsColors[key],
-                            marginRight: 1,
-                          }}
-                        />
-                        <ListItemText primary={`${key} : ${value} ms`} />
-                      </ListItem>
-                    ))}
-                </List>
-                <Typography variant="body2" marginLeft={2}>
-                  Database
-                </Typography>
-                <List dense sx={{ marginLeft: 4 }}>
-                  {Object.entries(databaseRetrievalsElapsedTimeRecord)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([key, value]) => (
-                      <ListItem key={key} disablePadding>
-                        <Box
-                          sx={{
-                            width: 12,
-                            height: 12,
-                            backgroundColor: retrievalsColors[key],
-                            marginRight: 1,
-                          }}
-                        />
-                        <ListItemText primary={`${key} : ${value} ms`} />
-                      </ListItem>
-                    ))}
-                </List>
-
-                <Typography variant="body1" fontWeight="bold" marginBottom={1}>
-                  Elapsed timings (execution context)
-                </Typography>
-                <Typography variant="body2" marginLeft={2}>
-                  Aggregate
-                </Typography>
-                <List dense sx={{ marginLeft: 4 }}>
-                  {Object.entries(
-                    aggregateRetrievalsExecutionContextElapsedTimeRecord,
-                  )
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([key, value]) => (
-                      <ListItem key={key} disablePadding>
-                        <Box
-                          sx={{
-                            width: 12,
-                            height: 12,
-                            marginRight: 1,
-                          }}
-                        />
-                        <ListItemText primary={`${key} : ${value} ms`} />
-                      </ListItem>
-                    ))}
-                </List>
-                <Typography variant="body2" marginLeft={2}>
-                  Database
-                </Typography>
-                <List dense sx={{ marginLeft: 4 }}>
-                  {Object.entries(
-                    databaseRetrievalsExecutionContextElapsedTimeRecord,
-                  )
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([key, value]) => (
-                      <ListItem key={key} disablePadding>
-                        <Box
-                          sx={{
-                            width: 12,
-                            height: 12,
-                            marginRight: 1,
-                          }}
-                        />
-                        <ListItemText primary={`${key} : ${value} ms`} />
-                      </ListItem>
-                    ))}
-                </List>
+                  <Typography
+                    variant="body1"
+                    fontWeight="bold"
+                    marginBottom={1}
+                  >
+                    Elapsed timings (execution context)
+                  </Typography>
+                  <Typography variant="body2" marginLeft={2}>
+                    Aggregate
+                  </Typography>
+                  <List dense sx={{ marginLeft: 4 }}>
+                    {Object.entries(
+                      aggregateRetrievalsExecutionContextElapsedTimeRecord,
+                    )
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([key, value]) => (
+                        <ListItem key={key} disablePadding>
+                          <Box
+                            sx={{
+                              width: 12,
+                              height: 12,
+                              marginRight: 1,
+                            }}
+                          />
+                          <ListItemText primary={`${key} : ${value} ms`} />
+                        </ListItem>
+                      ))}
+                  </List>
+                  <Typography variant="body2" marginLeft={2}>
+                    Database
+                  </Typography>
+                  <List dense sx={{ marginLeft: 4 }}>
+                    {Object.entries(
+                      databaseRetrievalsExecutionContextElapsedTimeRecord,
+                    )
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([key, value]) => (
+                        <ListItem key={key} disablePadding>
+                          <Box
+                            sx={{
+                              width: 12,
+                              height: 12,
+                              marginRight: 1,
+                            }}
+                          />
+                          <ListItemText primary={`${key} : ${value} ms`} />
+                        </ListItem>
+                      ))}
+                  </List>
+                </Box>
               </Box>
-            </Box>
+            ) : (
+              <Box
+                sx={{
+                  border: "1px solid #ccc",
+                  padding: 2,
+                  marginTop: 2,
+                  display: "flex",
+                }}
+              >
+                <ResponsiveContainer width={300} height={300}>
+                  <PieChart>
+                    <Pie
+                      data={pieDataElaspedTimingsGrouped}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      isAnimationActive={false}
+                    >
+                      {pieDataElaspedTimingsGrouped.map((entry) => (
+                        <Cell key={entry.name} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+
+                <Box sx={{ marginLeft: 2, flex: 1 }}>
+                  <Typography
+                    variant="body1"
+                    fontWeight="bold"
+                    marginBottom={1}
+                  >
+                    Elapsed timings
+                  </Typography>
+                  <List dense sx={{ marginLeft: 2 }}>
+                    {Object.entries(retrievalsGroupedElapsedTimeRecord)
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([key, value]) => (
+                        <ListItem key={key} disablePadding>
+                          <Box
+                            sx={{
+                              width: 12,
+                              height: 12,
+                              backgroundColor: groupColors[key],
+                              marginRight: 1,
+                            }}
+                          />
+                          <ListItemText primary={`${key} : ${value} ms`} />
+                        </ListItem>
+                      ))}
+                  </List>
+
+                  <Typography
+                    variant="body1"
+                    fontWeight="bold"
+                    marginBottom={1}
+                  >
+                    Elapsed timings (execution context)
+                  </Typography>
+                  <List dense sx={{ marginLeft: 2 }}>
+                    {Object.entries(
+                      retrievalsGroupedExecutionContextElapsedTimeRecord,
+                    )
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([key, value]) => (
+                        <ListItem key={key} disablePadding>
+                          <Box
+                            sx={{
+                              width: 12,
+                              height: 12,
+                              marginRight: 1,
+                            }}
+                          />
+                          <ListItemText primary={`${key} : ${value} ms`} />
+                        </ListItem>
+                      ))}
+                  </List>
+                </Box>
+              </Box>
+            )}
           </Grid2>
         </CardContent>
       </Card>
@@ -474,14 +590,15 @@ export default function SummaryPage(): ReactElement {
               <ResponsiveContainer width="40%" height={300}>
                 <PieChart>
                   <Pie
-                    data={pieDataRetrievalsByType}
+                    data={pieDataRetrievalsByTypeNotGrouped}
                     dataKey="value"
                     nameKey="name"
                     cx="50%"
                     cy="50%"
                     outerRadius={100}
+                    isAnimationActive={false}
                   >
-                    {pieDataRetrievalsByType.map((entry) => (
+                    {pieDataRetrievalsByTypeNotGrouped.map((entry) => (
                       <Cell key={entry.name} fill={entry.fill} />
                     ))}
                   </Pie>
