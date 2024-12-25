@@ -194,16 +194,16 @@ export default function SummaryPage(): ReactElement {
     }
   });
 
-  Object.entries(retrievalsNumberByTypeRecord).forEach(([key]) => {
+  Object.entries(retrievalsNumberByTypeRecord).forEach(([key, value]) => {
     if (
       key === "JITPrimitiveAggregatesRetrieval" ||
       key === "DatabaseRetrieval"
     ) {
-      retrievalsGroupedNumberByTypeRecord["Database"]++;
+      retrievalsGroupedNumberByTypeRecord["Database"] += value;
     } else if (key === "PartialPrimitiveAggregatesRetrieval") {
-      retrievalsGroupedNumberByTypeRecord["Providers"]++;
+      retrievalsGroupedNumberByTypeRecord["Providers"] += value;
     } else {
-      retrievalsGroupedNumberByTypeRecord["Engine"]++;
+      retrievalsGroupedNumberByTypeRecord["Engine"] += value;
     }
   });
 
@@ -579,126 +579,255 @@ export default function SummaryPage(): ReactElement {
             />
           </Grid2>
           <Grid2 container spacing={2}>
-            <Box
-              sx={{
-                border: "1px solid #ccc",
-                padding: 2,
-                marginTop: 2,
-                display: "flex",
-              }}
-            >
-              <ResponsiveContainer width="40%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={pieDataRetrievalsByTypeNotGrouped}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    isAnimationActive={false}
-                  >
-                    {pieDataRetrievalsByTypeNotGrouped.map((entry) => (
-                      <Cell key={entry.name} fill={entry.fill} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-              <Box sx={{ marginLeft: 2, flex: 1 }}>
-                <Typography variant="body1" fontWeight="bold">
-                  Retrievals ({selectedQueryPlan.querySummary.totalRetrievals})
-                  :
-                </Typography>
-                <List dense sx={{ marginLeft: 4 }}>
-                  {Object.entries(retrievalsNumberByTypeRecord)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([key, value]) => (
+            {!isGroupedNumbers ? (
+              <Grid2>
+                <Box
+                  sx={{
+                    border: "1px solid #ccc",
+                    padding: 2,
+                    marginTop: 2,
+                    display: "flex",
+                  }}
+                >
+                  <ResponsiveContainer width={300} height={300}>
+                    <PieChart>
+                      <Pie
+                        data={pieDataRetrievalsByTypeNotGrouped}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={100}
+                        isAnimationActive={false}
+                      >
+                        {pieDataRetrievalsByTypeNotGrouped.map((entry) => (
+                          <Cell key={entry.name} fill={entry.fill} />
+                        ))}
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <Box sx={{ marginLeft: 2, flex: 1 }}>
+                    <Typography variant="body1" fontWeight="bold">
+                      Retrievals (
+                      {selectedQueryPlan.querySummary.totalRetrievals}) :
+                    </Typography>
+                    <List dense sx={{ marginLeft: 4 }}>
+                      {Object.entries(retrievalsNumberByTypeRecord)
+                        .sort((a, b) => b[1] - a[1])
+                        .map(([key, value]) => (
+                          <ListItem key={key} disablePadding>
+                            <Box
+                              sx={{
+                                width: 12,
+                                height: 12,
+                                backgroundColor: retrievalsColors[key],
+                                marginRight: 1,
+                              }}
+                            />
+                            <ListItemText primary={`${key} : ${value}`} />
+                          </ListItem>
+                        ))}
+                    </List>
+                  </Box>
+                </Box>
+
+                <Box
+                  sx={{
+                    border: "1px solid #ccc",
+                    padding: 2,
+                    marginTop: 2,
+                  }}
+                >
+                  <Typography variant="body1" fontWeight="bold">
+                    Partial Providers (
+                    {selectedQueryPlan.querySummary?.partialProviders?.length ||
+                      0}
+                    ) :
+                  </Typography>
+                  {selectedQueryPlan.querySummary?.partialProviders ? (
+                    <List dense sx={{ marginLeft: 4 }}>
+                      {Object.entries(
+                        selectedQueryPlan.querySummary.partialProviders,
+                      ).map(([key, value]) => (
+                        <ListItem key={key} disablePadding>
+                          <ListItemText primary={value} />
+                        </ListItem>
+                      ))}
+                    </List>
+                  ) : (
+                    <Typography variant="body2" sx={{ marginLeft: 4 }}>
+                      No partial providers available.
+                    </Typography>
+                  )}
+                </Box>
+
+                <Box
+                  sx={{
+                    border: "1px solid #ccc",
+                    padding: 2,
+                    marginTop: 2,
+                  }}
+                >
+                  <Typography variant="body1" fontWeight="bold">
+                    Partitioning Count by Type:
+                  </Typography>
+                  <List dense sx={{ marginLeft: 4 }}>
+                    {Object.entries(
+                      selectedQueryPlan.querySummary.partitioningCountByType,
+                    ).map(([key, value]) => (
                       <ListItem key={key} disablePadding>
-                        <Box
-                          sx={{
-                            width: 12,
-                            height: 12,
-                            backgroundColor: retrievalsColors[key],
-                            marginRight: 1,
-                          }}
-                        />
                         <ListItemText primary={`${key} : ${value}`} />
                       </ListItem>
                     ))}
-                </List>
-              </Box>
-            </Box>
+                  </List>
+                </Box>
 
-            <Box
-              sx={{
-                border: "1px solid #ccc",
-                padding: 2,
-                marginTop: 2,
-              }}
-            >
-              <Typography variant="body1" fontWeight="bold">
-                Partial Providers (
-                {selectedQueryPlan.querySummary?.partialProviders?.length || 0})
-                :
-              </Typography>
-              {selectedQueryPlan.querySummary?.partialProviders ? (
-                <List dense sx={{ marginLeft: 4 }}>
-                  {Object.entries(
-                    selectedQueryPlan.querySummary.partialProviders,
-                  ).map(([key, value]) => (
-                    <ListItem key={key} disablePadding>
-                      <ListItemText primary={value} />
-                    </ListItem>
-                  ))}
-                </List>
-              ) : (
-                <Typography variant="body2" sx={{ marginLeft: 4 }}>
-                  No partial providers available.
-                </Typography>
-              )}
-            </Box>
+                <Box
+                  sx={{
+                    border: "1px solid #ccc",
+                    padding: 2,
+                    marginTop: 2,
+                  }}
+                >
+                  <Typography variant="body1" fontWeight="bold">
+                    Result Size by Partitioning:
+                  </Typography>
+                  <List dense sx={{ marginLeft: 4 }}>
+                    {Object.entries(
+                      selectedQueryPlan.querySummary.resultSizeByPartitioning,
+                    ).map(([key, value]) => (
+                      <ListItem key={key} disablePadding>
+                        <ListItemText primary={`${key} : ${value}`} />
+                      </ListItem>
+                    ))}
+                  </List>
+                </Box>
+              </Grid2>
+            ) : (
+              <Grid2>
+                <Box
+                  sx={{
+                    border: "1px solid #ccc",
+                    padding: 2,
+                    marginTop: 2,
+                    display: "flex",
+                  }}
+                >
+                  <ResponsiveContainer width={300} height={300}>
+                    <PieChart>
+                      <Pie
+                        data={pieDataRetrievalsByTypeGrouped}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={100}
+                        isAnimationActive={false}
+                      >
+                        {pieDataRetrievalsByTypeGrouped.map((entry) => (
+                          <Cell key={entry.name} fill={entry.fill} />
+                        ))}
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <Box sx={{ marginLeft: 2, flex: 1 }}>
+                    <Typography variant="body1" fontWeight="bold">
+                      Retrievals (
+                      {selectedQueryPlan.querySummary.totalRetrievals}) :
+                    </Typography>
+                    <List dense sx={{ marginLeft: 2 }}>
+                      {Object.entries(retrievalsGroupedNumberByTypeRecord)
+                        .sort((a, b) => b[1] - a[1])
+                        .map(([key, value]) => (
+                          <ListItem key={key} disablePadding>
+                            <Box
+                              sx={{
+                                width: 12,
+                                height: 12,
+                                backgroundColor: groupColors[key],
+                                marginRight: 1,
+                              }}
+                            />
+                            <ListItemText primary={`${key} : ${value}`} />
+                          </ListItem>
+                        ))}
+                    </List>
+                  </Box>
+                </Box>
 
-            <Box
-              sx={{
-                border: "1px solid #ccc",
-                padding: 2,
-                marginTop: 2,
-              }}
-            >
-              <Typography variant="body1" fontWeight="bold">
-                Partitioning Count by Type:
-              </Typography>
-              <List dense sx={{ marginLeft: 4 }}>
-                {Object.entries(
-                  selectedQueryPlan.querySummary.partitioningCountByType,
-                ).map(([key, value]) => (
-                  <ListItem key={key} disablePadding>
-                    <ListItemText primary={`${key} : ${value}`} />
-                  </ListItem>
-                ))}
-              </List>
-            </Box>
+                <Box
+                  sx={{
+                    border: "1px solid #ccc",
+                    padding: 2,
+                    marginTop: 2,
+                  }}
+                >
+                  <Typography variant="body1" fontWeight="bold">
+                    Partial Providers (
+                    {selectedQueryPlan.querySummary?.partialProviders?.length ||
+                      0}
+                    ) :
+                  </Typography>
+                  {selectedQueryPlan.querySummary?.partialProviders ? (
+                    <List dense sx={{ marginLeft: 4 }}>
+                      {Object.entries(
+                        selectedQueryPlan.querySummary.partialProviders,
+                      ).map(([key, value]) => (
+                        <ListItem key={key} disablePadding>
+                          <ListItemText primary={value} />
+                        </ListItem>
+                      ))}
+                    </List>
+                  ) : (
+                    <Typography variant="body2" sx={{ marginLeft: 4 }}>
+                      No partial providers available.
+                    </Typography>
+                  )}
+                </Box>
 
-            <Box
-              sx={{
-                border: "1px solid #ccc",
-                padding: 2,
-                marginTop: 2,
-              }}
-            >
-              <Typography variant="body1" fontWeight="bold">
-                Result Size by Partitioning:
-              </Typography>
-              <List dense sx={{ marginLeft: 4 }}>
-                {Object.entries(
-                  selectedQueryPlan.querySummary.resultSizeByPartitioning,
-                ).map(([key, value]) => (
-                  <ListItem key={key} disablePadding>
-                    <ListItemText primary={`${key} : ${value}`} />
-                  </ListItem>
-                ))}
-              </List>
-            </Box>
+                <Box
+                  sx={{
+                    border: "1px solid #ccc",
+                    padding: 2,
+                    marginTop: 2,
+                  }}
+                >
+                  <Typography variant="body1" fontWeight="bold">
+                    Partitioning Count by Type:
+                  </Typography>
+                  <List dense sx={{ marginLeft: 4 }}>
+                    {Object.entries(
+                      selectedQueryPlan.querySummary.partitioningCountByType,
+                    ).map(([key, value]) => (
+                      <ListItem key={key} disablePadding>
+                        <ListItemText primary={`${key} : ${value}`} />
+                      </ListItem>
+                    ))}
+                  </List>
+                </Box>
+
+                <Box
+                  sx={{
+                    border: "1px solid #ccc",
+                    padding: 2,
+                    marginTop: 2,
+                  }}
+                >
+                  <Typography variant="body1" fontWeight="bold">
+                    Result Size by Partitioning:
+                  </Typography>
+                  <List dense sx={{ marginLeft: 4 }}>
+                    {Object.entries(
+                      selectedQueryPlan.querySummary.resultSizeByPartitioning,
+                    ).map(([key, value]) => (
+                      <ListItem key={key} disablePadding>
+                        <ListItemText primary={`${key} : ${value}`} />
+                      </ListItem>
+                    ))}
+                  </List>
+                </Box>
+              </Grid2>
+            )}
           </Grid2>
         </CardContent>
       </Card>
