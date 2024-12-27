@@ -79,14 +79,14 @@ export default function SummaryPage(): ReactElement {
     Providers: COLORS[3],
   };
 
-  // grouped data about the retrievals
-  const retrievalsGroupedElapsedTimeRecord: Record<string, number> = {
+  // grouped data records about the retrievals
+  const retrievalsElapsedTimingsRecordGrouped: Record<string, number> = {
     Database: 0,
     Engine: 0,
     Network: 0,
     Providers: 0,
   };
-  const retrievalsGroupedExecutionContextElapsedTimeRecord: Record<
+  const retrievalsExecutionContextElapsedTimingsRecordGrouped: Record<
     string,
     number
   > = {
@@ -95,30 +95,34 @@ export default function SummaryPage(): ReactElement {
     Network: 0,
     Providers: 0,
   };
-  const retrievalsGroupedNumberByTypeRecord: Record<string, number> = {
+  const retrievalsTypeCountsRecordGrouped: Record<string, number> = {
     Database: 0,
     Engine: 0,
     Network: 0,
     Providers: 0,
   };
 
-  // detailed data about the retrievals
-  const aggregateRetrievalsElapsedTimeRecord: Record<string, number> = {};
-  const aggregateRetrievalsExecutionContextElapsedTimeRecord: Record<
+  // detailed data (not grouped) about the retrievals
+  // there is a aggregate retrievals variable and a database retrievals variable
+  const aggregateRetrievalsElapsedTimingsRecordNotGrouped: Record<
+    string,
+    number
+  > = {};
+  const aggregateRetrievalsExecutionContextElapsedTimingsRecordNotGrouped: Record<
     string,
     number
   > = {};
 
   let databaseRetrievalsElapsedTime = 0;
   let databaseRetrievalsExecutionContextElapsedTime = 0;
-  const databaseRetrievalsElapsedTimeRecord = {
+  const databaseRetrievalsElapsedTimingsRecordNotGrouped = {
     DatabaseRetrieval: databaseRetrievalsElapsedTime,
   };
-  const databaseRetrievalsExecutionContextElapsedTimeRecord = {
+  const databaseRetrievalsExecutionContextElapsedTimingsRecordNotGrouped = {
     DatabaseRetrieval: databaseRetrievalsExecutionContextElapsedTime,
   };
 
-  const retrievalsNumberByTypeRecord =
+  const retrievalsTypeCountsRecordNotGrouped =
     selectedQueryPlan.querySummary.retrievalsCountByType;
 
   // filling the records
@@ -128,18 +132,23 @@ export default function SummaryPage(): ReactElement {
       0,
     );
 
-    if (aggregateRetrievalsElapsedTimeRecord[retrieval.type] !== undefined) {
-      aggregateRetrievalsElapsedTimeRecord[retrieval.type] += elapsedTimeSum;
+    if (
+      aggregateRetrievalsElapsedTimingsRecordNotGrouped[retrieval.type] !==
+      undefined
+    ) {
+      aggregateRetrievalsElapsedTimingsRecordNotGrouped[retrieval.type] +=
+        elapsedTimeSum;
     } else {
-      aggregateRetrievalsElapsedTimeRecord[retrieval.type] = elapsedTimeSum;
+      aggregateRetrievalsElapsedTimingsRecordNotGrouped[retrieval.type] =
+        elapsedTimeSum;
     }
 
     if (retrieval.type == "JITPrimitiveAggregatesRetrieval") {
-      retrievalsGroupedElapsedTimeRecord["Database"] += elapsedTimeSum;
+      retrievalsElapsedTimingsRecordGrouped["Database"] += elapsedTimeSum;
     } else if (retrieval.type == "PartialPrimitiveAggregatesRetrieval") {
-      retrievalsGroupedElapsedTimeRecord["Providers"] += elapsedTimeSum;
+      retrievalsElapsedTimingsRecordGrouped["Providers"] += elapsedTimeSum;
     } else {
-      retrievalsGroupedElapsedTimeRecord["Engine"] += elapsedTimeSum;
+      retrievalsElapsedTimingsRecordGrouped["Engine"] += elapsedTimeSum;
     }
 
     if (retrieval.timingInfo.executionContextElapsedTime !== undefined) {
@@ -150,23 +159,26 @@ export default function SummaryPage(): ReactElement {
         );
 
       if (
-        aggregateRetrievalsExecutionContextElapsedTimeRecord[retrieval.type] !==
-        undefined
+        aggregateRetrievalsExecutionContextElapsedTimingsRecordNotGrouped[
+          retrieval.type
+        ] !== undefined
       ) {
-        aggregateRetrievalsExecutionContextElapsedTimeRecord[retrieval.type] +=
-          executionContextElapsedTimeSum;
+        aggregateRetrievalsExecutionContextElapsedTimingsRecordNotGrouped[
+          retrieval.type
+        ] += executionContextElapsedTimeSum;
       } else {
-        aggregateRetrievalsExecutionContextElapsedTimeRecord[retrieval.type] =
-          executionContextElapsedTimeSum;
+        aggregateRetrievalsExecutionContextElapsedTimingsRecordNotGrouped[
+          retrieval.type
+        ] = executionContextElapsedTimeSum;
       }
       if (retrieval.type == "JITPrimitiveAggregatesRetrieval") {
-        retrievalsGroupedExecutionContextElapsedTimeRecord["Database"] +=
+        retrievalsExecutionContextElapsedTimingsRecordGrouped["Database"] +=
           executionContextElapsedTimeSum;
       } else if (retrieval.type == "PartialPrimitiveAggregatesRetrieval") {
-        retrievalsGroupedExecutionContextElapsedTimeRecord["Providers"] +=
+        retrievalsExecutionContextElapsedTimingsRecordGrouped["Providers"] +=
           executionContextElapsedTimeSum;
       } else {
-        retrievalsGroupedExecutionContextElapsedTimeRecord["Engine"] +=
+        retrievalsExecutionContextElapsedTimingsRecordGrouped["Engine"] +=
           executionContextElapsedTimeSum;
       }
     }
@@ -177,7 +189,7 @@ export default function SummaryPage(): ReactElement {
       (acc, num) => acc + num,
       0,
     );
-    retrievalsGroupedElapsedTimeRecord["Database"] +=
+    retrievalsElapsedTimingsRecordGrouped["Database"] +=
       retrieval.timingInfo.elapsedTime.reduce((acc, num) => acc + num, 0);
 
     if (retrieval.timingInfo.executionContextElapsedTime !== undefined) {
@@ -186,7 +198,7 @@ export default function SummaryPage(): ReactElement {
           (acc, num) => acc + num,
           0,
         );
-      retrievalsGroupedExecutionContextElapsedTimeRecord["Database"] +=
+      retrievalsExecutionContextElapsedTimingsRecordGrouped["Database"] +=
         retrieval.timingInfo.executionContextElapsedTime.reduce(
           (acc, num) => acc + num,
           0,
@@ -194,29 +206,31 @@ export default function SummaryPage(): ReactElement {
     }
   });
 
-  Object.entries(retrievalsNumberByTypeRecord).forEach(([key, value]) => {
-    if (
-      key === "JITPrimitiveAggregatesRetrieval" ||
-      key === "DatabaseRetrieval"
-    ) {
-      retrievalsGroupedNumberByTypeRecord["Database"] += value;
-    } else if (key === "PartialPrimitiveAggregatesRetrieval") {
-      retrievalsGroupedNumberByTypeRecord["Providers"] += value;
-    } else {
-      retrievalsGroupedNumberByTypeRecord["Engine"] += value;
-    }
-  });
+  Object.entries(retrievalsTypeCountsRecordNotGrouped).forEach(
+    ([key, value]) => {
+      if (
+        key === "JITPrimitiveAggregatesRetrieval" ||
+        key === "DatabaseRetrieval"
+      ) {
+        retrievalsTypeCountsRecordGrouped["Database"] += value;
+      } else if (key === "PartialPrimitiveAggregatesRetrieval") {
+        retrievalsTypeCountsRecordGrouped["Providers"] += value;
+      } else {
+        retrievalsTypeCountsRecordGrouped["Engine"] += value;
+      }
+    },
+  );
 
   // Data for the PieCharts
   const pieDataElapsedTimingsNotGrouped = [
-    ...Object.entries(aggregateRetrievalsElapsedTimeRecord)
+    ...Object.entries(aggregateRetrievalsElapsedTimingsRecordNotGrouped)
       .sort((a, b) => b[1] - a[1])
       .map(([key, value]) => ({
         name: key,
         value,
         fill: retrievalsColors[key],
       })),
-    ...Object.entries(databaseRetrievalsElapsedTimeRecord)
+    ...Object.entries(databaseRetrievalsElapsedTimingsRecordNotGrouped)
       .sort((a, b) => b[1] - a[1])
       .map(([key, value]) => ({
         name: key,
@@ -226,7 +240,7 @@ export default function SummaryPage(): ReactElement {
   ];
 
   const pieDataElaspedTimingsGrouped = Object.entries(
-    retrievalsGroupedElapsedTimeRecord,
+    retrievalsElapsedTimingsRecordGrouped,
   )
     .sort((a, b) => b[1] - a[1])
     .map(([key, value]) => ({
@@ -235,8 +249,8 @@ export default function SummaryPage(): ReactElement {
       fill: groupColors[key],
     }));
 
-  const pieDataRetrievalsByTypeNotGrouped = Object.entries(
-    retrievalsNumberByTypeRecord,
+  const pieDataRetrievalsTypeCountsNotGrouped = Object.entries(
+    retrievalsTypeCountsRecordNotGrouped,
   )
     .sort((a, b) => b[1] - a[1])
     .map(([key, value]) => ({
@@ -245,8 +259,8 @@ export default function SummaryPage(): ReactElement {
       fill: retrievalsColors[key],
     }));
 
-  const pieDataRetrievalsByTypeGrouped = Object.entries(
-    retrievalsGroupedNumberByTypeRecord,
+  const pieDataRetrievalsTypeCountsGrouped = Object.entries(
+    retrievalsTypeCountsRecordGrouped,
   )
     .sort((a, b) => b[1] - a[1])
     .map(([key, value]) => ({
@@ -334,7 +348,9 @@ export default function SummaryPage(): ReactElement {
                     Aggregate
                   </Typography>
                   <List dense sx={{ marginLeft: 4 }}>
-                    {Object.entries(aggregateRetrievalsElapsedTimeRecord)
+                    {Object.entries(
+                      aggregateRetrievalsElapsedTimingsRecordNotGrouped,
+                    )
                       .sort((a, b) => b[1] - a[1])
                       .map(([key, value]) => (
                         <ListItem key={key} disablePadding>
@@ -354,7 +370,9 @@ export default function SummaryPage(): ReactElement {
                     Database
                   </Typography>
                   <List dense sx={{ marginLeft: 4 }}>
-                    {Object.entries(databaseRetrievalsElapsedTimeRecord)
+                    {Object.entries(
+                      databaseRetrievalsElapsedTimingsRecordNotGrouped,
+                    )
                       .sort((a, b) => b[1] - a[1])
                       .map(([key, value]) => (
                         <ListItem key={key} disablePadding>
@@ -383,7 +401,7 @@ export default function SummaryPage(): ReactElement {
                   </Typography>
                   <List dense sx={{ marginLeft: 4 }}>
                     {Object.entries(
-                      aggregateRetrievalsExecutionContextElapsedTimeRecord,
+                      aggregateRetrievalsExecutionContextElapsedTimingsRecordNotGrouped,
                     )
                       .sort((a, b) => b[1] - a[1])
                       .map(([key, value]) => (
@@ -404,7 +422,7 @@ export default function SummaryPage(): ReactElement {
                   </Typography>
                   <List dense sx={{ marginLeft: 4 }}>
                     {Object.entries(
-                      databaseRetrievalsExecutionContextElapsedTimeRecord,
+                      databaseRetrievalsExecutionContextElapsedTimingsRecordNotGrouped,
                     )
                       .sort((a, b) => b[1] - a[1])
                       .map(([key, value]) => (
@@ -458,7 +476,7 @@ export default function SummaryPage(): ReactElement {
                     Elapsed timings
                   </Typography>
                   <List dense sx={{ marginLeft: 2 }}>
-                    {Object.entries(retrievalsGroupedElapsedTimeRecord)
+                    {Object.entries(retrievalsElapsedTimingsRecordGrouped)
                       .sort((a, b) => b[1] - a[1])
                       .map(([key, value]) => (
                         <ListItem key={key} disablePadding>
@@ -484,7 +502,7 @@ export default function SummaryPage(): ReactElement {
                   </Typography>
                   <List dense sx={{ marginLeft: 2 }}>
                     {Object.entries(
-                      retrievalsGroupedExecutionContextElapsedTimeRecord,
+                      retrievalsExecutionContextElapsedTimingsRecordGrouped,
                     )
                       .sort((a, b) => b[1] - a[1])
                       .map(([key, value]) => (
@@ -592,7 +610,7 @@ export default function SummaryPage(): ReactElement {
                 <ResponsiveContainer width={300} height={300}>
                   <PieChart>
                     <Pie
-                      data={pieDataRetrievalsByTypeNotGrouped}
+                      data={pieDataRetrievalsTypeCountsNotGrouped}
                       dataKey="value"
                       nameKey="name"
                       cx="50%"
@@ -600,7 +618,7 @@ export default function SummaryPage(): ReactElement {
                       outerRadius={100}
                       isAnimationActive={false}
                     >
-                      {pieDataRetrievalsByTypeNotGrouped.map((entry) => (
+                      {pieDataRetrievalsTypeCountsNotGrouped.map((entry) => (
                         <Cell key={entry.name} fill={entry.fill} />
                       ))}
                     </Pie>
@@ -612,7 +630,7 @@ export default function SummaryPage(): ReactElement {
                     ) :
                   </Typography>
                   <List dense sx={{ marginLeft: 4 }}>
-                    {Object.entries(retrievalsNumberByTypeRecord)
+                    {Object.entries(retrievalsTypeCountsRecordNotGrouped)
                       .sort((a, b) => b[1] - a[1])
                       .map(([key, value]) => (
                         <ListItem key={key} disablePadding>
@@ -716,7 +734,7 @@ export default function SummaryPage(): ReactElement {
                 <ResponsiveContainer width={300} height={300}>
                   <PieChart>
                     <Pie
-                      data={pieDataRetrievalsByTypeGrouped}
+                      data={pieDataRetrievalsTypeCountsGrouped}
                       dataKey="value"
                       nameKey="name"
                       cx="50%"
@@ -724,7 +742,7 @@ export default function SummaryPage(): ReactElement {
                       outerRadius={100}
                       isAnimationActive={false}
                     >
-                      {pieDataRetrievalsByTypeGrouped.map((entry) => (
+                      {pieDataRetrievalsTypeCountsGrouped.map((entry) => (
                         <Cell key={entry.name} fill={entry.fill} />
                       ))}
                     </Pie>
@@ -736,7 +754,7 @@ export default function SummaryPage(): ReactElement {
                     ) :
                   </Typography>
                   <List dense sx={{ marginLeft: 2 }}>
-                    {Object.entries(retrievalsGroupedNumberByTypeRecord)
+                    {Object.entries(retrievalsTypeCountsRecordGrouped)
                       .sort((a, b) => b[1] - a[1])
                       .map(([key, value]) => (
                         <ListItem key={key} disablePadding>
