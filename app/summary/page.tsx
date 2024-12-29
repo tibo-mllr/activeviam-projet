@@ -104,6 +104,7 @@ export default function SummaryPage(): ReactElement {
 
   // detailed data (not grouped) about the retrievals
   // there is a aggregate retrievals variable and a database retrievals variable
+  // aggregate
   const aggregateRetrievalsElapsedTimingsRecordNotGrouped: Record<
     string,
     number
@@ -113,6 +114,7 @@ export default function SummaryPage(): ReactElement {
     number
   > = {};
 
+  // database: only one type and it needs to be directly specified since it is not in the JSON
   let databaseRetrievalsElapsedTime = 0;
   let databaseRetrievalsExecutionContextElapsedTime = 0;
   const databaseRetrievalsElapsedTimingsRecordNotGrouped = {
