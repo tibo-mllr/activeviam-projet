@@ -21,18 +21,18 @@ import { ReactElement, useState } from "react";
 import { useSelector } from "react-redux";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
-export default function SummaryPage(): ReactElement {
-  const COLORS = [
-    "#800080",
-    "#FFA500",
-    "#0000FF",
-    "#FF0000",
-    "#00FF00",
-    "#FFFF00",
-    "#808080",
-    "#A52A2A",
-  ];
+const COLORS = [
+  "#800080",
+  "#FFA500",
+  "#0000FF",
+  "#FF0000",
+  "#00FF00",
+  "#FFFF00",
+  "#808080",
+  "#A52A2A",
+];
 
+export default function SummaryPage(): ReactElement {
   let colorIndex = 0;
   const queryPlan = useSelector(getQueryPlan);
   const [selectedIndex, setSelectedIndex] = useState(0);
