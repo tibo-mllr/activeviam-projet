@@ -7,16 +7,16 @@ interface ProcessedNode {
 }
 
 function computeTiming(timingInfo: TimingInfo): number {
-  const startTimes: number[] = timingInfo["startTime"];
-  const elapsedTimes: number[] = timingInfo["elapsedTime"];
+  const startTimes: number[] = timingInfo.startTime;
+  const elapsedTimes: number[] = timingInfo.elapsedTime;
 
   if (startTimes.length != elapsedTimes.length) {
     return 0;
   }
 
-  const endTimes: number[] = startTimes.map(function (num, idx) {
-    return num + elapsedTimes[idx];
-  });
+  const endTimes: number[] = startTimes.map(
+    (num, idx) => num + elapsedTimes[idx],
+  );
 
   return (
     endTimes.reduce((a, b) => Math.max(a, b)) -
@@ -29,20 +29,16 @@ export function getSlowestNodes(
   databaseRetrievals: DatabaseRetrieval[],
   numberOfNodes: number,
 ): ProcessedNode[] {
-  const aggregateNodes: ProcessedNode[] = aggregateRetrievals.map(
-    (node: AggregateRetrieval) => ({
-      id: `Aggregate ${node.retrievalId}`,
-      type: "Aggregate",
-      timing: computeTiming(node.timingInfo),
-    }),
-  );
-  const databaseNodes: ProcessedNode[] = databaseRetrievals.map(
-    (node: DatabaseRetrieval) => ({
-      id: `Database ${node.retrievalId}`,
-      type: "Database",
-      timing: computeTiming(node.timingInfo),
-    }),
-  );
+  const aggregateNodes: ProcessedNode[] = aggregateRetrievals.map((node) => ({
+    id: `Aggregate ${node.retrievalId}`,
+    type: "Aggregate",
+    timing: computeTiming(node.timingInfo),
+  }));
+  const databaseNodes: ProcessedNode[] = databaseRetrievals.map((node) => ({
+    id: `Database ${node.retrievalId}`,
+    type: "Database",
+    timing: computeTiming(node.timingInfo),
+  }));
 
   const allNodes: ProcessedNode[] = [...aggregateNodes, ...databaseNodes];
 

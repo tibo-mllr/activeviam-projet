@@ -45,7 +45,7 @@ export default function NodesPage(): ReactElement {
   return (
     <Box padding={2} width="100%">
       <Typography variant="h4" gutterBottom>
-        {`Top ${numberOfNodes} Slowest Nodes`}
+        Top {numberOfNodes} Slowest Nodes
       </Typography>
 
       <FormControl sx={{ padding: 2 }}>
