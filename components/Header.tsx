@@ -1,6 +1,7 @@
 import { AppBar, Button, Container, Toolbar } from "@mui/material";
 import Link from "next/link";
 import { ReactElement } from "react";
+import PlanSelector from "./PlanSelector";
 
 export function Header(): ReactElement {
   return (
@@ -22,6 +23,9 @@ export function Header(): ReactElement {
           <Link href="/nodes">
             <Button variant="outlined">Nodes</Button>
           </Link>
+          <div className="py-3 ml-auto">
+            <PlanSelector />
+          </div>
         </Toolbar>
       </Container>
     </AppBar>

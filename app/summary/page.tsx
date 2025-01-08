@@ -1,6 +1,6 @@
 "use client";
 
-import { getQueryPlan } from "@/lib/redux";
+import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
   Card,
   CardContent,
@@ -11,10 +11,6 @@ import {
   ListItemText,
   TextField,
   Box,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   Switch,
 } from "@mui/material";
 import { ReactElement, useState } from "react";
@@ -35,12 +31,12 @@ const COLORS = [
 export default function SummaryPage(): ReactElement {
   let colorIndex = 0;
   const queryPlan = useSelector(getQueryPlan);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const selectedIndex = useSelector(getSelectedIndex);
   const [searchTerm, setSearchTerm] = useState("");
   const [isGroupedTimings, setIsGroupedTimings] = useState<boolean>(false);
   const [isGroupedNumbers, setIsGroupedNumbers] = useState<boolean>(false);
 
-  if (queryPlan == "" || queryPlan.length === 0) {
+  if (!queryPlan || queryPlan.length === 0) {
     // Default display
     return (
       <Card>
@@ -273,33 +269,6 @@ export default function SummaryPage(): ReactElement {
 
   return (
     <Grid2 container spacing={1}>
-      {queryPlan.length >= 2 && (
-        <Card>
-          <CardContent>
-            <FormControl fullWidth>
-              <InputLabel id="query-plan-select-label">
-                Select Query Plan
-              </InputLabel>
-              <Select
-                labelId="query-plan-select-label"
-                value={selectedIndex}
-                onChange={(e) => {
-                  const selectedIndex = e.target.value as number;
-                  setSelectedIndex(selectedIndex);
-                }}
-                label="Select Query Plan"
-              >
-                {queryPlan.map((plan, index) => (
-                  <MenuItem key={index} value={index}>
-                    {queryPlan[index].planInfo.mdxPass}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </CardContent>
-        </Card>
-      )}
-
       <Card>
         <CardContent>
           <Typography variant="h6">Elapsed timings of retrievals</Typography>
