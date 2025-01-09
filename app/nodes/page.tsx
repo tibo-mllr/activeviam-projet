@@ -15,6 +15,8 @@ import {
   InputLabel,
   Grid2,
   Slider,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
 import { ReactElement, useState } from "react";
 import { useSelector } from "react-redux";
@@ -24,6 +26,7 @@ export default function NodesPage(): ReactElement {
   const selectedIndex = useSelector(getSelectedIndex);
 
   const [numberOfNodes, setNumberOfNodes] = useState<number>(10);
+  const [showDetails, setShowDetails] = useState<boolean>(false);
 
   if (!queryPlan || queryPlan.length === 0) {
     return (
@@ -58,6 +61,16 @@ export default function NodesPage(): ReactElement {
         />
       </Grid2>
 
+      <FormControlLabel
+        control={
+          <Switch
+            checked={showDetails}
+            onChange={(e) => setShowDetails(e.target.checked)}
+          />
+        }
+        label="Show Details"
+      />
+
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -65,6 +78,13 @@ export default function NodesPage(): ReactElement {
               <TableCell>Node ID</TableCell>
               <TableCell>Type</TableCell>
               <TableCell align="right">Timing (ms)</TableCell>
+              {showDetails && (
+                <>
+                  <TableCell align="right">Average (ms)</TableCell>
+                  <TableCell align="right">Std Dev (ms)</TableCell>
+                  <TableCell align="right">Parallel Count</TableCell>
+                </>
+              )}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -73,6 +93,15 @@ export default function NodesPage(): ReactElement {
                 <TableCell>{node.id}</TableCell>
                 <TableCell>{node.type}</TableCell>
                 <TableCell align="right">{node.timing.toFixed(2)}</TableCell>
+                {showDetails && (
+                  <>
+                    <TableCell align="right">{node.mean.toFixed(2)}</TableCell>
+                    <TableCell align="right">
+                      {node.stdDev.toFixed(2)}
+                    </TableCell>
+                    <TableCell align="right">{node.parallelCount}</TableCell>
+                  </>
+                )}
               </TableRow>
             ))}
           </TableBody>

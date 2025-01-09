@@ -5,6 +5,9 @@ export type ProcessedNode = {
   id: string;
   type: "Aggregate" | "Database";
   timing: number;
+  parallelCount: number;
+  mean: number;
+  stdDev: number;
 };
 
 type PiePartData = {
