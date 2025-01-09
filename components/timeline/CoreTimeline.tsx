@@ -1,5 +1,5 @@
 import { TimelineTiming, TimingType } from "@/lib/types";
-import { Box, Button, Tooltip } from "@mui/material";
+import { Box, Tooltip } from "@mui/material";
 import { ReactElement } from "react";
 
 type CoreTimelineProps = {
@@ -37,18 +37,16 @@ export function CoreTimeline({
             </>
           }
         >
-          <Button
-            sx={{
-              width: (end - start) * scale,
-              height: "100%",
-              position: "absolute",
-              left: start * scale,
-              border: 1,
-              borderColor: "black",
-              borderRadius: 2,
-              bgcolor: "primary.dark",
-              padding: 0,
-            }}
+          <Box
+            component="button" // Behave like a button in a semantic way (cursor, focus, etc.) but no minimum size
+            width={(end - start) * scale}
+            height="100%"
+            position="absolute"
+            left={start * scale}
+            border={1}
+            borderColor="black"
+            borderRadius={2}
+            bgcolor="primary.dark"
             onClick={() => openRetrievalDialog(retrievalId, type)}
           />
         </Tooltip>
