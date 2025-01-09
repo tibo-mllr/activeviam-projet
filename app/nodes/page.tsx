@@ -1,7 +1,7 @@
 "use client";
 
 import { getSlowestNodes } from "@/lib/functions/slowestNodes";
-import { getQueryPlan } from "@/lib/redux";
+import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
   Box,
   Table,
@@ -12,9 +12,6 @@ import {
   TableRow,
   Typography,
   Paper,
-  MenuItem,
-  Select,
-  FormControl,
   InputLabel,
   Grid2,
   Slider,
@@ -24,8 +21,8 @@ import { useSelector } from "react-redux";
 
 export default function NodesPage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
+  const selectedIndex = useSelector(getSelectedIndex);
 
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [numberOfNodes, setNumberOfNodes] = useState<number>(10);
 
   if (!queryPlan || queryPlan.length === 0) {
@@ -47,25 +44,6 @@ export default function NodesPage(): ReactElement {
       <Typography variant="h4" gutterBottom>
         Top {numberOfNodes} Slowest Nodes
       </Typography>
-
-      <FormControl sx={{ padding: 2 }}>
-        <InputLabel id="query-plan-select-label">Select Query Plan</InputLabel>
-        <Select
-          labelId="query-plan-select-label"
-          value={selectedIndex}
-          onChange={(e) => {
-            const selectedIndex = e.target.value as number;
-            setSelectedIndex(selectedIndex);
-          }}
-          label="Select Query Plan"
-        >
-          {queryPlan.map((plan, index) => (
-            <MenuItem key={index} value={index}>
-              {queryPlan[index].planInfo.mdxPass}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
 
       <Grid2>
         <InputLabel id="query-plan-select-number-of-nodes">
