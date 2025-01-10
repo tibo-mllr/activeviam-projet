@@ -27,7 +27,7 @@ jobs:
         run: yarn build
 
       - name: Test
-        run: yarn test
+        run: yarn test --maxWorkers=4
 
       - name: Lint
         run: yarn lint
