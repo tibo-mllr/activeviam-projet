@@ -33,6 +33,7 @@ export default function SummaryPage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
   const selectedIndex = useSelector(getSelectedIndex);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isDataAggregated, setIsDataAggregated] = useState<boolean>(false);
   const [isGroupedTimings, setIsGroupedTimings] = useState<boolean>(false);
   const [isGroupedNumbers, setIsGroupedNumbers] = useState<boolean>(false);
 
@@ -269,6 +270,14 @@ export default function SummaryPage(): ReactElement {
 
   return (
     <Grid2 container spacing={1}>
+      <Card>
+        <CardContent>
+          <Switch
+            checked={isDataAggregated}
+            onChange={() => setIsDataAggregated((prev) => !prev)}
+          />
+        </CardContent>
+      </Card>
       <Card>
         <CardContent>
           <Typography variant="h6">Elapsed timings of retrievals</Typography>
