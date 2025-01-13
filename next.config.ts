@@ -4,8 +4,8 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
-        source: '/',
-        destination: '/submit-query',
+        source: "/",
+        destination: "/submit-query",
         permanent: true,
       },
     ];
