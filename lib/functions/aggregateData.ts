@@ -1,6 +1,7 @@
 import { AggregateRetrieval, DatabaseRetrieval, QueryPlan } from "../types";
 
 // the objective is to return an object of type QueryPlan that contains all the data
+// the page will be able to display it.
 export function aggregateData(queryPlan: QueryPlan[]): QueryPlan {
   let aggregatedMeasures: string[] = [];
   const aggregatedPartialProviders: string[] = [];

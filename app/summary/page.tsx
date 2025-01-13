@@ -275,12 +275,14 @@ export default function SummaryPage(): ReactElement {
     <Grid2 container spacing={1}>
       <Card>
         <CardContent>
+          <Typography>Aggregate all pass</Typography>
           <Switch
             checked={isDataAggregated}
             onChange={() => setIsDataAggregated((prev) => !prev)}
           />
         </CardContent>
       </Card>
+
       <Card>
         <CardContent>
           <Typography variant="h6">Elapsed timings of retrievals</Typography>
@@ -328,7 +330,7 @@ export default function SummaryPage(): ReactElement {
                     Elapsed timings
                   </Typography>
                   <Typography variant="body2" marginLeft={2}>
-                    Aggregate
+                    Aggregate retrievals
                   </Typography>
                   <List dense sx={{ marginLeft: 4 }}>
                     {Object.entries(
@@ -350,7 +352,7 @@ export default function SummaryPage(): ReactElement {
                       ))}
                   </List>
                   <Typography variant="body2" marginLeft={2}>
-                    Database
+                    Database retrievals
                   </Typography>
                   <List dense sx={{ marginLeft: 4 }}>
                     {Object.entries(
