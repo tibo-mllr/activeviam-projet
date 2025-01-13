@@ -92,11 +92,11 @@ export default function TimelinePage(): ReactElement {
 
   const openRetrievalDialog = (retrievalId: number, type: TimingType): void => {
     let retrieval: AggregateRetrieval | DatabaseRetrieval | undefined;
-    if (type === "AggregateRetrieval")
+    if (type.startsWith("AggregateRetrieval"))
       retrieval = aggregateRetrievals.find(
         (r) => r.retrievalId === retrievalId,
       );
-    else if (type === "DatabaseRetrieval")
+    else if (type.startsWith("DatabaseRetrieval"))
       retrieval = databaseRetrievals.find((r) => r.retrievalId === retrievalId);
 
     if (retrieval) {
