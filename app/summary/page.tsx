@@ -1,7 +1,7 @@
 "use client";
 
-import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import { aggregateData } from "@/lib/functions";
+import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
   Card,
   CardContent,
@@ -51,7 +51,6 @@ export default function SummaryPage(): ReactElement {
 
   // Select the currently active query plan
   let selectedQueryPlan = queryPlan[selectedIndex];
-  console.log(isDataAggregated);
   if (isDataAggregated) {
     selectedQueryPlan = aggregateData(queryPlan);
   }
@@ -62,7 +61,6 @@ export default function SummaryPage(): ReactElement {
       key.toLowerCase().includes(searchTerm.toLowerCase()) ||
       value.toLowerCase().includes(searchTerm.toLowerCase()),
   );
-  console.log(selectedQueryPlan);
   const { aggregateRetrievals, databaseRetrievals } = selectedQueryPlan;
 
   // associating a color for each retrieval type
