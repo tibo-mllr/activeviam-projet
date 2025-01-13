@@ -28,8 +28,14 @@ const COLORS = [
   "#A52A2A",
 ];
 
+const GROUP_COLORS: Record<string, string> = {
+  Database: COLORS[0],
+  Engine: COLORS[1],
+  Network: COLORS[2],
+  Providers: COLORS[3],
+};
+
 export default function SummaryPage(): ReactElement {
-  let colorIndex = 0;
   const queryPlan = useSelector(getQueryPlan);
   const selectedIndex = useSelector(getSelectedIndex);
   const [searchTerm, setSearchTerm] = useState("");
@@ -57,32 +63,20 @@ export default function SummaryPage(): ReactElement {
       value.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const { aggregateRetrievals, databaseRetrievals } = selectedQueryPlan;
+  const {
+    aggregateRetrievals,
+    databaseRetrievals,
+    querySummary: { retrievalsCountByType },
+  } = selectedQueryPlan;
 
-  // associating a color for each retrieval type
-  const retrievalsColors: Record<string, string> = {};
-  Object.entries(selectedQueryPlan.querySummary.retrievalsCountByType).forEach(
-    ([key]) => {
-      retrievalsColors[key] = COLORS[colorIndex % COLORS.length];
-      colorIndex++;
-    },
-  );
-  // associating a color for each group type
-  const groupColors: Record<string, string> = {
-    Database: COLORS[0],
-    Engine: COLORS[1],
-    Network: COLORS[2],
-    Providers: COLORS[3],
-  };
-
-  // grouped data records about the retrievals
-  const retrievalsElapsedTimingsRecordGrouped: Record<string, number> = {
+  // Grouped data records about the retrievals
+  const groupedRetrievalsElapsedTimings: Record<string, number> = {
     Database: 0,
     Engine: 0,
     Network: 0,
     Providers: 0,
   };
-  const retrievalsExecutionContextElapsedTimingsRecordGrouped: Record<
+  const groupedRetrievalsExecutionContextElapsedTimings: Record<
     string,
     number
   > = {
@@ -91,144 +85,122 @@ export default function SummaryPage(): ReactElement {
     Network: 0,
     Providers: 0,
   };
-  const retrievalsTypeCountsRecordGrouped: Record<string, number> = {
+  const groupedRetrievalsTypeCounts: Record<string, number> = {
     Database: 0,
     Engine: 0,
     Network: 0,
     Providers: 0,
   };
 
-  // detailed data (not grouped) about the retrievals
-  // there is a aggregate retrievals variable and a database retrievals variable
+  // Detailed data (not grouped) about the retrievals
+  // There is an aggregate retrievals variable and a database retrievals variable
   // aggregate
-  const aggregateRetrievalsElapsedTimingsRecordNotGrouped: Record<
+  const aggregateRetrievalsElapsedTimings: Record<string, number> = {};
+  const aggregateRetrievalsExecutionContextElapsedTimings: Record<
     string,
     number
   > = {};
-  const aggregateRetrievalsExecutionContextElapsedTimingsRecordNotGrouped: Record<
-    string,
-    number
-  > = {};
 
-  // database: only one type and it needs to be directly specified since it is not in the JSON
-  let databaseRetrievalsElapsedTime = 0;
-  let databaseRetrievalsExecutionContextElapsedTime = 0;
-  const databaseRetrievalsElapsedTimingsRecordNotGrouped = {
-    DatabaseRetrieval: databaseRetrievalsElapsedTime,
+  // Database: only one type and it needs to be directly specified since it is not in the JSON
+  const databaseRetrievalsElapsedTimings = {
+    DatabaseRetrieval: 0,
   };
-  const databaseRetrievalsExecutionContextElapsedTimingsRecordNotGrouped = {
-    DatabaseRetrieval: databaseRetrievalsExecutionContextElapsedTime,
+  const databaseRetrievalsExecutionContextElapsedTimings = {
+    DatabaseRetrieval: 0,
   };
+  const retrievalsTypeCounts = retrievalsCountByType;
 
-  const retrievalsTypeCountsRecordNotGrouped =
-    selectedQueryPlan.querySummary.retrievalsCountByType;
-
-  // filling the records
-  aggregateRetrievals.forEach((retrieval) => {
-    const elapsedTimeSum = retrieval.timingInfo.elapsedTime.reduce(
+  // Filling the records
+  aggregateRetrievals.forEach(({ timingInfo, type }) => {
+    const elapsedTimeSum = timingInfo.elapsedTime.reduce(
       (acc, num) => acc + num,
       0,
     );
 
-    if (
-      aggregateRetrievalsElapsedTimingsRecordNotGrouped[retrieval.type] !==
-      undefined
-    ) {
-      aggregateRetrievalsElapsedTimingsRecordNotGrouped[retrieval.type] +=
-        elapsedTimeSum;
-    } else {
-      aggregateRetrievalsElapsedTimingsRecordNotGrouped[retrieval.type] =
-        elapsedTimeSum;
-    }
+    aggregateRetrievalsElapsedTimings[type] =
+      (aggregateRetrievalsElapsedTimings[type] ?? 0) + elapsedTimeSum;
 
-    if (retrieval.type == "JITPrimitiveAggregatesRetrieval") {
-      retrievalsElapsedTimingsRecordGrouped["Database"] += elapsedTimeSum;
-    } else if (retrieval.type == "PartialPrimitiveAggregatesRetrieval") {
-      retrievalsElapsedTimingsRecordGrouped["Providers"] += elapsedTimeSum;
-    } else {
-      retrievalsElapsedTimingsRecordGrouped["Engine"] += elapsedTimeSum;
-    }
+    if (type == "JITPrimitiveAggregatesRetrieval")
+      groupedRetrievalsElapsedTimings["Database"] += elapsedTimeSum;
+    else if (type == "PartialPrimitiveAggregatesRetrieval")
+      groupedRetrievalsElapsedTimings["Providers"] += elapsedTimeSum;
+    else groupedRetrievalsElapsedTimings["Engine"] += elapsedTimeSum;
 
-    if (retrieval.timingInfo.executionContextElapsedTime !== undefined) {
+    if (timingInfo.executionContextElapsedTime !== undefined) {
       const executionContextElapsedTimeSum =
-        retrieval.timingInfo.executionContextElapsedTime.reduce(
+        timingInfo.executionContextElapsedTime.reduce(
           (acc, num) => acc + num,
           0,
         );
 
-      if (
-        aggregateRetrievalsExecutionContextElapsedTimingsRecordNotGrouped[
-          retrieval.type
-        ] !== undefined
-      ) {
-        aggregateRetrievalsExecutionContextElapsedTimingsRecordNotGrouped[
-          retrieval.type
-        ] += executionContextElapsedTimeSum;
-      } else {
-        aggregateRetrievalsExecutionContextElapsedTimingsRecordNotGrouped[
-          retrieval.type
-        ] = executionContextElapsedTimeSum;
-      }
-      if (retrieval.type == "JITPrimitiveAggregatesRetrieval") {
-        retrievalsExecutionContextElapsedTimingsRecordGrouped["Database"] +=
+      aggregateRetrievalsExecutionContextElapsedTimings[type] =
+        (aggregateRetrievalsExecutionContextElapsedTimings[type] ?? 0) +
+        executionContextElapsedTimeSum;
+
+      if (type == "JITPrimitiveAggregatesRetrieval")
+        groupedRetrievalsExecutionContextElapsedTimings["Database"] +=
           executionContextElapsedTimeSum;
-      } else if (retrieval.type == "PartialPrimitiveAggregatesRetrieval") {
-        retrievalsExecutionContextElapsedTimingsRecordGrouped["Providers"] +=
+      else if (type == "PartialPrimitiveAggregatesRetrieval")
+        groupedRetrievalsExecutionContextElapsedTimings["Providers"] +=
           executionContextElapsedTimeSum;
-      } else {
-        retrievalsExecutionContextElapsedTimingsRecordGrouped["Engine"] +=
+      else
+        groupedRetrievalsExecutionContextElapsedTimings["Engine"] +=
           executionContextElapsedTimeSum;
-      }
     }
   });
 
-  databaseRetrievals.forEach((retrieval) => {
-    databaseRetrievalsElapsedTime += retrieval.timingInfo.elapsedTime.reduce(
+  databaseRetrievals.forEach(({ timingInfo }) => {
+    const databaseRetrievalsElapsedTime = timingInfo.elapsedTime.reduce(
       (acc, num) => acc + num,
       0,
     );
-    retrievalsElapsedTimingsRecordGrouped["Database"] +=
-      retrieval.timingInfo.elapsedTime.reduce((acc, num) => acc + num, 0);
+    groupedRetrievalsElapsedTimings["Database"] +=
+      databaseRetrievalsElapsedTime;
+    databaseRetrievalsElapsedTimings["DatabaseRetrieval"] +=
+      databaseRetrievalsElapsedTime;
 
-    if (retrieval.timingInfo.executionContextElapsedTime !== undefined) {
-      databaseRetrievalsExecutionContextElapsedTime +=
-        retrieval.timingInfo.executionContextElapsedTime.reduce(
+    if (timingInfo.executionContextElapsedTime !== undefined) {
+      const databaseRetrievalsExecutionContextElapsedTime =
+        timingInfo.executionContextElapsedTime.reduce(
           (acc, num) => acc + num,
           0,
         );
-      retrievalsExecutionContextElapsedTimingsRecordGrouped["Database"] +=
-        retrieval.timingInfo.executionContextElapsedTime.reduce(
-          (acc, num) => acc + num,
-          0,
-        );
+      groupedRetrievalsExecutionContextElapsedTimings["Database"] +=
+        databaseRetrievalsExecutionContextElapsedTime;
+      databaseRetrievalsExecutionContextElapsedTimings["DatabaseRetrieval"] +=
+        databaseRetrievalsExecutionContextElapsedTime;
     }
   });
 
-  Object.entries(retrievalsTypeCountsRecordNotGrouped).forEach(
-    ([key, value]) => {
-      if (
-        key === "JITPrimitiveAggregatesRetrieval" ||
-        key === "DatabaseRetrieval"
-      ) {
-        retrievalsTypeCountsRecordGrouped["Database"] += value;
-      } else if (key === "PartialPrimitiveAggregatesRetrieval") {
-        retrievalsTypeCountsRecordGrouped["Providers"] += value;
-      } else {
-        retrievalsTypeCountsRecordGrouped["Engine"] += value;
-      }
-    },
-  );
+  Object.entries(retrievalsTypeCounts).forEach(([key, value]) => {
+    if (
+      key === "JITPrimitiveAggregatesRetrieval" ||
+      key === "DatabaseRetrieval"
+    )
+      groupedRetrievalsTypeCounts["Database"] += value;
+    else if (key === "PartialPrimitiveAggregatesRetrieval")
+      groupedRetrievalsTypeCounts["Providers"] += value;
+    else groupedRetrievalsTypeCounts["Engine"] += value;
+  });
+
+  // Associating a color for each retrieval type
+  let colorIndex = 0;
+  const retrievalsColors: Record<string, string> = {};
+  Object.entries(retrievalsCountByType).forEach(([key]) => {
+    retrievalsColors[key] = COLORS[colorIndex % COLORS.length];
+    colorIndex++;
+  });
 
   // Data for the PieCharts
-  const pieDataElapsedTimingsNotGrouped = [
-    ...Object.entries(aggregateRetrievalsElapsedTimingsRecordNotGrouped)
+  const pieDataElapsedTimings = [
+    ...Object.entries(aggregateRetrievalsElapsedTimings)
       .sort((a, b) => b[1] - a[1])
       .map(([key, value]) => ({
         name: key,
         value,
         fill: retrievalsColors[key],
       })),
-    ...Object.entries(databaseRetrievalsElapsedTimingsRecordNotGrouped)
+    ...Object.entries(databaseRetrievalsElapsedTimings)
       .sort((a, b) => b[1] - a[1])
       .map(([key, value]) => ({
         name: key,
@@ -237,19 +209,17 @@ export default function SummaryPage(): ReactElement {
       })),
   ];
 
-  const pieDataElaspedTimingsGrouped = Object.entries(
-    retrievalsElapsedTimingsRecordGrouped,
+  const groupedPieDataElaspedTimings = Object.entries(
+    groupedRetrievalsElapsedTimings,
   )
     .sort((a, b) => b[1] - a[1])
     .map(([key, value]) => ({
       name: key,
       value,
-      fill: groupColors[key],
+      fill: GROUP_COLORS[key],
     }));
 
-  const pieDataRetrievalsTypeCountsNotGrouped = Object.entries(
-    retrievalsTypeCountsRecordNotGrouped,
-  )
+  const pieDataRetrievalsTypeCounts = Object.entries(retrievalsTypeCounts)
     .sort((a, b) => b[1] - a[1])
     .map(([key, value]) => ({
       name: key,
@@ -257,14 +227,14 @@ export default function SummaryPage(): ReactElement {
       fill: retrievalsColors[key],
     }));
 
-  const pieDataRetrievalsTypeCountsGrouped = Object.entries(
-    retrievalsTypeCountsRecordGrouped,
+  const groupedPieDataRetrievalsTypeCounts = Object.entries(
+    retrievalsTypeCounts,
   )
     .sort((a, b) => b[1] - a[1])
     .map(([key, value]) => ({
       name: key,
       value,
-      fill: groupColors[key],
+      fill: GROUP_COLORS[key],
     }));
 
   return (
@@ -292,7 +262,7 @@ export default function SummaryPage(): ReactElement {
                 <ResponsiveContainer width={300} height={300}>
                   <PieChart>
                     <Pie
-                      data={pieDataElapsedTimingsNotGrouped}
+                      data={pieDataElapsedTimings}
                       dataKey="value"
                       nameKey="name"
                       cx="50%"
@@ -300,7 +270,7 @@ export default function SummaryPage(): ReactElement {
                       outerRadius={100}
                       isAnimationActive={false}
                     >
-                      {pieDataElapsedTimingsNotGrouped.map((entry) => (
+                      {pieDataElapsedTimings.map((entry) => (
                         <Cell key={entry.name} fill={entry.fill} />
                       ))}
                     </Pie>
@@ -319,9 +289,7 @@ export default function SummaryPage(): ReactElement {
                     Aggregate
                   </Typography>
                   <List dense sx={{ marginLeft: 4 }}>
-                    {Object.entries(
-                      aggregateRetrievalsElapsedTimingsRecordNotGrouped,
-                    )
+                    {Object.entries(aggregateRetrievalsElapsedTimings)
                       .sort((a, b) => b[1] - a[1])
                       .map(([key, value]) => (
                         <ListItem key={key} disablePadding>
@@ -341,9 +309,7 @@ export default function SummaryPage(): ReactElement {
                     Database
                   </Typography>
                   <List dense sx={{ marginLeft: 4 }}>
-                    {Object.entries(
-                      databaseRetrievalsElapsedTimingsRecordNotGrouped,
-                    )
+                    {Object.entries(databaseRetrievalsElapsedTimings)
                       .sort((a, b) => b[1] - a[1])
                       .map(([key, value]) => (
                         <ListItem key={key} disablePadding>
@@ -372,7 +338,7 @@ export default function SummaryPage(): ReactElement {
                   </Typography>
                   <List dense sx={{ marginLeft: 4 }}>
                     {Object.entries(
-                      aggregateRetrievalsExecutionContextElapsedTimingsRecordNotGrouped,
+                      aggregateRetrievalsExecutionContextElapsedTimings,
                     )
                       .sort((a, b) => b[1] - a[1])
                       .map(([key, value]) => (
@@ -393,7 +359,7 @@ export default function SummaryPage(): ReactElement {
                   </Typography>
                   <List dense sx={{ marginLeft: 4 }}>
                     {Object.entries(
-                      databaseRetrievalsExecutionContextElapsedTimingsRecordNotGrouped,
+                      databaseRetrievalsExecutionContextElapsedTimings,
                     )
                       .sort((a, b) => b[1] - a[1])
                       .map(([key, value]) => (
@@ -423,7 +389,7 @@ export default function SummaryPage(): ReactElement {
                 <ResponsiveContainer width={300} height={300}>
                   <PieChart>
                     <Pie
-                      data={pieDataElaspedTimingsGrouped}
+                      data={groupedPieDataElaspedTimings}
                       dataKey="value"
                       nameKey="name"
                       cx="50%"
@@ -431,7 +397,7 @@ export default function SummaryPage(): ReactElement {
                       outerRadius={100}
                       isAnimationActive={false}
                     >
-                      {pieDataElaspedTimingsGrouped.map((entry) => (
+                      {groupedPieDataElaspedTimings.map((entry) => (
                         <Cell key={entry.name} fill={entry.fill} />
                       ))}
                     </Pie>
@@ -447,7 +413,7 @@ export default function SummaryPage(): ReactElement {
                     Elapsed timings
                   </Typography>
                   <List dense sx={{ marginLeft: 2 }}>
-                    {Object.entries(retrievalsElapsedTimingsRecordGrouped)
+                    {Object.entries(groupedRetrievalsElapsedTimings)
                       .sort((a, b) => b[1] - a[1])
                       .map(([key, value]) => (
                         <ListItem key={key} disablePadding>
@@ -455,7 +421,7 @@ export default function SummaryPage(): ReactElement {
                             sx={{
                               width: 12,
                               height: 12,
-                              backgroundColor: groupColors[key],
+                              backgroundColor: GROUP_COLORS[key],
                               marginRight: 1,
                             }}
                           />
@@ -473,7 +439,7 @@ export default function SummaryPage(): ReactElement {
                   </Typography>
                   <List dense sx={{ marginLeft: 2 }}>
                     {Object.entries(
-                      retrievalsExecutionContextElapsedTimingsRecordGrouped,
+                      groupedRetrievalsExecutionContextElapsedTimings,
                     )
                       .sort((a, b) => b[1] - a[1])
                       .map(([key, value]) => (
@@ -581,7 +547,7 @@ export default function SummaryPage(): ReactElement {
                 <ResponsiveContainer width={300} height={300}>
                   <PieChart>
                     <Pie
-                      data={pieDataRetrievalsTypeCountsNotGrouped}
+                      data={pieDataRetrievalsTypeCounts}
                       dataKey="value"
                       nameKey="name"
                       cx="50%"
@@ -589,7 +555,7 @@ export default function SummaryPage(): ReactElement {
                       outerRadius={100}
                       isAnimationActive={false}
                     >
-                      {pieDataRetrievalsTypeCountsNotGrouped.map((entry) => (
+                      {pieDataRetrievalsTypeCounts.map((entry) => (
                         <Cell key={entry.name} fill={entry.fill} />
                       ))}
                     </Pie>
@@ -601,7 +567,7 @@ export default function SummaryPage(): ReactElement {
                     ) :
                   </Typography>
                   <List dense sx={{ marginLeft: 4 }}>
-                    {Object.entries(retrievalsTypeCountsRecordNotGrouped)
+                    {Object.entries(retrievalsTypeCounts)
                       .sort((a, b) => b[1] - a[1])
                       .map(([key, value]) => (
                         <ListItem key={key} disablePadding>
@@ -705,7 +671,7 @@ export default function SummaryPage(): ReactElement {
                 <ResponsiveContainer width={300} height={300}>
                   <PieChart>
                     <Pie
-                      data={pieDataRetrievalsTypeCountsGrouped}
+                      data={groupedPieDataRetrievalsTypeCounts}
                       dataKey="value"
                       nameKey="name"
                       cx="50%"
@@ -713,7 +679,7 @@ export default function SummaryPage(): ReactElement {
                       outerRadius={100}
                       isAnimationActive={false}
                     >
-                      {pieDataRetrievalsTypeCountsGrouped.map((entry) => (
+                      {groupedPieDataRetrievalsTypeCounts.map((entry) => (
                         <Cell key={entry.name} fill={entry.fill} />
                       ))}
                     </Pie>
@@ -725,7 +691,7 @@ export default function SummaryPage(): ReactElement {
                     ) :
                   </Typography>
                   <List dense sx={{ marginLeft: 2 }}>
-                    {Object.entries(retrievalsTypeCountsRecordGrouped)
+                    {Object.entries(groupedRetrievalsTypeCounts)
                       .sort((a, b) => b[1] - a[1])
                       .map(([key, value]) => (
                         <ListItem key={key} disablePadding>
@@ -733,7 +699,7 @@ export default function SummaryPage(): ReactElement {
                             sx={{
                               width: 12,
                               height: 12,
-                              backgroundColor: groupColors[key],
+                              backgroundColor: GROUP_COLORS[key],
                               marginRight: 1,
                             }}
                           />
