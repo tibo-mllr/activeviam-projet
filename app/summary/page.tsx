@@ -1,5 +1,6 @@
 "use client";
 
+import { buildPieCharts, buildSummary, GROUP_COLORS } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
   Card,
@@ -16,24 +17,6 @@ import {
 import { ReactElement, useState } from "react";
 import { useSelector } from "react-redux";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-
-const COLORS = [
-  "#800080",
-  "#FFA500",
-  "#0000FF",
-  "#FF0000",
-  "#00FF00",
-  "#FFFF00",
-  "#808080",
-  "#A52A2A",
-];
-
-const GROUP_COLORS: Record<string, string> = {
-  Database: COLORS[0],
-  Engine: COLORS[1],
-  Network: COLORS[2],
-  Providers: COLORS[3],
-};
 
 export default function SummaryPage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
@@ -64,178 +47,31 @@ export default function SummaryPage(): ReactElement {
   );
 
   const {
-    aggregateRetrievals,
-    databaseRetrievals,
     querySummary: { retrievalsCountByType },
   } = selectedQueryPlan;
 
-  // Grouped data records about the retrievals
-  const groupedRetrievalsElapsedTimings: Record<string, number> = {
-    Database: 0,
-    Engine: 0,
-    Network: 0,
-    Providers: 0,
-  };
-  const groupedRetrievalsExecutionContextElapsedTimings: Record<
-    string,
-    number
-  > = {
-    Database: 0,
-    Engine: 0,
-    Network: 0,
-    Providers: 0,
-  };
-  const groupedRetrievalsTypeCounts: Record<string, number> = {
-    Database: 0,
-    Engine: 0,
-    Network: 0,
-    Providers: 0,
-  };
+  const summary = buildSummary(selectedQueryPlan);
 
-  // Detailed data (not grouped) about the retrievals
-  // There is an aggregate retrievals variable and a database retrievals variable
-  // aggregate
-  const aggregateRetrievalsElapsedTimings: Record<string, number> = {};
-  const aggregateRetrievalsExecutionContextElapsedTimings: Record<
-    string,
-    number
-  > = {};
+  const pieData = buildPieCharts(retrievalsCountByType, summary);
 
-  // Database: only one type and it needs to be directly specified since it is not in the JSON
-  const databaseRetrievalsElapsedTimings = {
-    DatabaseRetrieval: 0,
-  };
-  const databaseRetrievalsExecutionContextElapsedTimings = {
-    DatabaseRetrieval: 0,
-  };
-  const retrievalsTypeCounts = retrievalsCountByType;
-
-  // Filling the records
-  aggregateRetrievals.forEach(({ timingInfo, type }) => {
-    const elapsedTimeSum = timingInfo.elapsedTime.reduce(
-      (acc, num) => acc + num,
-      0,
-    );
-
-    aggregateRetrievalsElapsedTimings[type] =
-      (aggregateRetrievalsElapsedTimings[type] ?? 0) + elapsedTimeSum;
-
-    if (type == "JITPrimitiveAggregatesRetrieval")
-      groupedRetrievalsElapsedTimings["Database"] += elapsedTimeSum;
-    else if (type == "PartialPrimitiveAggregatesRetrieval")
-      groupedRetrievalsElapsedTimings["Providers"] += elapsedTimeSum;
-    else groupedRetrievalsElapsedTimings["Engine"] += elapsedTimeSum;
-
-    if (timingInfo.executionContextElapsedTime !== undefined) {
-      const executionContextElapsedTimeSum =
-        timingInfo.executionContextElapsedTime.reduce(
-          (acc, num) => acc + num,
-          0,
-        );
-
-      aggregateRetrievalsExecutionContextElapsedTimings[type] =
-        (aggregateRetrievalsExecutionContextElapsedTimings[type] ?? 0) +
-        executionContextElapsedTimeSum;
-
-      if (type == "JITPrimitiveAggregatesRetrieval")
-        groupedRetrievalsExecutionContextElapsedTimings["Database"] +=
-          executionContextElapsedTimeSum;
-      else if (type == "PartialPrimitiveAggregatesRetrieval")
-        groupedRetrievalsExecutionContextElapsedTimings["Providers"] +=
-          executionContextElapsedTimeSum;
-      else
-        groupedRetrievalsExecutionContextElapsedTimings["Engine"] +=
-          executionContextElapsedTimeSum;
-    }
-  });
-
-  databaseRetrievals.forEach(({ timingInfo }) => {
-    const databaseRetrievalsElapsedTime = timingInfo.elapsedTime.reduce(
-      (acc, num) => acc + num,
-      0,
-    );
-    groupedRetrievalsElapsedTimings["Database"] +=
-      databaseRetrievalsElapsedTime;
-    databaseRetrievalsElapsedTimings["DatabaseRetrieval"] +=
-      databaseRetrievalsElapsedTime;
-
-    if (timingInfo.executionContextElapsedTime !== undefined) {
-      const databaseRetrievalsExecutionContextElapsedTime =
-        timingInfo.executionContextElapsedTime.reduce(
-          (acc, num) => acc + num,
-          0,
-        );
-      groupedRetrievalsExecutionContextElapsedTimings["Database"] +=
-        databaseRetrievalsExecutionContextElapsedTime;
-      databaseRetrievalsExecutionContextElapsedTimings["DatabaseRetrieval"] +=
-        databaseRetrievalsExecutionContextElapsedTime;
-    }
-  });
-
-  Object.entries(retrievalsTypeCounts).forEach(([key, value]) => {
-    if (
-      key === "JITPrimitiveAggregatesRetrieval" ||
-      key === "DatabaseRetrieval"
-    )
-      groupedRetrievalsTypeCounts["Database"] += value;
-    else if (key === "PartialPrimitiveAggregatesRetrieval")
-      groupedRetrievalsTypeCounts["Providers"] += value;
-    else groupedRetrievalsTypeCounts["Engine"] += value;
-  });
-
-  // Associating a color for each retrieval type
-  let colorIndex = 0;
-  const retrievalsColors: Record<string, string> = {};
-  Object.entries(retrievalsCountByType).forEach(([key]) => {
-    retrievalsColors[key] = COLORS[colorIndex % COLORS.length];
-    colorIndex++;
-  });
-
-  // Data for the PieCharts
-  const pieDataElapsedTimings = [
-    ...Object.entries(aggregateRetrievalsElapsedTimings)
-      .sort((a, b) => b[1] - a[1])
-      .map(([key, value]) => ({
-        name: key,
-        value,
-        fill: retrievalsColors[key],
-      })),
-    ...Object.entries(databaseRetrievalsElapsedTimings)
-      .sort((a, b) => b[1] - a[1])
-      .map(([key, value]) => ({
-        name: key,
-        value,
-        fill: retrievalsColors[key],
-      })),
-  ];
-
-  const groupedPieDataElaspedTimings = Object.entries(
+  const {
+    aggregateRetrievalsElapsedTimings,
+    aggregateRetrievalsExecutionContextElapsedTimings,
+    databaseRetrievalsElapsedTimings,
+    databaseRetrievalsExecutionContextElapsedTimings,
     groupedRetrievalsElapsedTimings,
-  )
-    .sort((a, b) => b[1] - a[1])
-    .map(([key, value]) => ({
-      name: key,
-      value,
-      fill: GROUP_COLORS[key],
-    }));
-
-  const pieDataRetrievalsTypeCounts = Object.entries(retrievalsTypeCounts)
-    .sort((a, b) => b[1] - a[1])
-    .map(([key, value]) => ({
-      name: key,
-      value,
-      fill: retrievalsColors[key],
-    }));
-
-  const groupedPieDataRetrievalsTypeCounts = Object.entries(
+    groupedRetrievalsExecutionContextElapsedTimings,
+    groupedRetrievalsTypeCounts,
     retrievalsTypeCounts,
-  )
-    .sort((a, b) => b[1] - a[1])
-    .map(([key, value]) => ({
-      name: key,
-      value,
-      fill: GROUP_COLORS[key],
-    }));
+  } = summary;
+
+  const {
+    pieDataElapsedTimings,
+    pieDataRetrievalsTypeCounts,
+    groupedPieDataElaspedTimings,
+    groupedPieDataRetrievalsTypeCounts,
+    retrievalsColors,
+  } = pieData;
 
   return (
     <Grid2 container spacing={1}>
