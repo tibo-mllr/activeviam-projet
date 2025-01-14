@@ -13,7 +13,10 @@ import {
   TextField,
   Box,
   Switch,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
+import InfoIcon from "@mui/icons-material/Info";
 import { ReactElement, useState } from "react";
 import { useSelector } from "react-redux";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
@@ -283,7 +286,14 @@ export default function SummaryPage(): ReactElement {
           }}
         >
           <CardContent>
-            <Typography>Aggregate all parts</Typography>
+            <Typography display="flex" alignItems="center">
+              Aggregate all parts
+              <Tooltip title="Toggle this switch to aggregate all the data in one single page. Measures appearing twice will be excluded">
+                <IconButton size="small" style={{ marginLeft: 8 }}>
+                  <InfoIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Typography>
             <Switch
               checked={isDataAggregated}
               onChange={() => setIsDataAggregated((prev) => !prev)}
@@ -643,77 +653,6 @@ export default function SummaryPage(): ReactElement {
                   </List>
                 </Box>
               </Box>
-              <Box
-                sx={{
-                  border: "1px solid #ccc",
-                  padding: 2,
-                  marginTop: 2,
-                }}
-              >
-                <Typography variant="body1" fontWeight="bold">
-                  Partial Providers (
-                  {selectedQueryPlan.querySummary?.partialProviders?.length ||
-                    0}
-                  ) :
-                </Typography>
-                {selectedQueryPlan.querySummary?.partialProviders ? (
-                  <List dense sx={{ marginLeft: 4 }}>
-                    {Object.entries(
-                      selectedQueryPlan.querySummary.partialProviders,
-                    ).map(([key, value]) => (
-                      <ListItem key={key} disablePadding>
-                        <ListItemText primary={value} />
-                      </ListItem>
-                    ))}
-                  </List>
-                ) : (
-                  <Typography variant="body2" sx={{ marginLeft: 4 }}>
-                    No partial providers available.
-                  </Typography>
-                )}
-              </Box>
-
-              <Box
-                sx={{
-                  border: "1px solid #ccc",
-                  padding: 2,
-                  marginTop: 2,
-                }}
-              >
-                <Typography variant="body1" fontWeight="bold">
-                  Partitioning Count by Type:
-                </Typography>
-                <List dense sx={{ marginLeft: 4 }}>
-                  {Object.entries(
-                    selectedQueryPlan.querySummary.partitioningCountByType,
-                  ).map(([key, value]) => (
-                    <ListItem key={key} disablePadding>
-                      <ListItemText primary={`${key} : ${value}`} />
-                    </ListItem>
-                  ))}
-                </List>
-              </Box>
-
-              <Box
-                sx={{
-                  border: "1px solid #ccc",
-                  padding: 2,
-                  marginTop: 2,
-                }}
-              >
-                <Typography variant="body1" fontWeight="bold">
-                  Result Size by Partitioning:
-                </Typography>
-                <List dense sx={{ marginLeft: 4 }}>
-                  {Object.entries(
-                    selectedQueryPlan.querySummary.resultSizeByPartitioning,
-                  ).map(([key, value]) => (
-                    <ListItem key={key} disablePadding>
-                      <ListItemText primary={`${key} : ${value}`} />
-                    </ListItem>
-                  ))}
-                </List>
-              </Box>
             </Grid2>
           ) : (
             <Grid2 container spacing={2}>
@@ -766,7 +705,15 @@ export default function SummaryPage(): ReactElement {
                   </List>
                 </Box>
               </Box>
+            </Grid2>
+          )}
+        </CardContent>
+      </Card>
 
+      {!isDataAggregated && (
+        <Card>
+          <CardContent>
+            <Grid2>
               <Box
                 sx={{
                   border: "1px solid #ccc",
@@ -839,9 +786,9 @@ export default function SummaryPage(): ReactElement {
                 </List>
               </Box>
             </Grid2>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </Grid2>
   );
 }
