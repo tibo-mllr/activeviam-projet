@@ -50,6 +50,7 @@ export default function SummaryPage(): ReactElement {
   }
 
   // Select the currently active query plan
+
   let selectedQueryPlan = queryPlan[selectedIndex];
   if (isDataAggregated) {
     selectedQueryPlan = aggregateData(queryPlan);
@@ -273,15 +274,24 @@ export default function SummaryPage(): ReactElement {
 
   return (
     <Grid2 container spacing={1}>
-      <Card>
-        <CardContent>
-          <Typography>Aggregate all pass</Typography>
-          <Switch
-            checked={isDataAggregated}
-            onChange={() => setIsDataAggregated((prev) => !prev)}
-          />
-        </CardContent>
-      </Card>
+      {queryPlan.length >= 2 && (
+        <Card
+          style={{
+            backgroundColor: isDataAggregated
+              ? "rgb(40, 40, 40)"
+              : "rgb(20, 20, 20)",
+          }}
+        >
+          <CardContent>
+            <Typography>Aggregate all parts</Typography>
+            <Switch
+              checked={isDataAggregated}
+              onChange={() => setIsDataAggregated((prev) => !prev)}
+            />
+            <Typography>There is {queryPlan.length} query plans</Typography>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardContent>
@@ -633,7 +643,6 @@ export default function SummaryPage(): ReactElement {
                   </List>
                 </Box>
               </Box>
-
               <Box
                 sx={{
                   border: "1px solid #ccc",
