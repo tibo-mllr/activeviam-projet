@@ -4,7 +4,7 @@ import { AggregateRetrieval, DatabaseRetrieval, QueryPlan } from "../types";
 // the page will be able to display it.
 export function aggregateData(queryPlan: QueryPlan[]): QueryPlan {
   let aggregatedMeasures: string[] = [];
-  const aggregatedPartialProviders: string[] = [];
+  let aggregatedPartialProviders: string[] = [];
   const aggregatedRetrievalsCountsByType: Record<string, number> = {};
   const aggregatedGlobalTimings: Record<string, number> = {};
   let aggregatedTotalRetrievals: number = 0;
@@ -16,13 +16,13 @@ export function aggregateData(queryPlan: QueryPlan[]): QueryPlan {
     aggregatedMeasures = Array.from(
       new Set([
         ...aggregatedMeasures,
-        ...(element.querySummary.measures !== undefined
+        ...((element.querySummary.measures ?? [])
           ? element.querySummary.measures
           : []),
       ]),
     );
     // aggregating unique partial providers (excluding if appears twice)
-    aggregatedMeasures = Array.from(
+    aggregatedPartialProviders = Array.from(
       new Set([
         ...aggregatedPartialProviders,
         ...(element.querySummary.partialProviders !== undefined
@@ -33,11 +33,8 @@ export function aggregateData(queryPlan: QueryPlan[]): QueryPlan {
     // aggregating global timings (sum)
     if (element.planInfo.globalTimings != undefined) {
       Object.entries(element.planInfo.globalTimings).forEach(([key, value]) => {
-        if (key in aggregatedGlobalTimings) {
-          aggregatedGlobalTimings[key] += value;
-        } else {
-          aggregatedGlobalTimings[key] = value;
-        }
+        aggregatedGlobalTimings[key] =
+          (aggregatedGlobalTimings[key] ?? 0) + value;
       });
     }
 
@@ -45,11 +42,8 @@ export function aggregateData(queryPlan: QueryPlan[]): QueryPlan {
     if (element.querySummary.retrievalsCountByType != undefined) {
       Object.entries(element.querySummary.retrievalsCountByType).forEach(
         ([key, value]) => {
-          if (key in aggregatedRetrievalsCountsByType) {
-            aggregatedRetrievalsCountsByType[key] += value;
-          } else {
-            aggregatedRetrievalsCountsByType[key] = value;
-          }
+          aggregatedRetrievalsCountsByType[key] =
+            (aggregatedRetrievalsCountsByType[key] ?? 0) + value;
         },
       );
     }
