@@ -1,7 +1,13 @@
 "use client";
 
-import { aggregateData,buildPieCharts, buildSummary, GROUP_COLORS } from "@/lib/functions";
+import {
+  aggregateData,
+  buildPieCharts,
+  buildSummary,
+  GROUP_COLORS,
+} from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
+import InfoIcon from "@mui/icons-material/Info";
 import {
   Card,
   CardContent,
@@ -16,7 +22,7 @@ import {
   Tooltip,
   IconButton,
 } from "@mui/material";
-import InfoIcon from "@mui/icons-material/Info";
+
 import { ReactElement, useState } from "react";
 import { useSelector } from "react-redux";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
