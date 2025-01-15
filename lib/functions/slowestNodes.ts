@@ -1,6 +1,6 @@
 import { AggregateRetrieval, DatabaseRetrieval, TimingInfo } from "../types";
 
-interface ProcessedNode {
+export interface ProcessedNode {
   id: string;
   type: "Aggregate" | "Database";
   timing: number;
