@@ -73,6 +73,25 @@ export default function SubmitQueryPage(): ReactElement {
     }
   };
 
+  const handleFileUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ): void => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        if (text) {
+          Formik.setFieldValue("text", text); // Update the MDX text field
+        }
+      };
+      reader.onerror = () => {
+        setError("Failed to read file. Please try again.");
+      };
+      reader.readAsText(file);
+    }
+  };
+
   return (
     <Card sx={{ width: "40%", padding: 4 }}>
       <CardHeader
@@ -93,7 +112,6 @@ export default function SubmitQueryPage(): ReactElement {
         <Grid2 container spacing={4}>
           {!isManualMode ? (
             <Grid2>
-              {/* POST mode */}
               <Formik
                 initialValues={{
                   url: DEFAULT_URL,
@@ -103,7 +121,7 @@ export default function SubmitQueryPage(): ReactElement {
                 }}
                 onSubmit={handleSubmit}
               >
-                {() => (
+                {({ setFieldValue }) => (
                   <Form className="space-y-4">
                     <Field
                       as={TextField}
@@ -144,6 +162,20 @@ export default function SubmitQueryPage(): ReactElement {
                       placeholder="Enter MDX request"
                       sx={{ width: "100%" }}
                     />
+
+                    <Button
+                      variant="outlined"
+                      component="label"
+                      className="w-full"
+                    >
+                      Upload Query File
+                      <input
+                        type="file"
+                        accept=".txt"
+                        hidden
+                        onChange={(e) => handleFileUpload(e)}
+                      />
+                    </Button>
 
                     <Button
                       type="submit"
