@@ -1,6 +1,6 @@
 import { QueryPlan } from "../types";
 
-type Summary = {
+export type Summary = {
   groupedRetrievalsElapsedTimings: Record<string, number>;
   groupedRetrievalsExecutionContextElapsedTimings: Record<string, number>;
   groupedRetrievalsTypeCounts: Record<string, number>;
