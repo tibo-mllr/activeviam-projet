@@ -29,6 +29,8 @@ const aggregateRetrievals: AggregateRetrieval[] = [
       aggregationProcedureTime: [0],
       startTime: [0],
       elapsedTime: [37],
+      executionContextStartTime: [0],
+      executionContextElapsedTime: [10],
     },
     underlyingDataNodes: [],
   },
@@ -80,6 +82,14 @@ describe("buildTimeline", () => {
           type: "AggregateRetrieval",
         },
       ],
+      "1": [
+        {
+          end: 10,
+          retrievalId: 0,
+          start: 0,
+          type: "AggregateRetrievalExecutionContext",
+        },
+      ],
     };
 
     expect(result).toEqual(expected);
@@ -122,16 +132,24 @@ describe("buildTimeline", () => {
       ],
       "1": [
         {
-          start: 8,
-          end: 9,
+          start: 0,
+          end: 10,
           retrievalId: 0,
-          type: "DatabaseRetrieval",
+          type: "AggregateRetrievalExecutionContext",
         },
         {
           start: 10,
           end: 20,
           retrievalId: 1,
           type: "DatabaseRetrievalExecutionContext",
+        },
+      ],
+      "2": [
+        {
+          end: 9,
+          retrievalId: 0,
+          start: 8,
+          type: "DatabaseRetrieval",
         },
       ],
     };
@@ -155,16 +173,24 @@ describe("buildTimeline", () => {
       ],
       "1": [
         {
-          start: 8,
-          end: 9,
+          start: 0,
+          end: 10,
           retrievalId: 0,
-          type: "DatabaseRetrieval",
+          type: "AggregateRetrievalExecutionContext",
         },
         {
           start: 10,
           end: 20,
           retrievalId: 1,
           type: "DatabaseRetrievalExecutionContext",
+        },
+      ],
+      "2": [
+        {
+          end: 9,
+          retrievalId: 0,
+          start: 8,
+          type: "DatabaseRetrieval",
         },
       ],
     };

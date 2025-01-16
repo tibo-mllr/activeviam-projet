@@ -58,6 +58,8 @@ const queryPlan: QueryPlan = {
         aggregationProcedureTime: [0],
         startTime: [0],
         elapsedTime: [37],
+        executionContextStartTime: [0],
+        executionContextElapsedTime: [10],
       },
       underlyingDataNodes: [],
     },
@@ -323,7 +325,9 @@ describe("buildSummary", () => {
       aggregateRetrievalsElapsedTimings: {
         PrimitiveAnalysisAggregationRetrieval: 37,
       },
-      aggregateRetrievalsExecutionContextElapsedTimings: {},
+      aggregateRetrievalsExecutionContextElapsedTimings: {
+        PrimitiveAnalysisAggregationRetrieval: 10,
+      },
       databaseRetrievalsElapsedTimings: {
         DatabaseRetrieval: 14,
       },
@@ -338,7 +342,7 @@ describe("buildSummary", () => {
       },
       groupedRetrievalsExecutionContextElapsedTimings: {
         Database: 10,
-        Engine: 0,
+        Engine: 10,
         Network: 0,
         Providers: 0,
       },
