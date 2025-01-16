@@ -16,18 +16,14 @@ export function aggregateData(queryPlan: QueryPlan[]): QueryPlan {
     aggregatedMeasures = Array.from(
       new Set([
         ...aggregatedMeasures,
-        ...((element.querySummary.measures ?? [])
-          ? element.querySummary.measures
-          : []),
+        ...(element.querySummary.measures ?? []),
       ]),
     );
     // aggregating unique partial providers (excluding if appears twice)
     aggregatedPartialProviders = Array.from(
       new Set([
         ...aggregatedPartialProviders,
-        ...(element.querySummary.partialProviders !== undefined
-          ? element.querySummary.partialProviders
-          : []),
+        ...(element.querySummary.partialProviders ?? []),
       ]),
     );
     // aggregating global timings (sum)
