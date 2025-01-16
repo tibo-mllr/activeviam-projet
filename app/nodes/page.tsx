@@ -79,15 +79,13 @@ export default function NodesPage(): ReactElement {
     node: ProcessedNode,
   ): AggregateRetrieval | DatabaseRetrieval => {
     const retrievalId = node.id;
-    const aggregateRetrieval = aggregateRetrievals.find(
-      (r) => r.retrievalId === retrievalId,
-    );
-    if (aggregateRetrieval) return aggregateRetrieval;
 
-    const databaseRetrieval = databaseRetrievals.find(
-      (r) => r.retrievalId === retrievalId,
-    );
-    return databaseRetrieval || emptyAggregateRetrieval;
+    const retrieval =
+      node.type == "Aggregate"
+        ? aggregateRetrievals.find((r) => r.retrievalId === retrievalId)
+        : databaseRetrievals.find((r) => r.retrievalId === retrievalId);
+
+    return retrieval || emptyAggregateRetrieval;
   };
 
   return (
@@ -142,7 +140,7 @@ export default function NodesPage(): ReactElement {
           <TableBody>
             {displayedNodes.map((node) => (
               <TableRow
-                key={node.id}
+                key={`${node.type} ${node.id}`}
                 onClick={() => {
                   setSelectedRetrieval(getRetrievalFromNode(node));
                   setShowDialog(true);
