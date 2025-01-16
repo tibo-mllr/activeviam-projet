@@ -184,6 +184,7 @@ export function buildPieCharts(
     aggregateRetrievalsElapsedTimings,
     databaseRetrievalsElapsedTimings,
     groupedRetrievalsElapsedTimings,
+    groupedRetrievalsTypeCounts,
     retrievalsTypeCounts,
   } = summary;
 
@@ -231,7 +232,7 @@ export function buildPieCharts(
     }));
 
   const groupedPieDataRetrievalsTypeCounts = Object.entries(
-    retrievalsTypeCounts,
+    groupedRetrievalsTypeCounts,
   )
     .sort((a, b) => b[1] - a[1])
     .map(([key, value]) => ({
