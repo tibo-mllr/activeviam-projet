@@ -1,7 +1,13 @@
 "use client";
 
-import { getSlowestNodes } from "@/lib/functions";
+import RetrievalDialog from "@/components/timeline/RetrievalDialog";
+import { getSlowestNodes, ProcessedNode } from "@/lib/functions/slowestNodes";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
+import {
+  AggregateRetrieval,
+  DatabaseRetrieval,
+  emptyAggregateRetrieval,
+} from "@/lib/types";
 import {
   Box,
   Table,
@@ -15,10 +21,9 @@ import {
   InputLabel,
   Grid2,
   Slider,
-  Switch,
-  FormControlLabel,
+  TableSortLabel,
 } from "@mui/material";
-import { ReactElement, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 export default function NodesPage(): ReactElement {
@@ -26,7 +31,26 @@ export default function NodesPage(): ReactElement {
   const selectedIndex = useSelector(getSelectedIndex);
 
   const [numberOfNodes, setNumberOfNodes] = useState<number>(10);
-  const [showDetails, setShowDetails] = useState<boolean>(false);
+  const [sortColumn, setSortColumn] = useState<keyof ProcessedNode>("timing");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [displayedNodes, setDisplayedNodes] = useState<ProcessedNode[]>([]);
+  const [showDialog, setShowDialog] = useState<boolean>(false);
+  const [selectedRetrieval, setSelectedRetrieval] = useState<
+    AggregateRetrieval | DatabaseRetrieval
+  >(emptyAggregateRetrieval);
+
+  useEffect(() => {
+    if (queryPlan && queryPlan.length > 0) {
+      const { aggregateRetrievals, databaseRetrievals } =
+        queryPlan[selectedIndex];
+      const nodes = getSlowestNodes(
+        aggregateRetrievals,
+        databaseRetrievals,
+        numberOfNodes,
+      );
+      setDisplayedNodes(nodes);
+    }
+  }, [queryPlan, selectedIndex, numberOfNodes]);
 
   if (!queryPlan || queryPlan.length === 0) {
     return (
@@ -36,11 +60,35 @@ export default function NodesPage(): ReactElement {
 
   const { aggregateRetrievals, databaseRetrievals } = queryPlan[selectedIndex];
 
-  const slowestNodes = getSlowestNodes(
-    aggregateRetrievals,
-    databaseRetrievals,
-    numberOfNodes,
-  );
+  const handleSort = (column: keyof ProcessedNode): void => {
+    const isAsc = sortColumn === column && sortOrder === "asc";
+    const newOrder = isAsc ? "desc" : "asc";
+    setSortOrder(newOrder);
+    setSortColumn(column);
+
+    const sortedNodes = [...displayedNodes].sort((a, b) => {
+      if (a[column] < b[column]) return newOrder === "asc" ? -1 : 1;
+      if (a[column] > b[column]) return newOrder === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    setDisplayedNodes(sortedNodes);
+  };
+
+  const getRetrievalFromNode = (
+    node: ProcessedNode,
+  ): AggregateRetrieval | DatabaseRetrieval => {
+    const retrievalId = node.id;
+    const aggregateRetrieval = aggregateRetrievals.find(
+      (r) => r.retrievalId === retrievalId,
+    );
+    if (aggregateRetrieval) return aggregateRetrieval;
+
+    const databaseRetrieval = databaseRetrievals.find(
+      (r) => r.retrievalId === retrievalId,
+    );
+    return databaseRetrieval || emptyAggregateRetrieval;
+  };
 
   return (
     <Box padding={2} width="100%">
@@ -61,52 +109,65 @@ export default function NodesPage(): ReactElement {
         />
       </Grid2>
 
-      <FormControlLabel
-        control={
-          <Switch
-            checked={showDetails}
-            onChange={(e) => setShowDetails(e.target.checked)}
-          />
-        }
-        label="Show Details"
-      />
-
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Node ID</TableCell>
-              <TableCell>Type</TableCell>
-              <TableCell align="right">Timing (ms)</TableCell>
-              {showDetails && (
-                <>
-                  <TableCell align="right">Average (ms)</TableCell>
-                  <TableCell align="right">Std Dev (ms)</TableCell>
-                  <TableCell align="right">Parallel Count</TableCell>
-                </>
-              )}
+              {[
+                { id: "id", label: "Node ID" },
+                { id: "timing", label: "Timing (ms)" },
+                { id: "mean", label: "Average (ms)" },
+                { id: "stdDev", label: "Std Dev (ms)" },
+                { id: "parallelCount", label: "Parallel Count" },
+              ].map((column) => (
+                <TableCell
+                  key={column.id}
+                  align={
+                    column.id === "id" || column.id === "type"
+                      ? "left"
+                      : "right"
+                  }
+                >
+                  <TableSortLabel
+                    active={sortColumn === column.id}
+                    direction={sortOrder}
+                    onClick={() => handleSort(column.id as keyof ProcessedNode)}
+                  >
+                    {column.label}
+                  </TableSortLabel>
+                </TableCell>
+              ))}
             </TableRow>
           </TableHead>
           <TableBody>
-            {slowestNodes.map((node) => (
-              <TableRow key={node.id}>
-                <TableCell>{node.id}</TableCell>
-                <TableCell>{node.type}</TableCell>
+            {displayedNodes.map((node) => (
+              <TableRow
+                key={node.id}
+                onClick={() => {
+                  setSelectedRetrieval(getRetrievalFromNode(node));
+                  setShowDialog(true);
+                }}
+                sx={{
+                  cursor: "pointer",
+                  "&:hover": { bgcolor: "rgba(0, 0, 0, 0.04)" },
+                }}
+              >
+                <TableCell>{`${node.type} ${node.id}`}</TableCell>
                 <TableCell align="right">{node.timing.toFixed(2)}</TableCell>
-                {showDetails && (
-                  <>
-                    <TableCell align="right">{node.mean.toFixed(2)}</TableCell>
-                    <TableCell align="right">
-                      {node.stdDev.toFixed(2)}
-                    </TableCell>
-                    <TableCell align="right">{node.parallelCount}</TableCell>
-                  </>
-                )}
+                <TableCell align="right">{node.mean.toFixed(2)}</TableCell>
+                <TableCell align="right">{node.stdDev.toFixed(2)}</TableCell>
+                <TableCell align="right">{node.parallelCount}</TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
+
+      <RetrievalDialog
+        retrieval={selectedRetrieval}
+        open={showDialog}
+        setOpen={setShowDialog}
+      />
     </Box>
   );
 }

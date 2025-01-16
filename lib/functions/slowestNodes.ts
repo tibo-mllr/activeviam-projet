@@ -59,7 +59,7 @@ export function getSlowestNodes(
     const { totalTiming, meanTiming, stdDevTiming, parallelCount } =
       computeTimingDetails(node.timingInfo);
     return {
-      id: `Aggregate ${node.retrievalId}`,
+      id: node.retrievalId,
       type: "Aggregate",
       timing: totalTiming,
       mean: meanTiming,
@@ -71,7 +71,7 @@ export function getSlowestNodes(
     const { totalTiming, meanTiming, stdDevTiming, parallelCount } =
       computeTimingDetails(node.timingInfo);
     return {
-      id: `Database ${node.retrievalId}`,
+      id: node.retrievalId,
       type: "Database",
       timing: totalTiming,
       mean: meanTiming,
