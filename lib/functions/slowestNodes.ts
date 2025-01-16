@@ -1,10 +1,9 @@
-import { AggregateRetrieval, DatabaseRetrieval, TimingInfo } from "../types";
-
-export interface ProcessedNode {
-  id: string;
-  type: "Aggregate" | "Database";
-  timing: number;
-}
+import {
+  AggregateRetrieval,
+  DatabaseRetrieval,
+  ProcessedNode,
+  TimingInfo,
+} from "@/lib/types";
 
 function computeTiming(timingInfo: TimingInfo): number {
   const startTimes: number[] = timingInfo.startTime;

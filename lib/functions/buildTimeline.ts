@@ -3,7 +3,7 @@ import {
   DatabaseRetrieval,
   Timeline,
   TimelineTiming,
-} from "../types";
+} from "@/lib/types";
 
 export function buildTimeline(
   aggregateRetrievals: AggregateRetrieval[],

@@ -1,6 +1,6 @@
-import { QueryPlan } from "../../types";
-import { buildPieCharts, PieChartData } from "./buildPieChart";
-import { buildSummary, Summary } from "./buildSummary";
+import { PieChartData, QueryPlan, Summary } from "@/lib/types";
+import { buildPieCharts } from "./buildPieChart";
+import { buildSummary } from "./buildSummary";
 
 const queryPlan: QueryPlan = {
   planInfo: {

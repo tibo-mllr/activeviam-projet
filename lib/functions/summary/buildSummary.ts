@@ -1,15 +1,4 @@
-import { QueryPlan } from "../../types";
-
-export type Summary = {
-  groupedRetrievalsElapsedTimings: Record<string, number>;
-  groupedRetrievalsExecutionContextElapsedTimings: Record<string, number>;
-  groupedRetrievalsTypeCounts: Record<string, number>;
-  aggregateRetrievalsElapsedTimings: Record<string, number>;
-  aggregateRetrievalsExecutionContextElapsedTimings: Record<string, number>;
-  databaseRetrievalsElapsedTimings: Record<string, number>;
-  databaseRetrievalsExecutionContextElapsedTimings: Record<string, number>;
-  retrievalsTypeCounts: Record<string, number>;
-};
+import { QueryPlan, Summary } from "@/lib/types";
 
 export function buildSummary(queryPlan: QueryPlan): Summary {
   const {

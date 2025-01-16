@@ -1,4 +1,4 @@
-import { AggregateRetrieval, DatabaseRetrieval, Timeline } from "../types";
+import { AggregateRetrieval, DatabaseRetrieval, Timeline } from "@/lib/types";
 import { buildTimeline } from "./buildTimeline";
 
 const aggregateRetrievals: AggregateRetrieval[] = [

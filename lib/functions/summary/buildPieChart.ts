@@ -1,5 +1,4 @@
-import { QueryPlan } from "@/lib/types";
-import { Summary } from "./buildSummary";
+import { PieChartData, QueryPlan, Summary } from "@/lib/types";
 
 const COLORS = [
   "#800080",
@@ -17,20 +16,6 @@ export const GROUP_COLORS: Record<string, string> = {
   Engine: COLORS[1],
   Network: COLORS[2],
   Providers: COLORS[3],
-};
-
-type PiePartData = {
-  name: string;
-  value: number;
-  fill: string;
-};
-
-export type PieChartData = {
-  pieDataElapsedTimings: PiePartData[];
-  pieDataRetrievalsTypeCounts: PiePartData[];
-  groupedPieDataElaspedTimings: PiePartData[];
-  groupedPieDataRetrievalsTypeCounts: PiePartData[];
-  retrievalsColors: Record<string, string>;
 };
 
 export function buildPieCharts(
