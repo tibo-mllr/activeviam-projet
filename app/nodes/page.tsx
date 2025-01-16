@@ -1,6 +1,6 @@
 "use client";
 
-import RetrievalDialog from "@/components/timeline/RetrievalDialog";
+import RetrievalDialog from "@/components/RetrievalDialog";
 import { getSlowestNodes, ProcessedNode } from "@/lib/functions/slowestNodes";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
