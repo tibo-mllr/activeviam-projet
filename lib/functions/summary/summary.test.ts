@@ -1,5 +1,6 @@
-import { QueryPlan } from "../types";
-import { buildSummary, Summary } from "./summary";
+import { PieChartData, QueryPlan, Summary } from "@/lib/types";
+import { buildPieCharts } from "./buildPieChart";
+import { buildSummary } from "./buildSummary";
 
 const queryPlan: QueryPlan = {
   planInfo: {
@@ -57,6 +58,8 @@ const queryPlan: QueryPlan = {
         aggregationProcedureTime: [0],
         startTime: [0],
         elapsedTime: [37],
+        executionContextStartTime: [0],
+        executionContextElapsedTime: [10],
       },
       underlyingDataNodes: [],
     },
@@ -124,7 +127,8 @@ const queryPlan: QueryPlan = {
 
 describe("buildSummary", () => {
   it("gives nothing when given nothing", () => {
-    const result = buildSummary({
+    // *** Summary ***
+    const summaryResult = buildSummary({
       planInfo: {
         pivotType: "",
         pivotId: "",
@@ -207,17 +211,123 @@ describe("buildSummary", () => {
         RangeSharingPrimitiveAggregatesRetrieval: 0,
       },
     };
-    expect(result).toEqual(emptySummary);
+
+    expect(summaryResult).toEqual(emptySummary);
+
+    // *** Pie Chart ***
+    const pieResult = buildPieCharts(
+      {
+        DatabaseRetrieval: 0,
+        PrimitiveAnalysisAggregationRetrieval: 0,
+        PartialPrimitiveAggregatesRetrieval: 0,
+        PrimitiveResultsMerger: 0,
+        RangeSharingPrimitiveAggregatesRetrieval: 0,
+      },
+      summaryResult,
+    );
+
+    const emptyPieChart: PieChartData = {
+      groupedPieDataElaspedTimings: [
+        {
+          fill: "#800080",
+          name: "Database",
+          value: 0,
+        },
+        {
+          fill: "#FFA500",
+          name: "Engine",
+          value: 0,
+        },
+        {
+          fill: "#0000FF",
+          name: "Network",
+          value: 0,
+        },
+        {
+          fill: "#FF0000",
+          name: "Providers",
+          value: 0,
+        },
+      ],
+      groupedPieDataRetrievalsTypeCounts: [
+        {
+          fill: "#800080",
+          name: "Database",
+          value: 0,
+        },
+        {
+          fill: "#FFA500",
+          name: "Engine",
+          value: 0,
+        },
+        {
+          fill: "#0000FF",
+          name: "Network",
+          value: 0,
+        },
+        {
+          fill: "#FF0000",
+          name: "Providers",
+          value: 0,
+        },
+      ],
+      pieDataElapsedTimings: [
+        {
+          fill: "#800080",
+          name: "DatabaseRetrieval",
+          value: 0,
+        },
+      ],
+      pieDataRetrievalsTypeCounts: [
+        {
+          fill: "#800080",
+          name: "DatabaseRetrieval",
+          value: 0,
+        },
+        {
+          fill: "#FFA500",
+          name: "PrimitiveAnalysisAggregationRetrieval",
+          value: 0,
+        },
+        {
+          fill: "#0000FF",
+          name: "PartialPrimitiveAggregatesRetrieval",
+          value: 0,
+        },
+        {
+          fill: "#FF0000",
+          name: "PrimitiveResultsMerger",
+          value: 0,
+        },
+        {
+          fill: "#00FF00",
+          name: "RangeSharingPrimitiveAggregatesRetrieval",
+          value: 0,
+        },
+      ],
+      retrievalsColors: {
+        DatabaseRetrieval: "#800080",
+        PartialPrimitiveAggregatesRetrieval: "#0000FF",
+        PrimitiveAnalysisAggregationRetrieval: "#FFA500",
+        PrimitiveResultsMerger: "#FF0000",
+        RangeSharingPrimitiveAggregatesRetrieval: "#00FF00",
+      },
+    };
+
+    expect(pieResult).toEqual(emptyPieChart);
   });
 
   it("builds a summary from a query plan", () => {
-    const result = buildSummary(queryPlan);
+    // *** Summary ***
+    const summaryResult = buildSummary(queryPlan);
 
-    const expected: Summary = {
+    const expectedSummary: Summary = {
       aggregateRetrievalsElapsedTimings: {
         PrimitiveAnalysisAggregationRetrieval: 37,
       },
-      aggregateRetrievalsExecutionContextElapsedTimings: {},
+      aggregateRetrievalsExecutionContextElapsedTimings: {
+        PrimitiveAnalysisAggregationRetrieval: 10,
+      },
       databaseRetrievalsElapsedTimings: {
         DatabaseRetrieval: 14,
       },
@@ -232,7 +342,7 @@ describe("buildSummary", () => {
       },
       groupedRetrievalsExecutionContextElapsedTimings: {
         Database: 10,
-        Engine: 0,
+        Engine: 10,
         Network: 0,
         Providers: 0,
       },
@@ -251,6 +361,113 @@ describe("buildSummary", () => {
       },
     };
 
-    expect(result).toEqual(expected);
+    expect(summaryResult).toEqual(expectedSummary);
+
+    // *** Pie Chart ***
+    const pieResult = buildPieCharts(
+      {
+        DatabaseRetrieval: 2,
+        PrimitiveAnalysisAggregationRetrieval: 1,
+        PartialPrimitiveAggregatesRetrieval: 0,
+        PrimitiveResultsMerger: 0,
+        RangeSharingPrimitiveAggregatesRetrieval: 0,
+      },
+      summaryResult,
+    );
+
+    const expectedPieChart: PieChartData = {
+      groupedPieDataElaspedTimings: [
+        {
+          fill: "#FFA500",
+          name: "Engine",
+          value: 37,
+        },
+        {
+          fill: "#800080",
+          name: "Database",
+          value: 14,
+        },
+        {
+          fill: "#0000FF",
+          name: "Network",
+          value: 0,
+        },
+        {
+          fill: "#FF0000",
+          name: "Providers",
+          value: 0,
+        },
+      ],
+      groupedPieDataRetrievalsTypeCounts: [
+        {
+          fill: "#800080",
+          name: "Database",
+          value: 2,
+        },
+        {
+          fill: "#FFA500",
+          name: "Engine",
+          value: 1,
+        },
+        {
+          fill: "#0000FF",
+          name: "Network",
+          value: 0,
+        },
+        {
+          fill: "#FF0000",
+          name: "Providers",
+          value: 0,
+        },
+      ],
+      pieDataElapsedTimings: [
+        {
+          fill: "#FFA500",
+          name: "PrimitiveAnalysisAggregationRetrieval",
+          value: 37,
+        },
+        {
+          fill: "#800080",
+          name: "DatabaseRetrieval",
+          value: 14,
+        },
+      ],
+      pieDataRetrievalsTypeCounts: [
+        {
+          fill: "#800080",
+          name: "DatabaseRetrieval",
+          value: 2,
+        },
+        {
+          fill: "#FFA500",
+          name: "PrimitiveAnalysisAggregationRetrieval",
+          value: 1,
+        },
+        {
+          fill: "#0000FF",
+          name: "PartialPrimitiveAggregatesRetrieval",
+          value: 0,
+        },
+        {
+          fill: "#FF0000",
+          name: "PrimitiveResultsMerger",
+          value: 0,
+        },
+        {
+          fill: "#00FF00",
+          name: "RangeSharingPrimitiveAggregatesRetrieval",
+          value: 0,
+        },
+      ],
+      retrievalsColors: {
+        DatabaseRetrieval: "#800080",
+        PartialPrimitiveAggregatesRetrieval: "#0000FF",
+        PrimitiveAnalysisAggregationRetrieval: "#FFA500",
+        PrimitiveResultsMerger: "#FF0000",
+        RangeSharingPrimitiveAggregatesRetrieval: "#00FF00",
+      },
+    };
+
+    expect(pieResult).toEqual(expectedPieChart);
   });
 });

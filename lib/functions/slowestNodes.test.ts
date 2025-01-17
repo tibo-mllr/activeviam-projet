@@ -1,5 +1,9 @@
-import { AggregateRetrieval, DatabaseRetrieval } from "../types";
-import { getSlowestNodes, ProcessedNode } from "./slowestNodes";
+import {
+  AggregateRetrieval,
+  DatabaseRetrieval,
+  ProcessedNode,
+} from "@/lib/types";
+import { getSlowestNodes } from "./slowestNodes";
 
 const aggregateRetrievals: AggregateRetrieval[] = [
   {

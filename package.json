@@ -15,7 +15,8 @@
     "format": "prettier --write --no-error-on-unmatched-pattern ./src ./app ./pages ./components ./lib",
     "install:ci": "yarn install --frozen-lockfile",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "test-coverage": "jest --coverage"
   },
   "dependencies": {
     "@emotion/cache": "^11.13.5",
