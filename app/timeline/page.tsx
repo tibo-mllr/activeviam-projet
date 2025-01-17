@@ -1,7 +1,6 @@
 "use client";
 
-import { CoreTimeline } from "@/components";
-import RetrievalDialog from "@/components/RetrievalDialog";
+import { CoreTimeline, RetrievalDialog } from "@/components";
 import { buildTimeline } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
