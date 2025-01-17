@@ -1,12 +1,13 @@
 "use client";
 
 import { RetrievalDialog } from "@/components";
-import { getSlowestNodes, ProcessedNode } from "@/lib/functions/slowestNodes";
+import { getSlowestNodes } from "@/lib/functions/slowestNodes";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
   AggregateRetrieval,
   DatabaseRetrieval,
   emptyAggregateRetrieval,
+  ProcessedNode,
 } from "@/lib/types";
 import {
   Box,

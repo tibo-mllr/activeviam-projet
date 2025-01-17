@@ -2,7 +2,7 @@ export * from "./queryPlan";
 export * from "./timeline";
 
 export type ProcessedNode = {
-  id: string;
+  id: number;
   type: "Aggregate" | "Database";
   timing: number;
   parallelCount: number;
