@@ -1,7 +1,13 @@
 "use client";
 
-import { buildPieCharts, buildSummary, GROUP_COLORS } from "@/lib/functions";
+import {
+  aggregateData,
+  buildPieCharts,
+  buildSummary,
+  GROUP_COLORS,
+} from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
+import InfoIcon from "@mui/icons-material/Info";
 import {
   Card,
   CardContent,
@@ -13,7 +19,10 @@ import {
   TextField,
   Box,
   Switch,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
+
 import { ReactElement, useState } from "react";
 import { useSelector } from "react-redux";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
@@ -22,6 +31,7 @@ export default function SummaryPage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
   const selectedIndex = useSelector(getSelectedIndex);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isDataAggregated, setIsDataAggregated] = useState<boolean>(false);
   const [isGroupedTimings, setIsGroupedTimings] = useState<boolean>(false);
   const [isGroupedNumbers, setIsGroupedNumbers] = useState<boolean>(false);
 
@@ -37,7 +47,11 @@ export default function SummaryPage(): ReactElement {
   }
 
   // Select the currently active query plan
-  const selectedQueryPlan = queryPlan[selectedIndex];
+
+  let selectedQueryPlan = queryPlan[selectedIndex];
+  if (isDataAggregated) {
+    selectedQueryPlan = aggregateData(queryPlan);
+  }
   const filteredMeasures = Object.entries(
     selectedQueryPlan.querySummary.measures,
   ).filter(
@@ -75,6 +89,32 @@ export default function SummaryPage(): ReactElement {
 
   return (
     <Grid2 container spacing={1}>
+      {queryPlan.length >= 2 && (
+        <Card
+          style={{
+            backgroundColor: isDataAggregated
+              ? "rgb(40, 40, 40)"
+              : "rgb(20, 20, 20)",
+          }}
+        >
+          <CardContent>
+            <Typography display="flex" alignItems="center">
+              Aggregate all parts
+              <Tooltip title="Toggle this switch to aggregate all the data in one single page. Measures appearing twice will be excluded">
+                <IconButton size="small" style={{ marginLeft: 8 }}>
+                  <InfoIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Typography>
+            <Switch
+              checked={isDataAggregated}
+              onChange={() => setIsDataAggregated((prev) => !prev)}
+            />
+            <Typography>There are {queryPlan.length} Select Pass</Typography>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardContent>
           <Typography variant="h6">Elapsed timings of retrievals</Typography>
@@ -122,7 +162,7 @@ export default function SummaryPage(): ReactElement {
                     Elapsed timings
                   </Typography>
                   <Typography variant="body2" marginLeft={2}>
-                    Aggregate
+                    Aggregate retrievals
                   </Typography>
                   <List dense sx={{ marginLeft: 4 }}>
                     {Object.entries(aggregateRetrievalsElapsedTimings)
@@ -142,7 +182,7 @@ export default function SummaryPage(): ReactElement {
                       ))}
                   </List>
                   <Typography variant="body2" marginLeft={2}>
-                    Database
+                    Database retrievals
                   </Typography>
                   <List dense sx={{ marginLeft: 4 }}>
                     {Object.entries(databaseRetrievalsElapsedTimings)
@@ -421,78 +461,6 @@ export default function SummaryPage(): ReactElement {
                   </List>
                 </Box>
               </Box>
-
-              <Box
-                sx={{
-                  border: "1px solid #ccc",
-                  padding: 2,
-                  marginTop: 2,
-                }}
-              >
-                <Typography variant="body1" fontWeight="bold">
-                  Partial Providers (
-                  {selectedQueryPlan.querySummary?.partialProviders?.length ||
-                    0}
-                  ) :
-                </Typography>
-                {selectedQueryPlan.querySummary?.partialProviders ? (
-                  <List dense sx={{ marginLeft: 4 }}>
-                    {Object.entries(
-                      selectedQueryPlan.querySummary.partialProviders,
-                    ).map(([key, value]) => (
-                      <ListItem key={key} disablePadding>
-                        <ListItemText primary={value} />
-                      </ListItem>
-                    ))}
-                  </List>
-                ) : (
-                  <Typography variant="body2" sx={{ marginLeft: 4 }}>
-                    No partial providers available.
-                  </Typography>
-                )}
-              </Box>
-
-              <Box
-                sx={{
-                  border: "1px solid #ccc",
-                  padding: 2,
-                  marginTop: 2,
-                }}
-              >
-                <Typography variant="body1" fontWeight="bold">
-                  Partitioning Count by Type:
-                </Typography>
-                <List dense sx={{ marginLeft: 4 }}>
-                  {Object.entries(
-                    selectedQueryPlan.querySummary.partitioningCountByType,
-                  ).map(([key, value]) => (
-                    <ListItem key={key} disablePadding>
-                      <ListItemText primary={`${key} : ${value}`} />
-                    </ListItem>
-                  ))}
-                </List>
-              </Box>
-
-              <Box
-                sx={{
-                  border: "1px solid #ccc",
-                  padding: 2,
-                  marginTop: 2,
-                }}
-              >
-                <Typography variant="body1" fontWeight="bold">
-                  Result Size by Partitioning:
-                </Typography>
-                <List dense sx={{ marginLeft: 4 }}>
-                  {Object.entries(
-                    selectedQueryPlan.querySummary.resultSizeByPartitioning,
-                  ).map(([key, value]) => (
-                    <ListItem key={key} disablePadding>
-                      <ListItemText primary={`${key} : ${value}`} />
-                    </ListItem>
-                  ))}
-                </List>
-              </Box>
             </Grid2>
           ) : (
             <Grid2 container spacing={2}>
@@ -545,7 +513,15 @@ export default function SummaryPage(): ReactElement {
                   </List>
                 </Box>
               </Box>
+            </Grid2>
+          )}
+        </CardContent>
+      </Card>
 
+      {!isDataAggregated && (
+        <Card>
+          <CardContent>
+            <Grid2>
               <Box
                 sx={{
                   border: "1px solid #ccc",
@@ -618,9 +594,9 @@ export default function SummaryPage(): ReactElement {
                 </List>
               </Box>
             </Grid2>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </Grid2>
   );
 }
