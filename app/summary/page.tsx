@@ -110,10 +110,7 @@ export default function SummaryPage(): ReactElement {
               checked={isDataAggregated}
               onChange={() => setIsDataAggregated((prev) => !prev)}
             />
-            <Typography>
-              There are {queryPlan.length}{" "}
-              Select Pass
-            </Typography>
+            <Typography>There are {queryPlan.length} Select Pass</Typography>
           </CardContent>
         </Card>
       )}
