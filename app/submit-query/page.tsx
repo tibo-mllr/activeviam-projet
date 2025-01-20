@@ -1,7 +1,7 @@
 "use client";
 import { postRequest } from "@/lib/functions";
 import { getQueryPlan, setQueryPlan, useAppDispatch } from "@/lib/redux";
-import { CopyAll, Height } from "@mui/icons-material";
+import { CopyAll } from "@mui/icons-material";
 import {
   Button,
   Card,
@@ -169,7 +169,7 @@ export default function SubmitQueryPage(): ReactElement {
                 }}
                 onSubmit={handleSubmit}
               >
-                {({ setFieldValue, values }) => {
+                {({ setFieldValue }) => {
                   return (
                     <Form className="space-y-4">
                       <Field
