@@ -224,7 +224,7 @@ export default function SubmitQueryPage(): ReactElement {
                               padding: "8px",
                               border: "1px solid #ccc",
                               borderRadius: "4px",
-                              backgroundColor: "#f4f4f4",
+                              backgroundColor: "transparent",
                               fontSize: "14px",
                               width: "100%",
                             }}
@@ -283,7 +283,7 @@ export default function SubmitQueryPage(): ReactElement {
                       padding: "8px",
                       border: "1px solid #ccc",
                       borderRadius: "4px",
-                      backgroundColor: "#f4f4f4",
+                      backgroundColor: "transparent",
                       fontSize: "14px",
                       width: "100%",
                     }}
