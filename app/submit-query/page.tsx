@@ -90,17 +90,32 @@ export default function SubmitQueryPage(): ReactElement {
   };
 
   const handleManualSubmit = (): void => {
-    try {
-      setError(null);
-      dispatch(setQueryPlan(""));
-      if (!manualQueryPlan.trim()) {
-        setError("Query plan cannot be empty.");
-        return;
-      }
+    if (inputMethod === "manual") {
+      try {
+        setError(null);
+        dispatch(setQueryPlan(""));
+        if (!manualQueryPlan.trim()) {
+          setError("Query plan cannot be empty.");
+          return;
+        }
 
-      dispatch(setQueryPlan(JSON.parse(manualQueryPlan)));
-    } catch {
-      setError("Invalid JSON format in query plan.");
+        dispatch(setQueryPlan(JSON.parse(manualQueryPlan)));
+      } catch {
+        setError("Invalid JSON format in query plan.");
+      }
+    } else {
+      try {
+        setError(null);
+        dispatch(setQueryPlan(""));
+        console.log(fileTextQueryPlan);
+        if (!fileTextQueryPlan.trim()) {
+          setError("Query plan in file cannot be empty.");
+          return;
+        }
+        dispatch(setQueryPlan(JSON.parse(fileTextQueryPlan)));
+      } catch {
+        setError("Invalid JSON format in query plan file.");
+      }
     }
   };
 
