@@ -11,9 +11,6 @@ export function Header(): ReactElement {
           <Link href="/submit-query">
             <Button variant="outlined">Query</Button>
           </Link>
-          <Link href="/visualize">
-            <Button variant="outlined">Visualization</Button>
-          </Link>
           <Link href="/summary">
             <Button variant="outlined">Summary</Button>
           </Link>
