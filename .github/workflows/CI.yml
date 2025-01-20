@@ -30,8 +30,8 @@ jobs:
       - name: Build
         run: yarn build
 
-      - name: Test
-        run: yarn test --maxWorkers=4
-
       - name: Lint
         run: yarn lint
+
+      - name: Test
+        run: yarn test --maxWorkers=4
