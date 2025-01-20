@@ -1,6 +1,6 @@
 "use client";
 
-import { getSlowestNodes } from "@/lib/functions/slowestNodes";
+import { getSlowestNodes } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
   Box,
