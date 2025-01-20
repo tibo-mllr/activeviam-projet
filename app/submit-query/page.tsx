@@ -1,16 +1,20 @@
 "use client";
 import { postRequest } from "@/lib/functions";
 import { getQueryPlan, setQueryPlan, useAppDispatch } from "@/lib/redux";
-import { CopyAll } from "@mui/icons-material";
+import { CopyAll, Height } from "@mui/icons-material";
 import {
   Button,
   Card,
   CardContent,
   CardHeader,
   Grid2,
-  Switch,
-  TextField,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
   Typography,
+  TextField,
+  Switch,
 } from "@mui/material";
 import { isAxiosError } from "axios";
 import { Formik, Field, Form } from "formik";
@@ -24,6 +28,8 @@ export default function SubmitQueryPage(): ReactElement {
   const [error, setError] = useState<string | null>(null);
   const [isManualMode, setIsManualMode] = useState<boolean>(false);
   const [manualQueryPlan, setManualQueryPlan] = useState<string>("");
+  const [fileTextQueryPlan, setFileTextQueryPlan] = useState<string>("");
+  const [inputMethod, setInputMethod] = useState<string>("manual");
 
   const dispatch = useAppDispatch();
   const queryPlan = useSelector(getQueryPlan);
@@ -37,27 +43,49 @@ export default function SubmitQueryPage(): ReactElement {
   }): Promise<void> => {
     setError(null);
     dispatch(setQueryPlan(""));
-    console.log(values.fileText);
-    if (values.text != "") {
-      const payload = { mdx: values.text };
-      try {
-        // POST using Axios
-        console.log(payload); // TO DELETE
-        const res = await postRequest(
-          values.url,
-          payload,
-          values.username,
-          values.password,
-        );
-        dispatch(setQueryPlan(res));
-      } catch (err) {
-        if (isAxiosError(err)) setError(`Error: ${err.message}`);
-        else setError(`Error: ${err}`);
+    const payload = { mdx: "" };
+    if (inputMethod === "manual") {
+      if (values.text != "") {
+        payload.mdx = values.text;
+        try {
+          // POST using Axios
+          const res = await postRequest(
+            values.url,
+            payload,
+            values.username,
+            values.password,
+          );
+          dispatch(setQueryPlan(res));
+        } catch (err) {
+          if (isAxiosError(err)) setError(`Error: ${err.message}`);
+          else setError(`Error: ${err}`);
 
-        console.error(err);
+          console.error(err);
+        }
+      } else {
+        setError(`There is no query in the manual field`);
       }
     } else {
-      setError(`Query area is empty`);
+      if (values.fileText != "") {
+        payload.mdx = values.fileText;
+        try {
+          // POST using Axios
+          const res = await postRequest(
+            values.url,
+            payload,
+            values.username,
+            values.password,
+          );
+          dispatch(setQueryPlan(res));
+        } catch (err) {
+          if (isAxiosError(err)) setError(`Error: ${err.message}`);
+          else setError(`Error: ${err}`);
+
+          console.error(err);
+        }
+      } else {
+        setError(`There is no valid query file uploaded`);
+      }
     }
   };
 
@@ -83,7 +111,7 @@ export default function SubmitQueryPage(): ReactElement {
         action={
           // Toggle Switch
           <Grid2>
-            <Typography>Manual Mode</Typography>
+            <Typography>Query plan mode</Typography>
             <Switch
               checked={isManualMode}
               onChange={() => setIsManualMode((prev) => !prev)}
@@ -93,6 +121,26 @@ export default function SubmitQueryPage(): ReactElement {
       />
 
       <CardContent>
+        <Grid2>
+          <FormControl component="fieldset">
+            <RadioGroup
+              value={inputMethod}
+              onChange={(e) => setInputMethod(e.target.value)}
+              row
+            >
+              <FormControlLabel
+                value="manual"
+                control={<Radio />}
+                label="Manual Input"
+              />
+              <FormControlLabel
+                value="file"
+                control={<Radio />}
+                label="Upload File"
+              />
+            </RadioGroup>
+          </FormControl>
+        </Grid2>
         <Grid2 container spacing={4}>
           {!isManualMode ? (
             <Grid2>
@@ -107,7 +155,6 @@ export default function SubmitQueryPage(): ReactElement {
                 onSubmit={handleSubmit}
               >
                 {({ setFieldValue, values }) => {
-                  const [fileName, setFileName] = useState("");
                   return (
                     <Form className="space-y-4">
                       <Field
@@ -137,15 +184,7 @@ export default function SubmitQueryPage(): ReactElement {
                         placeholder="Enter password"
                         sx={{ width: "100%" }}
                       />
-
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: "16px",
-                          alignItems: "flex-start",
-                          width: "100%",
-                        }}
-                      >
+                      {!inputMethod || inputMethod === "manual" ? (
                         <Field
                           as={TextField}
                           id="text"
@@ -155,18 +194,12 @@ export default function SubmitQueryPage(): ReactElement {
                           maxRows={12}
                           label="MDX request"
                           placeholder="Enter MDX request"
-                          sx={{ flex: 1 }}
+                          sx={{ width: "100%" }}
                         />
-
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            width: "200px",
-                          }}
-                        >
+                      ) : (
+                        <div>
                           <label htmlFor="file" style={{ marginBottom: "8px" }}>
-                            Ou télécharger un fichier .txt:
+                            Or upload a .txt file:
                           </label>
                           <input
                             type="file"
@@ -183,11 +216,8 @@ export default function SubmitQueryPage(): ReactElement {
                                   );
                                 };
                                 reader.readAsText(file);
-                                setFileName(file.name);
                               } else {
-                                alert(
-                                  "Veuillez télécharger un fichier texte valide.",
-                                );
+                                alert("Upload a valid .txt file.");
                               }
                             }}
                             style={{
@@ -199,19 +229,8 @@ export default function SubmitQueryPage(): ReactElement {
                               width: "100%",
                             }}
                           />
-                          {fileName && (
-                            <div
-                              style={{
-                                marginTop: "8px",
-                                fontSize: "14px",
-                                color: "#555",
-                              }}
-                            >
-                              Fichier sélectionné : {fileName}
-                            </div>
-                          )}
                         </div>
-                      </div>
+                      )}
 
                       <Button
                         type="submit"
@@ -228,16 +247,49 @@ export default function SubmitQueryPage(): ReactElement {
           ) : (
             <Grid2>
               {/* Manual mode */}
-              <Typography>Enter your Query Plan manually:</Typography>
-              <TextField
-                multiline
-                minRows={6}
-                maxRows={12}
-                placeholder="Enter Query Plan JSON"
-                sx={{ width: "100%" }}
-                value={manualQueryPlan}
-                onChange={(e) => setManualQueryPlan(e.target.value)} // Update state
-              />
+              <Typography>Enter directly your Query Plan</Typography>
+              {!inputMethod || inputMethod === "manual" ? (
+                <TextField
+                  multiline
+                  minRows={6}
+                  maxRows={12}
+                  placeholder="Enter Query Plan JSON"
+                  sx={{ width: "100%" }}
+                  value={manualQueryPlan}
+                  onChange={(e) => setManualQueryPlan(e.target.value)} // Update state
+                />
+              ) : (
+                <div>
+                  <label htmlFor="file" style={{ marginBottom: "8px" }}>
+                    Upload a .txt file:
+                  </label>
+                  <input
+                    type="file"
+                    id="file"
+                    accept=".txt"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file && file.type === "text/plain") {
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                          setFileTextQueryPlan(reader.result as string);
+                        };
+                        reader.readAsText(file);
+                      } else {
+                        alert("Upload a valid .txt file.");
+                      }
+                    }}
+                    style={{
+                      padding: "8px",
+                      border: "1px solid #ccc",
+                      borderRadius: "4px",
+                      backgroundColor: "#f4f4f4",
+                      fontSize: "14px",
+                      width: "100%",
+                    }}
+                  />
+                </div>
+              )}
 
               <Button
                 variant="contained"
