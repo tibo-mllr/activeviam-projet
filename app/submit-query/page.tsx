@@ -33,13 +33,16 @@ export default function SubmitQueryPage(): ReactElement {
     username: string;
     password: string;
     text: string;
+    fileText: string;
   }): Promise<void> => {
     setError(null);
     dispatch(setQueryPlan(""));
+    console.log(values.fileText);
     if (values.text != "") {
       const payload = { mdx: values.text };
       try {
         // POST using Axios
+        console.log(payload); // TO DELETE
         const res = await postRequest(
           values.url,
           payload,
@@ -73,25 +76,6 @@ export default function SubmitQueryPage(): ReactElement {
     }
   };
 
-  const handleFileUpload = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ): void => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const text = e.target?.result as string;
-        if (text) {
-          Formik.setFieldValue("text", text); // Update the MDX text field
-        }
-      };
-      reader.onerror = () => {
-        setError("Failed to read file. Please try again.");
-      };
-      reader.readAsText(file);
-    }
-  };
-
   return (
     <Card sx={{ width: "40%", padding: 4 }}>
       <CardHeader
@@ -118,74 +102,127 @@ export default function SubmitQueryPage(): ReactElement {
                   username: "",
                   password: "",
                   text: "",
+                  fileText: "",
                 }}
                 onSubmit={handleSubmit}
               >
-                {({ setFieldValue }) => (
-                  <Form className="space-y-4">
-                    <Field
-                      as={TextField}
-                      id="url"
-                      name="url"
-                      label="URL"
-                      placeholder="Enter URL"
-                      sx={{ width: "100%" }}
-                    />
-
-                    <Field
-                      as={TextField}
-                      id="username"
-                      name="username"
-                      label="Username"
-                      placeholder="Enter user"
-                      sx={{ width: "100%" }}
-                    />
-
-                    <Field
-                      as={TextField}
-                      id="password"
-                      name="password"
-                      label="Password"
-                      type="password"
-                      placeholder="Enter password"
-                      sx={{ width: "100%" }}
-                    />
-
-                    <Field
-                      as={TextField}
-                      id="text"
-                      name="text"
-                      multiline
-                      minRows={6}
-                      maxRows={12}
-                      label="MDX request"
-                      placeholder="Enter MDX request"
-                      sx={{ width: "100%" }}
-                    />
-
-                    <Button
-                      variant="outlined"
-                      component="label"
-                      className="w-full"
-                    >
-                      Upload Query File
-                      <input
-                        type="file"
-                        accept=".txt"
-                        hidden
-                        onChange={(e) => handleFileUpload(e)}
+                {({ setFieldValue, values }) => {
+                  const [fileName, setFileName] = useState("");
+                  return (
+                    <Form className="space-y-4">
+                      <Field
+                        as={TextField}
+                        id="url"
+                        name="url"
+                        label="URL"
+                        placeholder="Enter URL"
+                        sx={{ width: "100%" }}
                       />
-                    </Button>
 
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      className="w-full"
-                    >
-                      Send and receive query plan
-                    </Button>
-                  </Form>
-                )}
+                      <Field
+                        as={TextField}
+                        id="username"
+                        name="username"
+                        label="Username"
+                        placeholder="Enter user"
+                        sx={{ width: "100%" }}
+                      />
+
+                      <Field
+                        as={TextField}
+                        id="password"
+                        name="password"
+                        label="Password"
+                        type="password"
+                        placeholder="Enter password"
+                        sx={{ width: "100%" }}
+                      />
+
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "16px",
+                          alignItems: "flex-start",
+                          width: "100%",
+                        }}
+                      >
+                        <Field
+                          as={TextField}
+                          id="text"
+                          name="text"
+                          multiline
+                          minRows={6}
+                          maxRows={12}
+                          label="MDX request"
+                          placeholder="Enter MDX request"
+                          sx={{ flex: 1 }}
+                        />
+
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            width: "200px",
+                          }}
+                        >
+                          <label htmlFor="file" style={{ marginBottom: "8px" }}>
+                            Ou télécharger un fichier .txt:
+                          </label>
+                          <input
+                            type="file"
+                            id="file"
+                            accept=".txt"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file && file.type === "text/plain") {
+                                const reader = new FileReader();
+                                reader.onload = () => {
+                                  setFieldValue(
+                                    "fileText",
+                                    reader.result as string,
+                                  );
+                                };
+                                reader.readAsText(file);
+                                setFileName(file.name);
+                              } else {
+                                alert(
+                                  "Veuillez télécharger un fichier texte valide.",
+                                );
+                              }
+                            }}
+                            style={{
+                              padding: "8px",
+                              border: "1px solid #ccc",
+                              borderRadius: "4px",
+                              backgroundColor: "#f4f4f4",
+                              fontSize: "14px",
+                              width: "100%",
+                            }}
+                          />
+                          {fileName && (
+                            <div
+                              style={{
+                                marginTop: "8px",
+                                fontSize: "14px",
+                                color: "#555",
+                              }}
+                            >
+                              Fichier sélectionné : {fileName}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        className="w-full"
+                      >
+                        Send and receive query plan
+                      </Button>
+                    </Form>
+                  );
+                }}
               </Formik>
             </Grid2>
           ) : (
