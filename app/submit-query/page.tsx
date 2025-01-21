@@ -107,7 +107,6 @@ export default function SubmitQueryPage(): ReactElement {
       try {
         setError(null);
         dispatch(setQueryPlan(""));
-        console.log(fileTextQueryPlan);
         if (!fileTextQueryPlan.trim()) {
           setError("Query plan in file cannot be empty.");
           return;
