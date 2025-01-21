@@ -8,10 +8,6 @@ import {
   CardContent,
   CardHeader,
   Grid2,
-  Radio,
-  RadioGroup,
-  FormControlLabel,
-  FormControl,
   Typography,
   TextField,
   Switch,
@@ -28,8 +24,6 @@ export default function SubmitQueryPage(): ReactElement {
   const [error, setError] = useState<string | null>(null);
   const [isManualMode, setIsManualMode] = useState<boolean>(false);
   const [manualQueryPlan, setManualQueryPlan] = useState<string>("");
-  const [fileTextQueryPlan, setFileTextQueryPlan] = useState<string>("");
-  const [inputMethod, setInputMethod] = useState<string>("manual");
 
   const dispatch = useAppDispatch();
   const queryPlan = useSelector(getQueryPlan);
@@ -39,82 +33,43 @@ export default function SubmitQueryPage(): ReactElement {
     username: string;
     password: string;
     text: string;
-    fileText: string;
   }): Promise<void> => {
     setError(null);
     dispatch(setQueryPlan(""));
-    const payload = { mdx: "" };
-    if (inputMethod === "manual") {
-      if (values.text != "") {
-        payload.mdx = values.text;
-        try {
-          // POST using Axios
-          const res = await postRequest(
-            values.url,
-            payload,
-            values.username,
-            values.password,
-          );
-          dispatch(setQueryPlan(res));
-        } catch (err) {
-          if (isAxiosError(err)) setError(`Error: ${err.message}`);
-          else setError(`Error: ${err}`);
+    if (values.text != "") {
+      const payload = { mdx: values.text };
+      try {
+        // POST using Axios
+        const res = await postRequest(
+          values.url,
+          payload,
+          values.username,
+          values.password,
+        );
+        dispatch(setQueryPlan(res));
+      } catch (err) {
+        if (isAxiosError(err)) setError(`Error: ${err.message}`);
+        else setError(`Error: ${err}`);
 
-          console.error(err);
-        }
-      } else {
-        setError(`There is no query in the manual field`);
+        console.error(err);
       }
     } else {
-      if (values.fileText != "") {
-        payload.mdx = values.fileText;
-        try {
-          // POST using Axios
-          const res = await postRequest(
-            values.url,
-            payload,
-            values.username,
-            values.password,
-          );
-          dispatch(setQueryPlan(res));
-        } catch (err) {
-          if (isAxiosError(err)) setError(`Error: ${err.message}`);
-          else setError(`Error: ${err}`);
-
-          console.error(err);
-        }
-      } else {
-        setError(`There is no valid query file uploaded`);
-      }
+      setError(`Query area is empty`);
     }
   };
 
   const handleManualSubmit = (): void => {
-    if (inputMethod === "manual") {
-      try {
-        setError(null);
-        dispatch(setQueryPlan(""));
-        if (!manualQueryPlan.trim()) {
-          setError("Query plan cannot be empty.");
-          return;
-        }
+    try {
+      setError(null);
+      dispatch(setQueryPlan(""));
+      if (!manualQueryPlan.trim()) {
+        setError("Query plan cannot be empty.");
+        return;
+      }
 
-        dispatch(setQueryPlan(JSON.parse(manualQueryPlan)));
-      } catch {
-        setError("Invalid JSON format in query plan.");
-      }
-    } else {
-      try {
-        setError(null);
-        dispatch(setQueryPlan(""));
-        if (!fileTextQueryPlan.trim()) {
-          setError("Query plan in file cannot be empty.");
-          return;
-        }
-        dispatch(setQueryPlan(JSON.parse(fileTextQueryPlan)));
-      } catch {
-        setError("Invalid JSON format in query plan file.");
-      }
+      dispatch(setQueryPlan(JSON.parse(manualQueryPlan)));
+    } catch {
+      setError("Invalid JSON format in query plan.");
     }
   };
 
@@ -135,26 +90,6 @@ export default function SubmitQueryPage(): ReactElement {
       />
 
       <CardContent>
-        <Grid2>
-          <FormControl component="fieldset">
-            <RadioGroup
-              value={inputMethod}
-              onChange={(e) => setInputMethod(e.target.value)}
-              row
-            >
-              <FormControlLabel
-                value="manual"
-                control={<Radio />}
-                label="Manual Input"
-              />
-              <FormControlLabel
-                value="file"
-                control={<Radio />}
-                label="Upload File"
-              />
-            </RadioGroup>
-          </FormControl>
-        </Grid2>
         <Grid2 container spacing={4}>
           {!isManualMode ? (
             <Grid2>
@@ -164,7 +99,6 @@ export default function SubmitQueryPage(): ReactElement {
                   username: "",
                   password: "",
                   text: "",
-                  fileText: "",
                 }}
                 onSubmit={handleSubmit}
               >
@@ -198,53 +132,47 @@ export default function SubmitQueryPage(): ReactElement {
                         placeholder="Enter password"
                         sx={{ width: "100%" }}
                       />
-                      {!inputMethod || inputMethod === "manual" ? (
-                        <Field
-                          as={TextField}
-                          id="text"
-                          name="text"
-                          multiline
-                          minRows={6}
-                          maxRows={12}
-                          label="MDX request"
-                          placeholder="Enter MDX request"
-                          sx={{ width: "100%" }}
+                      <Field
+                        as={TextField}
+                        id="text"
+                        name="text"
+                        multiline
+                        minRows={6}
+                        maxRows={12}
+                        label="MDX request"
+                        placeholder="Enter MDX request"
+                        sx={{ width: "100%" }}
+                      />
+                      <div>
+                        <label htmlFor="file" style={{ marginBottom: "8px" }}>
+                          Or upload a .txt file:
+                        </label>
+                        <input
+                          type="file"
+                          id="file"
+                          accept=".txt"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file && file.type === "text/plain") {
+                              const reader = new FileReader();
+                              reader.onload = () => {
+                                setFieldValue("text", reader.result as string);
+                              };
+                              reader.readAsText(file);
+                            } else {
+                              alert("Upload a valid .txt file.");
+                            }
+                          }}
+                          style={{
+                            padding: "8px",
+                            border: "1px solid #ccc",
+                            borderRadius: "4px",
+                            backgroundColor: "transparent",
+                            fontSize: "14px",
+                            width: "100%",
+                          }}
                         />
-                      ) : (
-                        <div>
-                          <label htmlFor="file" style={{ marginBottom: "8px" }}>
-                            Or upload a .txt file:
-                          </label>
-                          <input
-                            type="file"
-                            id="file"
-                            accept=".txt"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file && file.type === "text/plain") {
-                                const reader = new FileReader();
-                                reader.onload = () => {
-                                  setFieldValue(
-                                    "fileText",
-                                    reader.result as string,
-                                  );
-                                };
-                                reader.readAsText(file);
-                              } else {
-                                alert("Upload a valid .txt file.");
-                              }
-                            }}
-                            style={{
-                              padding: "8px",
-                              border: "1px solid #ccc",
-                              borderRadius: "4px",
-                              backgroundColor: "transparent",
-                              fontSize: "14px",
-                              width: "100%",
-                            }}
-                          />
-                        </div>
-                      )}
+                      </div>
 
                       <Button
                         type="submit"
@@ -262,48 +190,46 @@ export default function SubmitQueryPage(): ReactElement {
             <Grid2>
               {/* Manual mode */}
               <Typography>Enter directly your Query Plan</Typography>
-              {!inputMethod || inputMethod === "manual" ? (
-                <TextField
-                  multiline
-                  minRows={6}
-                  maxRows={12}
-                  placeholder="Enter Query Plan JSON"
-                  sx={{ width: "100%" }}
-                  value={manualQueryPlan}
-                  onChange={(e) => setManualQueryPlan(e.target.value)} // Update state
+              <TextField
+                multiline
+                minRows={6}
+                maxRows={12}
+                placeholder="Enter Query Plan JSON"
+                sx={{ width: "100%" }}
+                value={manualQueryPlan}
+                onChange={(e) => setManualQueryPlan(e.target.value)} // Update state
+              />
+
+              <div>
+                <label htmlFor="file" style={{ marginBottom: "8px" }}>
+                  Upload a .txt file:
+                </label>
+                <input
+                  type="file"
+                  id="file"
+                  accept=".txt"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file && file.type === "text/plain") {
+                      const reader = new FileReader();
+                      reader.onload = () => {
+                        setManualQueryPlan(reader.result as string);
+                      };
+                      reader.readAsText(file);
+                    } else {
+                      alert("Upload a valid .txt file.");
+                    }
+                  }}
+                  style={{
+                    padding: "8px",
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    backgroundColor: "transparent",
+                    fontSize: "14px",
+                    width: "100%",
+                  }}
                 />
-              ) : (
-                <div>
-                  <label htmlFor="file" style={{ marginBottom: "8px" }}>
-                    Upload a .txt file:
-                  </label>
-                  <input
-                    type="file"
-                    id="file"
-                    accept=".txt"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file && file.type === "text/plain") {
-                        const reader = new FileReader();
-                        reader.onload = () => {
-                          setFileTextQueryPlan(reader.result as string);
-                        };
-                        reader.readAsText(file);
-                      } else {
-                        alert("Upload a valid .txt file.");
-                      }
-                    }}
-                    style={{
-                      padding: "8px",
-                      border: "1px solid #ccc",
-                      borderRadius: "4px",
-                      backgroundColor: "transparent",
-                      fontSize: "14px",
-                      width: "100%",
-                    }}
-                  />
-                </div>
-              )}
+              </div>
 
               <Button
                 variant="contained"
