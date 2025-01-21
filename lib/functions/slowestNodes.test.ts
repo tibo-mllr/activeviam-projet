@@ -60,8 +60,8 @@ const databaseRetrievals: DatabaseRetrieval[] = [
     resultSizes: [1],
     timingInfo: {
       aggregationProcedureTime: [0],
-      startTime: [10],
-      elapsedTime: [10],
+      startTime: [10, 15],
+      elapsedTime: [10, 20],
     },
   },
 ];
@@ -77,9 +77,12 @@ describe("getSlowestNodes", () => {
 
     const expected: ProcessedNode[] = [
       {
-        id: "Aggregate 0",
+        id: 0,
         type: "Aggregate",
         timing: 37,
+        mean: 37,
+        stdDev: 0,
+        parallelCount: 1,
       },
     ];
 
@@ -91,9 +94,12 @@ describe("getSlowestNodes", () => {
 
     const expected: ProcessedNode[] = [
       {
-        id: "Database 1",
+        id: 1,
         type: "Database",
-        timing: 10,
+        timing: 25,
+        mean: 15,
+        stdDev: 5,
+        parallelCount: 2,
       },
     ];
 
@@ -105,14 +111,20 @@ describe("getSlowestNodes", () => {
 
     const expected: ProcessedNode[] = [
       {
-        id: "Aggregate 0",
+        id: 0,
         type: "Aggregate",
         timing: 37,
+        mean: 37,
+        stdDev: 0,
+        parallelCount: 1,
       },
       {
-        id: "Database 1",
+        id: 1,
         type: "Database",
-        timing: 10,
+        timing: 25,
+        mean: 15,
+        stdDev: 5,
+        parallelCount: 2,
       },
     ];
 
