@@ -7,6 +7,7 @@ import {
   useAppDispatch,
 } from "@/lib/redux";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { usePathname } from "next/navigation";
 import { type ReactElement } from "react";
 import { useSelector } from "react-redux";
 
@@ -15,7 +16,10 @@ export default function PlanSelector(): ReactElement {
   const selectedIndex = useSelector(getSelectedIndex);
   const dispatch = useAppDispatch();
 
-  if (!queryPlan || queryPlan.length < 2) return <></>;
+  const pathname = usePathname();
+
+  if (pathname == "/submit-query" || !queryPlan || queryPlan.length < 2)
+    return <></>;
 
   return (
     <FormControl fullWidth>

@@ -9,10 +9,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      LOGIN: ${{secrets.LOGIN}}
-      PASSWORD: ${{secrets.PASSWORD}}
-
     steps:
       - uses: actions/checkout@v4
 
