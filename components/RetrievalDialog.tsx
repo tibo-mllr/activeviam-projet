@@ -9,7 +9,7 @@ type RetrievalDialogProps = {
   setOpen: (open: boolean) => void;
 };
 
-export default function RetrievalDialog({
+export function RetrievalDialog({
   retrieval,
   open,
   setOpen,
