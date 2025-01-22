@@ -150,7 +150,7 @@ export default function SubmitQueryPage(): ReactElement {
                         <input
                           type="file"
                           id="file"
-                          accept=".txt"
+                          accept=".txt, .json"
                           onChange={(e) => {
                             const file = e.target.files?.[0];
                             if (file && file.type === "text/plain") {
@@ -207,7 +207,7 @@ export default function SubmitQueryPage(): ReactElement {
                 <input
                   type="file"
                   id="file"
-                  accept=".txt"
+                  accept=".txt, .json"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file && file.type === "text/plain") {
