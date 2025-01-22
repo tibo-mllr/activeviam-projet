@@ -106,9 +106,11 @@ export default function TimelinePage(): ReactElement {
 
   const timeline = buildTimeline(aggregateRetrievals, databaseRetrievals);
 
+  const { nbCores, ...coresTimeline } = timeline;
+
   // Find the maximum end time to calculate the content width
   maxEnd = Math.max(
-    ...Object.values(timeline).flatMap((timings) =>
+    ...Object.values(coresTimeline).flatMap((timings) =>
       timings.map(({ end }) => end),
     ),
   );
@@ -147,7 +149,7 @@ export default function TimelinePage(): ReactElement {
           width={`${contentWidth}px`}
           marginY={2}
         >
-          {Object.entries(timeline).map(([core, timings]) => (
+          {Object.entries(coresTimeline).map(([core, timings]) => (
             <CoreTimeline
               key={core}
               core={core}
@@ -156,6 +158,21 @@ export default function TimelinePage(): ReactElement {
               openRetrievalDialog={openRetrievalDialog}
             />
           ))}
+          {
+            // Complete the unused cores with empty timelines
+            Object.entries(coresTimeline).length < nbCores &&
+              Array.from({
+                length: nbCores - Object.entries(coresTimeline).length,
+              }).map((_, index) => (
+                <CoreTimeline
+                  key={`empty-${index}`}
+                  core={`empty-${index}`}
+                  timings={[]}
+                  scale={scale}
+                  openRetrievalDialog={openRetrievalDialog}
+                />
+              ))
+          }
         </Grid2>
       </Box>
       <RetrievalDialog
