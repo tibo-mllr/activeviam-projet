@@ -1,4 +1,5 @@
 "use client";
+import FileUploader from "@/components/FileUploader";
 import { postRequest } from "@/lib/functions";
 import { getQueryPlan, setQueryPlan, useAppDispatch } from "@/lib/redux";
 import { CopyAll } from "@mui/icons-material";
@@ -143,36 +144,9 @@ export default function SubmitQueryPage(): ReactElement {
                         placeholder="Enter MDX request"
                         sx={{ width: "100%" }}
                       />
-                      <div>
-                        <label htmlFor="file" style={{ marginBottom: "8px" }}>
-                          Or upload a .txt file:
-                        </label>
-                        <input
-                          type="file"
-                          id="file"
-                          accept=".txt, .json"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file && file.type === "text/plain") {
-                              const reader = new FileReader();
-                              reader.onload = () => {
-                                setFieldValue("text", reader.result as string);
-                              };
-                              reader.readAsText(file);
-                            } else {
-                              alert("Upload a valid .txt file.");
-                            }
-                          }}
-                          style={{
-                            padding: "8px",
-                            border: "1px solid #ccc",
-                            borderRadius: "4px",
-                            backgroundColor: "transparent",
-                            fontSize: "14px",
-                            width: "100%",
-                          }}
-                        />
-                      </div>
+                      <FileUploader
+                        onFileLoad={(content) => setFieldValue("text", content)}
+                      />
 
                       <Button
                         type="submit"
@@ -200,36 +174,9 @@ export default function SubmitQueryPage(): ReactElement {
                 onChange={(e) => setManualQueryPlan(e.target.value)} // Update state
               />
 
-              <div>
-                <label htmlFor="file" style={{ marginBottom: "8px" }}>
-                  Or upload a .txt file:
-                </label>
-                <input
-                  type="file"
-                  id="file"
-                  accept=".txt, .json"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file && file.type === "text/plain") {
-                      const reader = new FileReader();
-                      reader.onload = () => {
-                        setManualQueryPlan(reader.result as string);
-                      };
-                      reader.readAsText(file);
-                    } else {
-                      alert("Upload a valid .txt file.");
-                    }
-                  }}
-                  style={{
-                    padding: "8px",
-                    border: "1px solid #ccc",
-                    borderRadius: "4px",
-                    backgroundColor: "transparent",
-                    fontSize: "14px",
-                    width: "100%",
-                  }}
-                />
-              </div>
+              <FileUploader
+                onFileLoad={(content) => setManualQueryPlan(content)}
+              />
 
               <Button
                 variant="contained"
