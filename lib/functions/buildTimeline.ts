@@ -19,7 +19,7 @@ export function buildTimeline(
     // Keep track of the maximum number of cores
     maxCores = Math.max(
       maxCores,
-      timingInfo.startTime.length,
+      timingInfo.startTime?.length ?? 0,
       timingInfo.executionContextStartTime?.length ?? 0,
     );
 
@@ -56,7 +56,7 @@ export function buildTimeline(
     // Keep track of the maximum number of cores
     maxCores = Math.max(
       maxCores,
-      timingInfo.startTime.length,
+      timingInfo.startTime?.length ?? 0,
       timingInfo.executionContextStartTime?.length ?? 0,
     );
 
@@ -98,7 +98,7 @@ export function buildTimeline(
   // Sort by start time
   filteredTimings.sort((a, b) => a.start - b.start);
 
-  const timeline: Timeline & { nbCores: number } = { nbCores: maxCores };
+  const timeline: Timeline = {};
 
   // Group by core, by trying to fit time intervals into the first available core
   for (const timing of filteredTimings) {
@@ -117,7 +117,8 @@ export function buildTimeline(
       }
       core++;
     }
+    maxCores = Math.max(maxCores, core + 1);
   }
 
-  return timeline;
+  return { ...timeline, nbCores: maxCores };
 }
