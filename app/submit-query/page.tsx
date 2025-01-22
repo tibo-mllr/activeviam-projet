@@ -202,7 +202,7 @@ export default function SubmitQueryPage(): ReactElement {
 
               <div>
                 <label htmlFor="file" style={{ marginBottom: "8px" }}>
-                  Upload a .txt file:
+                  Or upload a .txt file:
                 </label>
                 <input
                   type="file"
