@@ -8,11 +8,21 @@ import {
 export function buildTimeline(
   aggregateRetrievals: AggregateRetrieval[],
   databaseRetrievals: DatabaseRetrieval[],
-): Timeline {
+): Timeline & { nbCores: number } {
+  let maxCores: number = 0;
+
   const allTimings: TimelineTiming[] = [];
 
   for (const aggregateRetrieval of aggregateRetrievals) {
     const { timingInfo, retrievalId } = aggregateRetrieval;
+
+    // Keep track of the maximum number of cores
+    maxCores = Math.max(
+      maxCores,
+      timingInfo.startTime?.length ?? 0,
+      timingInfo.executionContextStartTime?.length ?? 0,
+    );
+
     Object.entries(timingInfo).map(([key, values]) => {
       if (key === "startTime") {
         values.map((value, index) => {
@@ -42,6 +52,14 @@ export function buildTimeline(
 
   for (const databaseRetrieval of databaseRetrievals) {
     const { timingInfo, retrievalId } = databaseRetrieval;
+
+    // Keep track of the maximum number of cores
+    maxCores = Math.max(
+      maxCores,
+      timingInfo.startTime?.length ?? 0,
+      timingInfo.executionContextStartTime?.length ?? 0,
+    );
+
     Object.entries(timingInfo).map(([key, values]) => {
       if (key === "startTime") {
         values.map((value, index) => {
@@ -99,7 +117,8 @@ export function buildTimeline(
       }
       core++;
     }
+    maxCores = Math.max(maxCores, core + 1);
   }
 
-  return timeline;
+  return { ...timeline, nbCores: maxCores };
 }

@@ -82,7 +82,7 @@ export default function TimelinePage(): ReactElement {
 
   // Adjust scale at render and when container width changes
   useEffect(() => {
-    setScale(containerWidth / maxEnd);
+    setScale((containerWidth / maxEnd) * (11 / 12));
   }, [containerWidth, maxEnd]);
 
   if (!queryPlan) return <>Please send a query to see the graph</>;
@@ -106,13 +106,15 @@ export default function TimelinePage(): ReactElement {
 
   const timeline = buildTimeline(aggregateRetrievals, databaseRetrievals);
 
+  const { nbCores, ...coresTimeline } = timeline;
+
   // Find the maximum end time to calculate the content width
   maxEnd = Math.max(
-    ...Object.values(timeline).flatMap((timings) =>
+    ...Object.values(coresTimeline).flatMap((timings) =>
       timings.map(({ end }) => end),
     ),
   );
-  const contentWidth = maxEnd * scale;
+  const contentWidth = maxEnd * scale * (12 / 11);
 
   return (
     <Box padding={2} width="100%">
@@ -127,7 +129,7 @@ export default function TimelinePage(): ReactElement {
         />
         <Button
           variant="outlined"
-          onClick={() => setScale(containerWidth / maxEnd)}
+          onClick={() => setScale((containerWidth / maxEnd) * (11 / 12))}
         >
           Fit entire timeline
         </Button>
@@ -140,23 +142,39 @@ export default function TimelinePage(): ReactElement {
         }}
         ref={containerRef}
       >
-        <Grid2
-          container
-          spacing={2}
-          direction="column"
-          width={`${contentWidth}px`}
-          marginY={2}
-        >
-          {Object.entries(timeline).map(([core, timings]) => (
-            <CoreTimeline
-              key={core}
-              core={core}
-              timings={timings}
-              scale={scale}
-              openRetrievalDialog={openRetrievalDialog}
-            />
-          ))}
-        </Grid2>
+        {Array.from({ length: nbCores }).map((_, index) => (
+          <Grid2
+            container
+            spacing={2}
+            key={index}
+            alignItems="center"
+            width={`${contentWidth}px`}
+          >
+            {contentWidth > 200 && (
+              <Grid2 size={1}>
+                <Typography variant="body2">
+                  {contentWidth > 700 ? `Core ${index + 1}` : index + 1}
+                </Typography>
+              </Grid2>
+            )}
+            <Grid2 size={11}>
+              <Box
+                sx={{
+                  width: `${scale * maxEnd}px`,
+                  overflowX: "auto",
+                  paddingY: 2,
+                }}
+              >
+                <CoreTimeline
+                  core={index}
+                  timings={coresTimeline[index] || []}
+                  scale={scale}
+                  openRetrievalDialog={openRetrievalDialog}
+                />
+              </Box>
+            </Grid2>
+          </Grid2>
+        ))}
       </Box>
       <RetrievalDialog
         retrieval={selectedRetrieval}
