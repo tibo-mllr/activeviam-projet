@@ -103,61 +103,59 @@ export default function SubmitQueryPage(): ReactElement {
                 }}
                 onSubmit={handleSubmit}
               >
-                {({ setFieldValue }) => {
-                  return (
-                    <Form className="space-y-4">
-                      <Field
-                        as={TextField}
-                        id="url"
-                        name="url"
-                        label="URL"
-                        placeholder="Enter URL"
-                        sx={{ width: "100%" }}
-                      />
+                {(setFieldValue) => (
+                  <Form className="space-y-4">
+                    <Field
+                      as={TextField}
+                      id="url"
+                      name="url"
+                      label="URL"
+                      placeholder="Enter URL"
+                      sx={{ width: "100%" }}
+                    />
 
-                      <Field
-                        as={TextField}
-                        id="username"
-                        name="username"
-                        label="Username"
-                        placeholder="Enter user"
-                        sx={{ width: "100%" }}
-                      />
+                    <Field
+                      as={TextField}
+                      id="username"
+                      name="username"
+                      label="Username"
+                      placeholder="Enter user"
+                      sx={{ width: "100%" }}
+                    />
 
-                      <Field
-                        as={TextField}
-                        id="password"
-                        name="password"
-                        label="Password"
-                        type="password"
-                        placeholder="Enter password"
-                        sx={{ width: "100%" }}
-                      />
-                      <Field
-                        as={TextField}
-                        id="text"
-                        name="text"
-                        multiline
-                        minRows={6}
-                        maxRows={12}
-                        label="MDX request"
-                        placeholder="Enter MDX request"
-                        sx={{ width: "100%" }}
-                      />
-                      <FileUploader
-                        onFileLoad={(content) => setFieldValue("text", content)}
-                      />
+                    <Field
+                      as={TextField}
+                      id="password"
+                      name="password"
+                      label="Password"
+                      type="password"
+                      placeholder="Enter password"
+                      sx={{ width: "100%" }}
+                    />
+                    <Field
+                      as={TextField}
+                      id="text"
+                      name="text"
+                      multiline
+                      minRows={6}
+                      maxRows={12}
+                      label="MDX request"
+                      placeholder="Enter MDX request"
+                      sx={{ width: "100%" }}
+                    />
+                    <FileUploader
+                      onFileLoad={(content) => setFieldValue("text", content)}
+                    />
 
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        className="w-full"
-                      >
-                        Send and receive query plan
-                      </Button>
-                    </Form>
-                  );
-                }}
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      className="w-full"
+                    >
+                      Send and receive query plan
+                    </Button>
+                  </Form>
+                )}
               </Formik>
             </Grid2>
           ) : (
