@@ -1,5 +1,5 @@
 "use client";
-import { FileUploader } from "@/components";
+import { FileExporter, FileUploader } from "@/components";
 import { postRequest } from "@/lib/functions";
 import { getQueryPlan, setQueryPlan, useAppDispatch } from "@/lib/redux";
 import { CopyAll } from "@mui/icons-material";
@@ -216,6 +216,8 @@ export default function SubmitQueryPage(): ReactElement {
                   >
                     Copy Query Plan
                   </Button>
+
+                  <FileExporter data={queryPlan} filename="queryPlan.json" />
                 </Grid2>
               </Grid2>
               <Typography

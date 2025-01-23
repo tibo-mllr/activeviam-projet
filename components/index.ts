@@ -1,4 +1,5 @@
 export * from "./CoreTimeline";
+export * from "./FileExporter";
 export * from "./FileUploader";
 export * from "./Header";
 export * from "./PlanSelector";
