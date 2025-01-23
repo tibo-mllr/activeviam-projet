@@ -103,7 +103,7 @@ export default function SubmitQueryPage(): ReactElement {
                 }}
                 onSubmit={handleSubmit}
               >
-                {(setFieldValue) => (
+                {({ setFieldValue }) => (
                   <Form className="space-y-4">
                     <Field
                       as={TextField}
