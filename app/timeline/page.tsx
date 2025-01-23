@@ -1,6 +1,6 @@
 "use client";
 
-import { CoreTimeline, RetrievalDialog } from "@/components";
+import { CoreTimeline, RetrievalDialog, TimeScale } from "@/components";
 import { buildTimeline } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
@@ -175,6 +175,25 @@ export default function TimelinePage(): ReactElement {
             </Grid2>
           </Grid2>
         ))}
+        <Grid2
+          container
+          spacing={2}
+          alignItems="center"
+          width={`${contentWidth}px`}
+        >
+          {contentWidth > 200 && (
+            <Grid2 size={1}>
+              {contentWidth > 520 && (
+                <Typography variant="subtitle2" fontStyle="italic">
+                  Time (ms)
+                </Typography>
+              )}
+            </Grid2>
+          )}
+          <Grid2 size={11}>
+            <TimeScale maxEnd={maxEnd} scale={scale} />
+          </Grid2>
+        </Grid2>
       </Box>
       <RetrievalDialog
         retrieval={selectedRetrieval}
