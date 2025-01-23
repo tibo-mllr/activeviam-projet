@@ -1,10 +1,11 @@
 import { Button } from "@mui/material";
+import { QueryPlan } from "../lib/types";
 
 export function FileExporter({
   data,
   filename = "data.json",
 }: {
-  data: any;
+  data: QueryPlan[];
   filename?: string;
 }) {
   const handleExport = (): void => {
