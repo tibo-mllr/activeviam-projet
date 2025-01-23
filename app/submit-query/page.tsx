@@ -1,4 +1,5 @@
 "use client";
+import { FileUploader } from "@/components";
 import { postRequest } from "@/lib/functions";
 import { getQueryPlan, setQueryPlan, useAppDispatch } from "@/lib/redux";
 import { CopyAll } from "@mui/icons-material";
@@ -8,9 +9,9 @@ import {
   CardContent,
   CardHeader,
   Grid2,
-  Switch,
-  TextField,
   Typography,
+  TextField,
+  Switch,
 } from "@mui/material";
 import { isAxiosError } from "axios";
 import { Formik, Field, Form } from "formik";
@@ -80,7 +81,7 @@ export default function SubmitQueryPage(): ReactElement {
         action={
           // Toggle Switch
           <Grid2>
-            <Typography>Manual Mode</Typography>
+            <Typography>Query plan mode</Typography>
             <Switch
               checked={isManualMode}
               onChange={() => setIsManualMode((prev) => !prev)}
@@ -93,7 +94,6 @@ export default function SubmitQueryPage(): ReactElement {
         <Grid2 container spacing={4}>
           {!isManualMode ? (
             <Grid2>
-              {/* POST mode */}
               <Formik
                 initialValues={{
                   url: DEFAULT_URL,
@@ -103,7 +103,7 @@ export default function SubmitQueryPage(): ReactElement {
                 }}
                 onSubmit={handleSubmit}
               >
-                {() => (
+                {({ setFieldValue }) => (
                   <Form className="space-y-4">
                     <Field
                       as={TextField}
@@ -132,7 +132,6 @@ export default function SubmitQueryPage(): ReactElement {
                       placeholder="Enter password"
                       sx={{ width: "100%" }}
                     />
-
                     <Field
                       as={TextField}
                       id="text"
@@ -143,6 +142,9 @@ export default function SubmitQueryPage(): ReactElement {
                       label="MDX request"
                       placeholder="Enter MDX request"
                       sx={{ width: "100%" }}
+                    />
+                    <FileUploader
+                      onFileLoad={(content) => setFieldValue("text", content)}
                     />
 
                     <Button
@@ -159,7 +161,7 @@ export default function SubmitQueryPage(): ReactElement {
           ) : (
             <Grid2>
               {/* Manual mode */}
-              <Typography>Enter your Query Plan manually:</Typography>
+              <Typography>Enter directly your Query Plan</Typography>
               <TextField
                 multiline
                 minRows={6}
@@ -168,6 +170,10 @@ export default function SubmitQueryPage(): ReactElement {
                 sx={{ width: "100%" }}
                 value={manualQueryPlan}
                 onChange={(e) => setManualQueryPlan(e.target.value)} // Update state
+              />
+
+              <FileUploader
+                onFileLoad={(content) => setManualQueryPlan(content)}
               />
 
               <Button
