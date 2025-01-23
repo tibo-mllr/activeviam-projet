@@ -53,7 +53,7 @@ export default function TimelinePage(): ReactElement {
   }, []);
 
   // Handle zoom with mouse wheel
-  useEffect(() => {
+  /* useEffect(() => {
     function handleWheel(event: WheelEvent): void {
       if (!containerRef.current) return;
 
@@ -78,7 +78,7 @@ export default function TimelinePage(): ReactElement {
     return () => {
       if (container) container.removeEventListener("wheel", handleWheel);
     };
-  }, [scale]);
+  }, [scale]); */
 
   // Adjust scale at render and when container width changes
   useEffect(() => {
@@ -135,17 +135,16 @@ export default function TimelinePage(): ReactElement {
         </Button>
       </FormGroup>
       <Box
-        sx={{
-          width: "100%",
-          overflowX: "auto",
-          paddingY: 2,
-        }}
+        width="100%"
+        maxHeight="67vh"
+        marginTop={2}
+        overflow="auto"
+        borderRadius={2}
         ref={containerRef}
       >
         {Array.from({ length: nbCores }).map((_, index) => (
           <Grid2
             container
-            spacing={2}
             key={index}
             alignItems="center"
             width={`${contentWidth}px`}
@@ -179,6 +178,9 @@ export default function TimelinePage(): ReactElement {
           container
           spacing={2}
           alignItems="center"
+          position="sticky"
+          bgcolor="var(--background)"
+          bottom={0}
           width={`${contentWidth}px`}
         >
           {contentWidth > 200 && (
