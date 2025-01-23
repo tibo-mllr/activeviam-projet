@@ -1,5 +1,3 @@
-import React from "react";
-
 interface FileUploaderProps {
   onFileLoad: (content: string) => void;
   accept?: string; // optional parameters
