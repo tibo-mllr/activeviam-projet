@@ -3,7 +3,7 @@ import { Box, Tooltip } from "@mui/material";
 import { ReactElement } from "react";
 
 type CoreTimelineProps = {
-  core: string;
+  core: number;
   timings: TimelineTiming[];
   scale: number;
   openRetrievalDialog: (retrievalId: number, type: TimingType) => void;
