@@ -67,13 +67,13 @@ const databaseRetrievals: DatabaseRetrieval[] = [
 describe("buildTimeline", () => {
   it("gives nothing when given nothing", () => {
     const result = buildTimeline([], []);
-    expect(result).toEqual({});
+    expect(result).toEqual({ nbCores: 0 });
   });
 
   it("builds a timeline from aggregate retrievals", () => {
     const result = buildTimeline(aggregateRetrievals, []);
 
-    const expected: Timeline = {
+    const expected: Timeline & { nbCores: number } = {
       "0": [
         {
           start: 0,
@@ -90,6 +90,7 @@ describe("buildTimeline", () => {
           type: "AggregateRetrievalExecutionContext",
         },
       ],
+      nbCores: 2,
     };
 
     expect(result).toEqual(expected);
@@ -98,7 +99,7 @@ describe("buildTimeline", () => {
   it("builds a timeline from database retrievals", () => {
     const result = buildTimeline([], databaseRetrievals);
 
-    const expected: Timeline = {
+    const expected: Timeline & { nbCores: number } = {
       "0": [
         {
           start: 8,
@@ -113,6 +114,7 @@ describe("buildTimeline", () => {
           type: "DatabaseRetrievalExecutionContext",
         },
       ],
+      nbCores: 1,
     };
 
     expect(result).toEqual(expected);
@@ -121,7 +123,7 @@ describe("buildTimeline", () => {
   it("builds a timeline from both aggregate and database retrievals", () => {
     const result = buildTimeline(aggregateRetrievals, databaseRetrievals);
 
-    const expected: Timeline = {
+    const expected: Timeline & { nbCores: number } = {
       "0": [
         {
           start: 0,
@@ -152,6 +154,7 @@ describe("buildTimeline", () => {
           type: "DatabaseRetrieval",
         },
       ],
+      nbCores: 3,
     };
 
     expect(result).toEqual(expected);
@@ -162,7 +165,7 @@ describe("buildTimeline", () => {
 
     const result = buildTimeline(aggregateRetrievals, databaseRetrievals);
 
-    const expected: Timeline = {
+    const expected: Timeline & { nbCores: number } = {
       "0": [
         {
           start: 0,
@@ -193,6 +196,7 @@ describe("buildTimeline", () => {
           type: "DatabaseRetrieval",
         },
       ],
+      nbCores: 3,
     };
 
     expect(result).toEqual(expected);
