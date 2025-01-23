@@ -1,5 +1,5 @@
 "use client";
-import FileUploader from "@/components/FileUploader";
+import { FileUploader } from "@/components";
 import { postRequest } from "@/lib/functions";
 import { getQueryPlan, setQueryPlan, useAppDispatch } from "@/lib/redux";
 import { CopyAll } from "@mui/icons-material";

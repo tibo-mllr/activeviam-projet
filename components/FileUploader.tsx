@@ -1,14 +1,12 @@
-interface FileUploaderProps {
-  onFileLoad: (content: string) => void;
-  accept?: string; // optional parameters
-  label?: string;
-}
-
-const FileUploader: React.FC<FileUploaderProps> = ({
+export function FileUploader({
   onFileLoad,
   accept = ".txt, .json",
   label = "Or upload a file:",
-}) => {
+}: {
+  onFileLoad: (content: string) => void;
+  accept?: string;
+  label?: string;
+}) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -20,7 +18,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
       };
       reader.readAsText(file);
     } else {
-      alert("Please upload a valid .txt or .json file.");
+      alert("Please upload a valid file.");
     }
   };
 
@@ -45,6 +43,4 @@ const FileUploader: React.FC<FileUploaderProps> = ({
       />
     </div>
   );
-};
-
-export default FileUploader;
+}
