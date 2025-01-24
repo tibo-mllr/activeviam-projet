@@ -53,16 +53,16 @@ export default function TimelinePage(): ReactElement {
   }, []);
 
   // Handle zoom with mouse wheel
-  /* useEffect(() => {
+  useEffect(() => {
     function handleWheel(event: WheelEvent): void {
       if (!containerRef.current) return;
 
-      const { deltaX, deltaY } = event;
+      const { deltaY, ctrlKey } = event;
 
-      // Prevent horizontal scrolling (with trackpad)
-      if (Math.abs(deltaY) > Math.abs(deltaX)) {
+      // Zoom in/out only when holding Ctrl or Pinching on touchpad (it seems `ctrlKey` handles both)
+      if (ctrlKey) {
         event.preventDefault(); // Prevent page scroll
-        const direction = event.deltaY > 0 ? -1 : 1;
+        const direction = deltaY > 0 ? -1 : 1;
         const zoomFactor = 0.8;
         const newScale = Math.max(
           0,
@@ -78,7 +78,7 @@ export default function TimelinePage(): ReactElement {
     return () => {
       if (container) container.removeEventListener("wheel", handleWheel);
     };
-  }, [scale]); */
+  }, [scale]);
 
   // Adjust scale at render and when container width changes
   useEffect(() => {
