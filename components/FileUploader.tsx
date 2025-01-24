@@ -1,7 +1,7 @@
 export function FileUploader({
   onFileLoad,
-  accept = ".txt, .json",
-  label = "Or upload a file:",
+  accept = ".txt",
+  label = "Upload a file:",
 }: {
   onFileLoad: (content: string) => void;
   accept?: string;

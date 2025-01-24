@@ -146,6 +146,7 @@ export default function SubmitQueryPage(): ReactElement {
                     />
                     <FileUploader
                       onFileLoad={(content) => setFieldValue("text", content)}
+                      label="Or upload an MDX request file (.txt)"
                     />
 
                     <Button
@@ -175,6 +176,8 @@ export default function SubmitQueryPage(): ReactElement {
 
               <FileUploader
                 onFileLoad={(content) => setManualQueryPlan(content)}
+                accept=".txt,.json"
+                label="Or upload a query plan file (.txt or .json)"
               />
 
               <Button
