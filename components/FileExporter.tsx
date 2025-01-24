@@ -1,4 +1,5 @@
-import { Button } from "@mui/material";
+import { Button, Tooltip } from "@mui/material";
+import { FileDownload } from "@mui/icons-material";
 import { QueryPlan } from "../lib/types";
 
 export function FileExporter({
@@ -22,12 +23,10 @@ export function FileExporter({
   };
 
   return (
-    <Button
-      onClick={handleExport}
-      variant="contained"
-      className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-    >
-      Export as JSON
-    </Button>
+    <Tooltip title="Export as JSON">
+      <Button onClick={handleExport} variant="outlined">
+        <FileDownload />
+      </Button>
+    </Tooltip>
   );
 }
