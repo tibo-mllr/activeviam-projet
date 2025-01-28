@@ -57,12 +57,12 @@ export default function TimelinePage(): ReactElement {
     function handleWheel(event: WheelEvent): void {
       if (!containerRef.current) return;
 
-      const { deltaX, deltaY } = event;
+      const { deltaY, ctrlKey } = event;
 
-      // Prevent horizontal scrolling (with trackpad)
-      if (Math.abs(deltaY) > Math.abs(deltaX)) {
+      // Zoom in/out only when holding Ctrl or Pinching on touchpad (it seems `ctrlKey` handles both)
+      if (ctrlKey) {
         event.preventDefault(); // Prevent page scroll
-        const direction = event.deltaY > 0 ? -1 : 1;
+        const direction = deltaY > 0 ? -1 : 1;
         const zoomFactor = 0.8;
         const newScale = Math.max(
           0,
@@ -135,17 +135,16 @@ export default function TimelinePage(): ReactElement {
         </Button>
       </FormGroup>
       <Box
-        sx={{
-          width: "100%",
-          overflowX: "auto",
-          paddingY: 2,
-        }}
+        width="100%"
+        maxHeight="67vh"
+        marginTop={2}
+        overflow="auto"
+        borderRadius={2}
         ref={containerRef}
       >
         {Array.from({ length: nbCores }).map((_, index) => (
           <Grid2
             container
-            spacing={2}
             key={index}
             alignItems="center"
             width={`${contentWidth}px`}
@@ -179,6 +178,9 @@ export default function TimelinePage(): ReactElement {
           container
           spacing={2}
           alignItems="center"
+          position="sticky"
+          bgcolor="var(--background)"
+          bottom={0}
           width={`${contentWidth}px`}
         >
           {contentWidth > 200 && (

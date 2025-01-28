@@ -231,6 +231,8 @@ export default function SubmitQueryPage(): ReactElement {
                 borderRadius={1}
                 padding={2}
                 className="text-sm bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-100"
+                width="100%"
+                sx={{ overflowX: "auto" }}
               >
                 {JSON.stringify(queryPlan, null, 2)}
               </Typography>
