@@ -1,5 +1,5 @@
 "use client";
-import { FileUploader } from "@/components";
+import { FileExporter, FileUploader } from "@/components";
 import { postRequest } from "@/lib/functions";
 import { getQueryPlan, setQueryPlan, useAppDispatch } from "@/lib/redux";
 import { CopyAll } from "@mui/icons-material";
@@ -9,8 +9,9 @@ import {
   CardContent,
   CardHeader,
   Grid2,
-  Typography,
   TextField,
+  Tooltip,
+  Typography,
   Switch,
 } from "@mui/material";
 import { isAxiosError } from "axios";
@@ -206,19 +207,23 @@ export default function SubmitQueryPage(): ReactElement {
                 <Grid2 className="font-medium text-lg">
                   Saved query plan :
                 </Grid2>
-                <Grid2>
-                  <Button
-                    onClick={() =>
-                      navigator.clipboard.writeText(
-                        JSON.stringify(queryPlan, null, 2),
-                      )
-                    }
-                    variant="text"
-                    endIcon={<CopyAll />}
-                    className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-                  >
-                    Copy Query Plan
-                  </Button>
+                <Grid2 container direction="row" spacing={1}>
+                  <Tooltip title="Copy query plan">
+                    <Button
+                      onClick={() =>
+                        navigator.clipboard.writeText(
+                          JSON.stringify(queryPlan, null, 2),
+                        )
+                      }
+                      variant="outlined"
+                      className="text-blue-600
+                      dark:text-blue-400 hover:text-blue-800
+                      dark:hover:text-blue-300"
+                    >
+                      <CopyAll />
+                    </Button>
+                  </Tooltip>
+                  <FileExporter data={queryPlan} filename="queryPlan.json" />
                 </Grid2>
               </Grid2>
               <Typography
