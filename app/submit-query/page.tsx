@@ -207,7 +207,7 @@ export default function SubmitQueryPage(): ReactElement {
                 <Grid2 className="font-medium text-lg">
                   Saved query plan :
                 </Grid2>
-                <Grid2 container direction="column" spacing={1}>
+                <Grid2 container direction="row" spacing={1}>
                   <Tooltip title="Copy query plan">
                     <Button
                       onClick={() =>
