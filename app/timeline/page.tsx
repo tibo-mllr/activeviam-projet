@@ -30,6 +30,7 @@ export default function TimelinePage(): ReactElement {
   >(emptyAggregateRetrieval);
 
   const [scale, setScale] = useState<number>(50);
+  const minScale = 10;
 
   const [containerWidth, setContainerWidth] = useState<number>(50);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -65,7 +66,7 @@ export default function TimelinePage(): ReactElement {
         const direction = deltaY > 0 ? -1 : 1;
         const zoomFactor = 0.8;
         const newScale = Math.max(
-          0,
+          minScale,
           Math.min(100, scale + direction * zoomFactor),
         );
         setScale(newScale);
@@ -125,6 +126,7 @@ export default function TimelinePage(): ReactElement {
         <Slider
           sx={{ width: { xs: "100%", md: "80%" } }}
           value={scale}
+          min={minScale}
           onChange={(_event, value) => setScale(value as number)}
         />
         <Button
