@@ -9,7 +9,8 @@ import { Provider } from "react-redux";
 
 const theme = createTheme({
   colorSchemes: {
-    dark: true,
+    dark: { palette: { secondary: { main: "#FFB84D", dark: "#FFA85D" } } },
+    light: { palette: { secondary: { main: "#FFB84D", dark: "#FFA04D" } } },
   },
 });
 

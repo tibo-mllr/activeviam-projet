@@ -1,3 +1,4 @@
+import { TIMELINE_COLORS } from "@/lib/functions";
 import { TimelineTiming, TimingType } from "@/lib/types";
 import { Box, Tooltip } from "@mui/material";
 import { ReactElement } from "react";
@@ -21,8 +22,7 @@ export function CoreTimeline({
       width="100%"
       height={30}
       border={1}
-      borderColor="black"
-      bgcolor="primary.main"
+      borderColor="primary.main"
       borderRadius={2}
       overflow="hidden"
     >
@@ -46,7 +46,7 @@ export function CoreTimeline({
             border={1}
             borderColor="black"
             borderRadius={2}
-            bgcolor="primary.dark"
+            bgcolor={TIMELINE_COLORS[type]}
             onClick={() => openRetrievalDialog(retrievalId, type)}
           />
         </Tooltip>

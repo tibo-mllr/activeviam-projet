@@ -5,6 +5,13 @@ import {
   TimelineTiming,
 } from "@/lib/types";
 
+export const TIMELINE_COLORS: Record<string, string> = {
+  AggregateRetrieval: "secondary.dark",
+  AggregateRetrievalExecutionContext: "secondary.light",
+  DatabaseRetrieval: "primary.dark",
+  DatabaseRetrievalExecutionContext: "primary.light",
+};
+
 export function buildTimeline(
   aggregateRetrievals: AggregateRetrieval[],
   databaseRetrievals: DatabaseRetrieval[],
