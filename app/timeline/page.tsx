@@ -1,6 +1,11 @@
 "use client";
 
-import { CoreTimeline, RetrievalDialog, TimeScale } from "@/components";
+import {
+  CoreProcesses,
+  RetrievalDialog,
+  TimelineDiv,
+  TimelineFooter,
+} from "@/components";
 import { buildTimeline } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
@@ -82,7 +87,7 @@ export default function TimelinePage(): ReactElement {
     };
   }, [scale]);
 
-  // Adjust scale at render and when container width changes
+  // Adjust scale at render and when container's width changes
   useEffect(() => {
     setScale(containerWidth / maxEnd);
   }, [containerWidth, maxEnd]);
@@ -173,14 +178,14 @@ export default function TimelinePage(): ReactElement {
         {/* First column: core labels */}
         <Grid2 container size={1} flexDirection="column">
           {Array.from({ length: nbCores }).map((_, index) => (
-            <Grid2 key={index} paddingY={2} height="7vh" minHeight="50px">
+            <TimelineDiv key={index}>
               <Typography
                 variant="body2"
                 sx={{ display: "inline-block", verticalAlign: "middle" }}
               >
                 Core {index + 1}
               </Typography>
-            </Grid2>
+            </TimelineDiv>
           ))}
         </Grid2>
         {/* Second column: timeline */}
@@ -196,51 +201,25 @@ export default function TimelinePage(): ReactElement {
           ref={containerRef}
         >
           {Array.from({ length: nbCores }).map((_, index) => (
-            <Grid2
-              container
-              key={index}
-              paddingY={2}
-              height="7vh"
-              minHeight="50px"
-              width={`${contentWidth}px`}
-            >
-              <CoreTimeline
+            <TimelineDiv container key={index} width={`${contentWidth}px`}>
+              <CoreProcesses
                 core={index}
                 timings={coresTimeline[index] || []}
                 scale={scale}
                 openRetrievalDialog={openRetrievalDialog}
               />
-            </Grid2>
+            </TimelineDiv>
           ))}
         </Grid2>
       </Grid2>
       {/* Time scale */}
-      <Grid2
-        container
-        alignItems="center"
-        width="100%"
-        flexDirection="row"
-        overflow="hidden"
-      >
-        <Grid2 size={1}>
-          <Typography variant="subtitle2" fontStyle="italic">
-            Time (ms)
-          </Typography>
-        </Grid2>
-        <Grid2
-          size={11}
-          sx={{
-            overflowX: "auto",
-            overflowY: "hidden",
-            overscrollBehaviorX: "none",
-          }}
-          ref={scaleRef}
-        >
-          <Grid2 width={`${contentWidth}px`}>
-            <TimeScale maxEnd={maxEnd} scale={scale} />
-          </Grid2>
-        </Grid2>
-      </Grid2>
+      <TimelineFooter
+        contentWidth={contentWidth}
+        scale={scale}
+        maxEnd={maxEnd}
+        ref={scaleRef}
+      />
+      {/* Dialog for retrieval details */}
       <RetrievalDialog
         retrieval={selectedRetrieval}
         open={showDialog}
