@@ -34,6 +34,7 @@ export default function TimelinePage(): ReactElement {
 
   const [containerWidth, setContainerWidth] = useState<number>(50);
   const containerRef = useRef<HTMLDivElement>(null);
+  const scaleRef = useRef<HTMLDivElement>(null);
   let maxEnd = 0;
 
   // Keep track of container width
@@ -83,8 +84,33 @@ export default function TimelinePage(): ReactElement {
 
   // Adjust scale at render and when container width changes
   useEffect(() => {
-    setScale((containerWidth / maxEnd) * (11 / 12));
+    setScale(containerWidth / maxEnd);
   }, [containerWidth, maxEnd]);
+
+  // Synchronize horizontal scroll between timeline and scale
+  useEffect(() => {
+    const container = containerRef.current;
+    const scaleDiv = scaleRef.current;
+
+    function handleScroll(source: "container" | "scale"): void {
+      if (!container || !scaleDiv) return;
+
+      if (container.scrollLeft !== scaleDiv.scrollLeft) {
+        if (source === "container") scaleDiv.scrollLeft = container.scrollLeft;
+        else container.scrollLeft = scaleDiv.scrollLeft;
+      }
+    }
+
+    if (!container || !scaleDiv) return;
+
+    container.addEventListener("scroll", () => handleScroll("container"));
+    scaleDiv.addEventListener("scroll", () => handleScroll("scale"));
+
+    return () => {
+      container.removeEventListener("scroll", () => handleScroll("container"));
+      scaleDiv.removeEventListener("scroll", () => handleScroll("scale"));
+    };
+  }, []);
 
   if (!queryPlan) return <>Please send a query to see the graph</>;
 
@@ -115,10 +141,10 @@ export default function TimelinePage(): ReactElement {
       timings.map(({ end }) => end),
     ),
   );
-  const contentWidth = maxEnd * scale * (12 / 11);
+  const contentWidth = maxEnd * scale;
 
   return (
-    <Box padding={2} width="100%">
+    <Box padding={2} paddingBottom={0} width="100%">
       <Typography variant="h4" gutterBottom>
         Timeline
       </Typography>
@@ -131,74 +157,90 @@ export default function TimelinePage(): ReactElement {
         />
         <Button
           variant="outlined"
-          onClick={() => setScale((containerWidth / maxEnd) * (11 / 12))}
+          onClick={() => setScale(containerWidth / maxEnd)}
         >
           Fit entire timeline
         </Button>
       </FormGroup>
-      <Box
+      <Grid2
+        container
         width="100%"
-        maxHeight="67vh"
+        maxHeight="64vh"
         marginTop={2}
-        overflow="auto"
-        borderRadius={2}
-        ref={containerRef}
+        flexDirection="row"
+        sx={{ overflowY: "auto", overflowX: "hidden" }}
       >
-        {Array.from({ length: nbCores }).map((_, index) => (
-          <Grid2
-            container
-            key={index}
-            alignItems="center"
-            width={`${contentWidth}px`}
-          >
-            {contentWidth > 200 && (
-              <Grid2 size={1}>
-                <Typography variant="body2">
-                  {contentWidth > 700 ? `Core ${index + 1}` : index + 1}
-                </Typography>
-              </Grid2>
-            )}
-            <Grid2 size={11}>
-              <Box
-                sx={{
-                  width: `${scale * maxEnd}px`,
-                  overflowX: "auto",
-                  paddingY: 2,
-                }}
+        {/* First column: core labels */}
+        <Grid2 container size={1} flexDirection="column">
+          {Array.from({ length: nbCores }).map((_, index) => (
+            <Grid2 key={index} paddingY={2} height="7vh" minHeight="50px">
+              <Typography
+                variant="body2"
+                sx={{ display: "inline-block", verticalAlign: "middle" }}
               >
-                <CoreTimeline
-                  core={index}
-                  timings={coresTimeline[index] || []}
-                  scale={scale}
-                  openRetrievalDialog={openRetrievalDialog}
-                />
-              </Box>
+                Core {index + 1}
+              </Typography>
             </Grid2>
-          </Grid2>
-        ))}
+          ))}
+        </Grid2>
+        {/* Second column: timeline */}
         <Grid2
           container
-          spacing={2}
-          alignItems="center"
-          position="sticky"
-          bgcolor="var(--background)"
-          bottom={0}
-          width={`${contentWidth}px`}
+          size={11}
+          flexDirection="column"
+          sx={{
+            overflowX: "auto",
+            overflowY: "hidden",
+            overscrollBehaviorX: "none",
+          }}
+          ref={containerRef}
         >
-          {contentWidth > 200 && (
-            <Grid2 size={1}>
-              {contentWidth > 520 && (
-                <Typography variant="subtitle2" fontStyle="italic">
-                  Time (ms)
-                </Typography>
-              )}
+          {Array.from({ length: nbCores }).map((_, index) => (
+            <Grid2
+              container
+              key={index}
+              paddingY={2}
+              height="7vh"
+              minHeight="50px"
+              width={`${contentWidth}px`}
+            >
+              <CoreTimeline
+                core={index}
+                timings={coresTimeline[index] || []}
+                scale={scale}
+                openRetrievalDialog={openRetrievalDialog}
+              />
             </Grid2>
-          )}
-          <Grid2 size={11}>
+          ))}
+        </Grid2>
+      </Grid2>
+      {/* Time scale */}
+      <Grid2
+        container
+        alignItems="center"
+        width="100%"
+        flexDirection="row"
+        overflow="hidden"
+      >
+        <Grid2 size={1}>
+          <Typography variant="subtitle2" fontStyle="italic">
+            Time (ms)
+          </Typography>
+        </Grid2>
+        <Grid2
+          size={11}
+          sx={{
+            overflowX: "auto",
+            overflowY: "hidden",
+            overscrollBehaviorX: "none",
+          }}
+          ref={scaleRef}
+        >
+          <Grid2 width={`${contentWidth}px`}>
             <TimeScale maxEnd={maxEnd} scale={scale} />
           </Grid2>
         </Grid2>
-      </Box>
+      </Grid2>
       <RetrievalDialog
         retrieval={selectedRetrieval}
         open={showDialog}

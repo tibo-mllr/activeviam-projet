@@ -20,7 +20,7 @@ export function CoreTimeline({
     <Box
       position="relative"
       width="100%"
-      height={30}
+      height="100%"
       border={1}
       borderColor="primary.main"
       borderRadius={2}
