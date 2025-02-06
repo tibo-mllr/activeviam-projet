@@ -3,24 +3,24 @@ import { TimelineTiming, TimingType } from "@/lib/types";
 import { Box, Tooltip } from "@mui/material";
 import { ReactElement } from "react";
 
-type CoreTimelineProps = {
+type CoreProcessesProps = {
   core: number;
   timings: TimelineTiming[];
   scale: number;
   openRetrievalDialog: (retrievalId: number, type: TimingType) => void;
 };
 
-export function CoreTimeline({
+export function CoreProcesses({
   core,
   timings,
   scale,
   openRetrievalDialog,
-}: CoreTimelineProps): ReactElement {
+}: CoreProcessesProps): ReactElement {
   return (
     <Box
       position="relative"
       width="100%"
-      height={30}
+      height="100%"
       border={1}
       borderColor="primary.main"
       borderRadius={2}

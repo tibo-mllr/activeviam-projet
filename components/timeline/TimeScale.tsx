@@ -34,7 +34,9 @@ export function TimeScale({ maxEnd, scale }: TimeScaleProps): ReactElement {
           style={{ transform: "translateX(-50%)" }}
         >
           <Box width="1px" height="10px" bgcolor="primary.main" margin="auto" />
-          <Typography variant="caption">{time}</Typography>
+          <Typography variant="caption" marginLeft={time === 0 ? "0.6em" : "0"}>
+            {time}
+          </Typography>
         </Box>
       ))}
     </Box>
