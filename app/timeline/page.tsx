@@ -197,6 +197,7 @@ export default function TimelinePage(): ReactElement {
             overflowX: "auto",
             overflowY: "hidden",
             overscrollBehaviorX: "none",
+            scrollbarWidth: "none",
           }}
           ref={containerRef}
         >
