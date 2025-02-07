@@ -7,6 +7,7 @@ type TimelineFooterProps = {
   maxEnd: number;
   scale: number;
   ref: RefObject<HTMLDivElement>;
+  onScroll: () => void;
 };
 
 export function TimelineFooter({
@@ -14,6 +15,7 @@ export function TimelineFooter({
   maxEnd,
   scale,
   ref,
+  onScroll,
 }: TimelineFooterProps): ReactElement {
   return (
     <Grid2
@@ -35,6 +37,7 @@ export function TimelineFooter({
           overflowY: "hidden",
           overscrollBehaviorX: "none",
         }}
+        onScroll={onScroll}
         ref={ref}
       >
         <Grid2 width={`${contentWidth}px`}>

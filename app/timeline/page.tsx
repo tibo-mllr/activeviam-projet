@@ -93,29 +93,17 @@ export default function TimelinePage(): ReactElement {
   }, [containerWidth, maxEnd]);
 
   // Synchronize horizontal scroll between timeline and scale
-  useEffect(() => {
-    const container = containerRef.current;
+  function handleScroll(source: "container" | "scale"): void {
+    const containerDiv = containerRef.current;
     const scaleDiv = scaleRef.current;
 
-    function handleScroll(source: "container" | "scale"): void {
-      if (!container || !scaleDiv) return;
+    if (!containerDiv || !scaleDiv) return;
 
-      if (container.scrollLeft !== scaleDiv.scrollLeft) {
-        if (source === "container") scaleDiv.scrollLeft = container.scrollLeft;
-        else container.scrollLeft = scaleDiv.scrollLeft;
-      }
+    if (containerDiv.scrollLeft !== scaleDiv.scrollLeft) {
+      if (source === "container") scaleDiv.scrollLeft = containerDiv.scrollLeft;
+      else containerDiv.scrollLeft = scaleDiv.scrollLeft;
     }
-
-    if (!container || !scaleDiv) return;
-
-    container.addEventListener("scroll", () => handleScroll("container"));
-    scaleDiv.addEventListener("scroll", () => handleScroll("scale"));
-
-    return () => {
-      container.removeEventListener("scroll", () => handleScroll("container"));
-      scaleDiv.removeEventListener("scroll", () => handleScroll("scale"));
-    };
-  }, []);
+  }
 
   if (!queryPlan) return <>Please send a query to see the graph</>;
 
@@ -199,6 +187,7 @@ export default function TimelinePage(): ReactElement {
             overscrollBehaviorX: "none",
             scrollbarWidth: "none",
           }}
+          onScroll={() => handleScroll("container")}
           ref={containerRef}
         >
           {Array.from({ length: nbCores }).map((_, index) => (
@@ -218,6 +207,7 @@ export default function TimelinePage(): ReactElement {
         contentWidth={contentWidth}
         scale={scale}
         maxEnd={maxEnd}
+        onScroll={() => handleScroll("scale")}
         ref={scaleRef}
       />
       {/* Dialog for retrieval details */}
