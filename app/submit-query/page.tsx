@@ -1,7 +1,13 @@
 "use client";
 import { FileExporter, FileUploader } from "@/components";
 import { postRequest } from "@/lib/functions";
-import { getQueryPlan, setQueryPlan, useAppDispatch } from "@/lib/redux";
+import {
+  getIsManual,
+  getQueryPlan,
+  setIsManual,
+  setQueryPlan,
+  useAppDispatch,
+} from "@/lib/redux";
 import { CopyAll } from "@mui/icons-material";
 import {
   Button,
@@ -24,9 +30,9 @@ const DEFAULT_URL =
 
 export default function SubmitQueryPage(): ReactElement {
   const [error, setError] = useState<string | null>(null);
-  const [isManualMode, setIsManualMode] = useState<boolean>(false);
   const [manualQueryPlan, setManualQueryPlan] = useState<string>("");
 
+  const isManualMode = useSelector(getIsManual);
   const dispatch = useAppDispatch();
   const queryPlan = useSelector(getQueryPlan);
 
@@ -85,7 +91,7 @@ export default function SubmitQueryPage(): ReactElement {
             <Typography>Query plan mode</Typography>
             <Switch
               checked={isManualMode}
-              onChange={() => setIsManualMode((prev) => !prev)}
+              onChange={() => dispatch(setIsManual(!isManualMode))}
             />
           </Grid2>
         }
