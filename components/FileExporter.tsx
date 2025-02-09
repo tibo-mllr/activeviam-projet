@@ -1,5 +1,5 @@
-import { Button, Tooltip } from "@mui/material";
 import { FileDownload } from "@mui/icons-material";
+import { Button, Tooltip } from "@mui/material";
 import { QueryPlan } from "../lib/types";
 
 export function FileExporter({

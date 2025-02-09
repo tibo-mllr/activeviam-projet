@@ -1,4 +1,4 @@
-import { AggregateRetrieval, DatabaseRetrieval, TimingInfo } from "@/lib/types";
+import { AggregateRetrieval, DatabaseRetrieval } from "@/lib/types";
 import { Close } from "@mui/icons-material";
 import {
   Dialog,
