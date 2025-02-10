@@ -25,13 +25,14 @@ export function RetrievalDialog({
   retrieval,
   open,
   setOpen,
-}: RetrievalDialogProps): ReactElement {
-  if (!retrieval) return <></>;
+}: RetrievalDialogProps): ReactElement | null {
+  if (!retrieval) return null;
 
   const isAggregate = "partialProviderName" in retrieval;
+  const excludedKeys = new Set(["timingInfo", "location"]);
 
   return (
-    <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth>
+    <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md">
       <DialogTitle>
         {isAggregate ? "Aggregate Retrieval" : "Database Retrieval"}
         <IconButton
@@ -49,86 +50,63 @@ export function RetrievalDialog({
             </Typography>
             <Divider sx={{ marginBottom: 2 }} />
 
-            {isAggregate ? (
-              <>
-                <Typography variant="body1">
-                  <strong>Provider:</strong> {retrieval.partialProviderName}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Type:</strong> {retrieval.type}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Partitioning:</strong> {retrieval.partitioning}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Measure Provider:</strong> {retrieval.measureProvider}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Filter ID:</strong> {retrieval.filterId}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Measures:</strong>
-                </Typography>
-                <List dense>
-                  {retrieval.measures.map((measure, index) => (
-                    <ListItem key={index}>
-                      <ListItemText primary={measure} />
-                    </ListItem>
-                  ))}
-                </List>
-                <Typography variant="body1">
-                  <strong>Underlying Data Nodes:</strong>
-                </Typography>
-                <List dense>
-                  {retrieval.underlyingDataNodes.map((node, index) => (
-                    <ListItem key={index}>
-                      <ListItemText primary={node} />
-                    </ListItem>
-                  ))}
-                </List>
-              </>
-            ) : (
-              <>
-                <Typography variant="body1">
-                  <strong>Store:</strong> {retrieval.store}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Condition:</strong> {retrieval.condition}
-                </Typography>
-                <Typography variant="body1">
-                  <strong>Fields:</strong>
-                </Typography>
-                <List dense>
-                  {retrieval.fields.map((field, index) => (
-                    <ListItem key={index}>
-                      <ListItemText primary={field} />
-                    </ListItem>
-                  ))}
-                </List>
-                <Typography variant="body1">
-                  <strong>Joined Measures:</strong>
-                </Typography>
-                <List dense>
-                  {retrieval.joinedMeasure.map((measure, index) => (
-                    <ListItem key={index}>
-                      <ListItemText primary={measure} />
-                    </ListItem>
-                  ))}
-                </List>
-              </>
-            )}
-
-            <Typography variant="body1">
-              <strong>Timing Info:</strong>
-            </Typography>
-            <List dense>
-              {Object.entries(retrieval.timingInfo).map(
-                ([key, values], index) => (
-                  <ListItem key={index}>
-                    <ListItemText primary={`${key}: ${values.join(", ")}`} />
+            <List>
+              {/* General keys */}
+              {Object.entries(retrieval)
+                .filter(([key]) => !excludedKeys.has(key))
+                .map(([key, value]) => (
+                  <ListItem key={key} disablePadding>
+                    <ListItemText
+                      primary={key}
+                      secondary={
+                        Array.isArray(value) ? value.join(", ") : String(value)
+                      }
+                    />
                   </ListItem>
-                ),
-              )}
+                ))}
+              {/* TimingInfo */}
+              <ListItem disablePadding>
+                <ListItemText
+                  primary="Timing Info"
+                  secondary={Object.entries(retrieval.timingInfo).map(
+                    ([key, values]) => (
+                      <div key={key}>
+                        <strong>{key}: </strong>
+                        {values.join(", ")}
+                      </div>
+                    ),
+                  )}
+                />
+              </ListItem>
+              {/* Location (only if aggregate) */}
+              {"location" in retrieval &&
+                Array.isArray(retrieval.location) &&
+                retrieval.location.length > 0 && (
+                  <ListItem disablePadding>
+                    <ListItemText
+                      primary="Location"
+                      secondary={
+                        <div>
+                          {retrieval.location.map((loc, index) => (
+                            <div key={index} style={{ marginBottom: "1rem" }}>
+                              {Object.entries(loc).map(([key, value]) => (
+                                <div key={key}>
+                                  <strong>
+                                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                                    :
+                                  </strong>
+                                  {Array.isArray(value)
+                                    ? value.join(", ")
+                                    : value}
+                                </div>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
+                      }
+                    />
+                  </ListItem>
+                )}
             </List>
           </CardContent>
         </Card>
