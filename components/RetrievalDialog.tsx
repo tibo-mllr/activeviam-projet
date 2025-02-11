@@ -67,17 +67,27 @@ export function RetrievalDialog({
             </List>
 
             {/* TimingInfo */}
-            <Typography variant="subtitle1" gutterBottom sx={{ marginTop: 2 }}>
-              Timing Info :
-            </Typography>
-            <List>
-              {"timingInfo" in retrieval &&
-                Object.entries(retrieval.timingInfo).map(([key, values]) => (
-                  <ListItem key={key} disablePadding>
-                    <ListItemText primary={key} secondary={values.join(", ")} />
-                  </ListItem>
-                ))}
-            </List>
+            {"timingInfo" in retrieval && (
+              <>
+                <Typography
+                  variant="subtitle1"
+                  gutterBottom
+                  sx={{ marginTop: 2 }}
+                >
+                  Timing Info :
+                </Typography>
+                <List>
+                  {Object.entries(retrieval.timingInfo).map(([key, values]) => (
+                    <ListItem key={key} disablePadding>
+                      <ListItemText
+                        primary={key}
+                        secondary={values.join(", ")}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </>
+            )}
 
             {/* Location (only if aggregate) */}
             {isAggregate &&
@@ -96,18 +106,22 @@ export function RetrievalDialog({
                     {retrieval.location.map((loc, index) => (
                       <ListItem key={index} disablePadding>
                         <ListItemText
-                          secondary={Object.entries(loc).map(
-                            ([key, value], idx) => (
-                              <div key={idx}>
-                                <strong>
-                                  {key.charAt(0).toUpperCase() + key.slice(1)}:
-                                </strong>
-                                {Array.isArray(value)
-                                  ? value.join(", ")
-                                  : value}
-                              </div>
-                            ),
-                          )}
+                          secondary={
+                            <>
+                              {Object.entries(loc).map(([key, value], idx) => (
+                                <span key={idx}>
+                                  <strong>
+                                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                                    :
+                                  </strong>{" "}
+                                  {Array.isArray(value)
+                                    ? value.join(", ")
+                                    : value}
+                                  <br />
+                                </span>
+                              ))}
+                            </>
+                          }
                         />
                       </ListItem>
                     ))}
