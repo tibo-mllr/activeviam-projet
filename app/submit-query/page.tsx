@@ -2,6 +2,7 @@
 import { FileExporter, FileUploader } from "@/components";
 import { postRequest } from "@/lib/functions";
 import { getQueryPlan, setQueryPlan, useAppDispatch } from "@/lib/redux";
+import { queryPlansSchema } from "@/lib/types";
 import { CopyAll } from "@mui/icons-material";
 import {
   Button,
@@ -69,7 +70,15 @@ export default function SubmitQueryPage(): ReactElement {
         return;
       }
 
-      dispatch(setQueryPlan(JSON.parse(manualQueryPlan)));
+      const parsed = queryPlansSchema.safeParse(JSON.parse(manualQueryPlan));
+
+      if (!parsed.success) {
+        setError("Invalid JSON format in query plan.");
+        console.error(parsed.error);
+        return;
+      }
+
+      dispatch(setQueryPlan(parsed.data));
     } catch {
       setError("Invalid JSON format in query plan.");
     }

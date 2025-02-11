@@ -1,99 +1,99 @@
-// A lot of the types here are inferred from the JSON response of the query plan endpoint
-// I think quite a few `string` types could be enums, but I'm not sure what the possible values are
+import { z } from "zod";
 
-type Context = {
-  IBranch: string;
-  ISubCubeProperties: string;
-  IAsOfEpoch: string;
-  IQueryMonitoring: string;
-  IQueriesResultLimit: string;
-};
+const contextSchema = z.object({
+  IBranch: z.string().default(""),
+  ISubCubeProperties: z.string().default(""),
+  IAsOfEpoch: z.string().default(""),
+  IQueryMonitoring: z.string().default(""),
+  IQueriesResultLimit: z.string().default(""),
+});
 
-type PlanInfo = {
-  pivotType: string;
-  pivotId: string;
-  epoch: string;
-  branch: string;
-  retrieverType: string;
-  mdxPass: string;
-  contextValues: Context;
-  rangeSharing: number;
-  missedPrefetchBehavior: string;
-  aggregatesCache: string;
-  globalTimings: Record<string, number>;
-  continuous: boolean;
-};
+const planInfoSchema = z.object({
+  pivotType: z.string().default(""),
+  pivotId: z.string().default(""),
+  epoch: z.string().default(""),
+  branch: z.string().default(""),
+  retrieverType: z.string().default(""),
+  mdxPass: z.string().default(""),
+  contextValues: contextSchema.default({}),
+  rangeSharing: z.number().default(0),
+  missedPrefetchBehavior: z.string().default(""),
+  aggregatesCache: z.string().default(""),
+  globalTimings: z.record(z.string(), z.number()).default({}),
+  continuous: z.boolean().default(false),
+});
 
-type Location = {
-  dimension: string;
-  hierarchy: string;
-  level: string[];
-  path: string[];
-};
+const locationSchema = z.object({
+  dimension: z.string().default(""),
+  hierarchy: z.string().default(""),
+  level: z.array(z.string()).default([]),
+  path: z.array(z.string()).default([]),
+});
 
-export type TimingInfo = Record<string, number[]>;
+const timingInfoSchema = z.record(z.string(), z.array(z.number())).default({});
 
-export type AggregateRetrieval = {
-  retrievalId: number;
-  partialProviderName: string;
-  type: string;
-  partitioning: string;
-  location: Location[];
-  measures: string[];
-  filterId: number;
-  measureProvider: string;
-  resultSizes: number[];
-  timingInfo: TimingInfo;
-  underlyingDataNodes: string[];
-};
+export type TimingInfo = z.infer<typeof timingInfoSchema>;
 
-export const emptyAggregateRetrieval: AggregateRetrieval = {
-  retrievalId: 0,
-  partialProviderName: "",
-  type: "",
-  partitioning: "",
-  location: [],
-  measures: [],
-  filterId: 0,
-  measureProvider: "",
-  resultSizes: [],
-  timingInfo: {},
-  underlyingDataNodes: [],
-};
+const aggregateRetrievalSchema = z.object({
+  retrievalId: z.number().default(0),
+  partialProviderName: z.string().default(""),
+  type: z.string().default(""),
+  partitioning: z.string().default(""),
+  location: z.array(locationSchema).default([]),
+  measures: z.array(z.string()).default([]),
+  filterId: z.number().default(0),
+  measureProvider: z.string().default(""),
+  resultSizes: z.array(z.number()).default([]),
+  timingInfo: timingInfoSchema,
+  underlyingDataNodes: z.array(z.string()).default([]),
+});
 
-export type DatabaseRetrieval = {
-  store: string;
-  fields: string[];
-  joinedMeasure: string[];
-  condition: string;
-  retrievalId: number;
-  resultSizes: number[];
-  timingInfo: TimingInfo;
-};
+export type AggregateRetrieval = z.infer<typeof aggregateRetrievalSchema>;
 
-type Dependencies = Record<string, number[]>;
+export const emptyAggregateRetrieval: AggregateRetrieval =
+  aggregateRetrievalSchema.parse({});
 
-type Filter = {
-  id: number;
-  description: string;
-};
+const databaseRetrievalSchema = z.object({
+  store: z.string().default(""),
+  fields: z.array(z.string()).default([]),
+  joinedMeasure: z.array(z.string()).default([]),
+  condition: z.string().default(""),
+  retrievalId: z.number().default(0),
+  resultSizes: z.array(z.number()).default([]),
+  timingInfo: timingInfoSchema,
+});
 
-type QuerySummary = {
-  measures: string[];
-  totalRetrievals: number;
-  retrievalsCountByType: Record<string, number>;
-  partitioningCountByType: Record<string, number>;
-  resultSizeByPartitioning: Record<string, number>;
-  partialProviders: string[];
-  totalDatabaseResultSize: number;
-};
+export type DatabaseRetrieval = z.infer<typeof databaseRetrievalSchema>;
 
-export type QueryPlan = {
-  planInfo: PlanInfo;
-  aggregateRetrievals: AggregateRetrieval[];
-  dependencies: Dependencies;
-  databaseRetrievals: DatabaseRetrieval[];
-  databaseDependencies: Dependencies;
-  queryFilters: Filter[];
-  querySummary: QuerySummary;
-};
+const dependenciesSchema = z
+  .record(z.string(), z.array(z.number()))
+  .default({});
+
+const filterSchema = z.object({
+  id: z.number().default(0),
+  description: z.string().default(""),
+});
+
+const querySummarySchema = z.object({
+  measures: z.array(z.string()).default([]),
+  totalRetrievals: z.number().default(0),
+  retrievalsCountByType: z.record(z.string(), z.number()).default({}),
+  partitioningCountByType: z.record(z.string(), z.number()).default({}),
+  resultSizeByPartitioning: z.record(z.string(), z.number()).default({}),
+  partialProviders: z.array(z.string()).default([]),
+  totalDatabaseResultSize: z.number().default(0),
+});
+
+const queryPlanSchema = z.object({
+  planInfo: planInfoSchema.default({}),
+  aggregateRetrievals: z.array(aggregateRetrievalSchema).default([]),
+  dependencies: dependenciesSchema,
+  databaseRetrievals: z.array(databaseRetrievalSchema).default([]),
+  databaseDependencies: dependenciesSchema,
+  queryFilters: z.array(filterSchema).default([]),
+  querySummary: querySummarySchema.default({}),
+});
+
+export const queryPlansSchema = z.array(queryPlanSchema);
+
+export type QueryPlan = z.infer<typeof queryPlanSchema>;
