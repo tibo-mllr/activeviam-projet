@@ -88,7 +88,7 @@ export default function SummaryPage(): ReactElement {
   } = pieData;
 
   return (
-    <Grid2 container spacing={2}>
+    <Grid2 container spacing={2} direction="column">
       {queryPlan.length >= 2 && (
         <Grid2 container spacing={1}>
           <Card
@@ -116,7 +116,18 @@ export default function SummaryPage(): ReactElement {
           </Card>
           <Card>
             <CardContent>
-              <Typography variant="h6">Repartition</Typography>
+              <Typography display="flex" alignItems="center">
+                Retrievals repartition
+              </Typography>
+              <List dense sx={{ marginLeft: 4 }}>
+                {queryPlan.map((queryPlanPass, index) => (
+                  <ListItem key={index} disablePadding>
+                    <ListItemText
+                      primary={`${queryPlanPass.planInfo.mdxPass} : ${queryPlanPass.querySummary.totalRetrievals}`}
+                    />
+                  </ListItem>
+                ))}
+              </List>
             </CardContent>
           </Card>
         </Grid2>
