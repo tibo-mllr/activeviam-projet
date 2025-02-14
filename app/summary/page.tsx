@@ -89,8 +89,8 @@ export default function SummaryPage(): ReactElement {
 
   return (
     <Grid2 container spacing={2}>
-      <Grid2 container spacing={1}>
-        {queryPlan.length >= 2 && (
+      {queryPlan.length >= 2 && (
+        <Grid2 container spacing={1}>
           <Card
             style={{
               backgroundColor: isDataAggregated
@@ -114,8 +114,13 @@ export default function SummaryPage(): ReactElement {
               <Typography>There are {queryPlan.length} Select Pass</Typography>
             </CardContent>
           </Card>
-        )}
-      </Grid2>
+          <Card>
+            <CardContent>
+              <Typography variant="h6">Repartition</Typography>
+            </CardContent>
+          </Card>
+        </Grid2>
+      )}
 
       <Grid2 container spacing={1}>
         <Card>
