@@ -88,7 +88,7 @@ export default function SummaryPage(): ReactElement {
   } = pieData;
 
   return (
-    <Grid2 container spacing={2}>
+    <Grid2 container spacing={2} direction="column">
       <Grid2 container spacing={1}>
         {queryPlan.length >= 2 && (
           <Card
