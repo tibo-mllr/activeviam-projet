@@ -88,8 +88,8 @@ export default function SummaryPage(): ReactElement {
   } = pieData;
 
   return (
-    <Grid2 container spacing={2} direction="column">
-      <Grid2 container spacing={1}>
+    <Box width="100%">
+      <Grid2 container padding={1} spacing={1}>
         {queryPlan.length >= 2 && (
           <Card
             style={{
@@ -117,7 +117,7 @@ export default function SummaryPage(): ReactElement {
         )}
       </Grid2>
 
-      <Grid2 container spacing={1}>
+      <Grid2 container padding={1} spacing={1}>
         <Card>
           <CardContent>
             <Typography variant="h6">Elapsed timings of retrievals</Typography>
@@ -460,7 +460,7 @@ export default function SummaryPage(): ReactElement {
           </CardContent>
         </Card>
       </Grid2>
-      <Grid2 container spacing={1}>
+      <Grid2 container padding={1} spacing={1}>
         <Card>
           <CardContent>
             <Grid2 container spacing={2}>
@@ -601,6 +601,6 @@ export default function SummaryPage(): ReactElement {
           </Card>
         )}
       </Grid2>
-    </Grid2>
+    </Box>
   );
 }
