@@ -461,6 +461,66 @@ export default function SummaryPage(): ReactElement {
         </Card>
       </Grid2>
       <Grid2 container spacing={1}>
+        <Card>
+          <CardContent>
+            <Grid2 container spacing={2}>
+              <Grid2>
+                <Typography variant="h6">Global timings</Typography>
+                {selectedQueryPlan.planInfo?.globalTimings ? (
+                  <List dense sx={{ marginLeft: 4 }}>
+                    {Object.entries(
+                      selectedQueryPlan.planInfo.globalTimings,
+                    ).map(([key, value]) => (
+                      <ListItem key={key} disablePadding>
+                        <ListItemText primary={`${key} : ${value} ms`} />
+                      </ListItem>
+                    ))}
+                  </List>
+                ) : (
+                  <Typography variant="body2" sx={{ marginLeft: 4 }}>
+                    No global timings available.
+                  </Typography>
+                )}
+              </Grid2>
+            </Grid2>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent>
+            <Grid2 container direction="column" spacing={2}>
+              <Grid2>
+                <Typography variant="h6">Measures</Typography>
+              </Grid2>
+              <Grid2>
+                <TextField
+                  fullWidth
+                  label="Search Measures"
+                  variant="outlined"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </Grid2>
+              <Box
+                sx={{
+                  border: "1px solid #ccc",
+                  padding: 2,
+                  marginTop: 2,
+                }}
+              >
+                <Grid2>
+                  <List dense sx={{ marginLeft: 4 }}>
+                    {filteredMeasures.map(([key, value]) => (
+                      <ListItem key={key} disablePadding>
+                        <ListItemText primary={`- ${value}`} />
+                      </ListItem>
+                    ))}
+                  </List>
+                </Grid2>
+              </Box>
+            </Grid2>
+          </CardContent>
+        </Card>
         {!isDataAggregated && (
           <Card>
             <CardContent>
@@ -540,66 +600,6 @@ export default function SummaryPage(): ReactElement {
             </CardContent>
           </Card>
         )}
-        <Card>
-          <CardContent>
-            <Grid2 container spacing={2}>
-              <Grid2>
-                <Typography variant="h6">Global timings</Typography>
-                {selectedQueryPlan.planInfo?.globalTimings ? (
-                  <List dense sx={{ marginLeft: 4 }}>
-                    {Object.entries(
-                      selectedQueryPlan.planInfo.globalTimings,
-                    ).map(([key, value]) => (
-                      <ListItem key={key} disablePadding>
-                        <ListItemText primary={`${key} : ${value} ms`} />
-                      </ListItem>
-                    ))}
-                  </List>
-                ) : (
-                  <Typography variant="body2" sx={{ marginLeft: 4 }}>
-                    No global timings available.
-                  </Typography>
-                )}
-              </Grid2>
-            </Grid2>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent>
-            <Grid2 container direction="column" spacing={2}>
-              <Grid2>
-                <Typography variant="h6">Measures</Typography>
-              </Grid2>
-              <Grid2>
-                <TextField
-                  fullWidth
-                  label="Search Measures"
-                  variant="outlined"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </Grid2>
-              <Box
-                sx={{
-                  border: "1px solid #ccc",
-                  padding: 2,
-                  marginTop: 2,
-                }}
-              >
-                <Grid2>
-                  <List dense sx={{ marginLeft: 4 }}>
-                    {filteredMeasures.map(([key, value]) => (
-                      <ListItem key={key} disablePadding>
-                        <ListItemText primary={`- ${value}`} />
-                      </ListItem>
-                    ))}
-                  </List>
-                </Grid2>
-              </Box>
-            </Grid2>
-          </CardContent>
-        </Card>
       </Grid2>
     </Grid2>
   );
