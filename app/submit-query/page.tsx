@@ -14,6 +14,9 @@ import {
   Tooltip,
   Typography,
   Switch,
+  CircularProgress,
+  Box,
+  Fade,
 } from "@mui/material";
 import { isAxiosError } from "axios";
 import { Formik, Field, Form } from "formik";
@@ -113,7 +116,7 @@ export default function SubmitQueryPage(): ReactElement {
                 }}
                 onSubmit={handleSubmit}
               >
-                {({ setFieldValue }) => (
+                {({ setFieldValue, isSubmitting }) => (
                   <Form className="space-y-4">
                     <Field
                       as={TextField}
@@ -157,14 +160,34 @@ export default function SubmitQueryPage(): ReactElement {
                       onFileLoad={(content) => setFieldValue("text", content)}
                       label="Or upload an MDX request file (.txt)"
                     />
-
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      className="w-full"
-                    >
-                      Send and receive query plan
-                    </Button>
+                    <Box position="relative">
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        className="w-full"
+                        disabled={isSubmitting}
+                      >
+                        Send and receive query plan
+                      </Button>
+                      <Fade
+                        in={isSubmitting}
+                        style={{
+                          transitionDelay: isSubmitting ? "800ms" : "0ms",
+                        }}
+                        unmountOnExit
+                      >
+                        <CircularProgress
+                          size={24}
+                          sx={{
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            marginTop: "-12px",
+                            marginLeft: "-12px",
+                          }}
+                        />
+                      </Fade>
+                    </Box>
                   </Form>
                 )}
               </Formik>
