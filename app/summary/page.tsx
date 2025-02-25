@@ -147,7 +147,7 @@ export default function SummaryPage(): ReactElement {
                         display: "flex",
                         width: "40vw",
                         height: "40vh",
-                        minWidth: "600px",
+                        minWidth: "670px",
                         minHeight: "500px",
                       }}
                     >
@@ -286,7 +286,7 @@ export default function SummaryPage(): ReactElement {
                         display: "flex",
                         width: "40vw",
                         height: "40vh",
-                        minWidth: "600px",
+                        minWidth: "670px",
                         minHeight: "500px",
                       }}
                     >
@@ -413,7 +413,7 @@ export default function SummaryPage(): ReactElement {
                           marginTop: 2,
                           display: "flex",
                           width: "40vw",
-                          minWidth: "600px",
+                          minWidth: "670px",
                         }}
                       >
                         <ResponsiveContainer width={250} height={250}>
@@ -467,7 +467,7 @@ export default function SummaryPage(): ReactElement {
                           marginTop: 2,
                           display: "flex",
                           width: "40vw",
-                          minWidth: "600px",
+                          minWidth: "670px",
                         }}
                       >
                         <ResponsiveContainer width={250} height={250}>
