@@ -125,11 +125,11 @@ export default function SummaryPage(): ReactElement {
         <Card>
           <CardContent>
             <Grid2 container padding={1} spacing={2}>
-              {/* Pie charts*/}
+              {/* Line 1*/}
               <Grid2 container padding={1} spacing={2} justifyContent="center">
                 <Grid2 container padding={1} spacing={1} direction="column">
                   <Typography variant="h6">
-                    Elapsed timings of retrievals :
+                    Elapsed timings of retrievals
                   </Typography>
 
                   <Typography>Group retrievals</Typography>
@@ -146,7 +146,9 @@ export default function SummaryPage(): ReactElement {
                         marginTop: 2,
                         display: "flex",
                         width: "40vw",
+                        height: "40vh",
                         minWidth: "600px",
+                        minHeight: "500px",
                       }}
                     >
                       <ResponsiveContainer width={250} height={250}>
@@ -283,7 +285,9 @@ export default function SummaryPage(): ReactElement {
                         marginTop: 2,
                         display: "flex",
                         width: "40vw",
+                        height: "40vh",
                         minWidth: "600px",
+                        minHeight: "500px",
                       }}
                     >
                       <ResponsiveContainer width={250} height={250}>
@@ -363,8 +367,37 @@ export default function SummaryPage(): ReactElement {
                     </Box>
                   )}
                 </Grid2>
+                <Grid2 padding={1}>
+                  <Typography variant="h6">Global timings</Typography>
+                  {selectedQueryPlan.planInfo?.globalTimings ? (
+                    <Box
+                      sx={{
+                        border: "1px solid #ccc",
+                        padding: 2,
+                        marginTop: 2,
+                      }}
+                    >
+                      <List dense sx={{ marginLeft: 4 }}>
+                        {Object.entries(
+                          selectedQueryPlan.planInfo.globalTimings,
+                        ).map(([key, value]) => (
+                          <ListItem key={key} disablePadding>
+                            <ListItemText primary={`${key} : ${value} ms`} />
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Box>
+                  ) : (
+                    <Typography variant="body2" sx={{ marginLeft: 4 }}>
+                      No global timings available.
+                    </Typography>
+                  )}
+                </Grid2>
+              </Grid2>
+              {/* Line 2*/}
+              <Grid2 container padding={1} spacing={2} justifyContent="center">
                 <Grid2 container padding={1} spacing={1} direction="column">
-                  <Typography variant="h6">Number of retrievals : </Typography>
+                  <Typography variant="h6">Number of retrievals</Typography>
                   <Typography>Group retrievals</Typography>
                   <Switch
                     checked={isGroupedNumbers}
@@ -483,30 +516,6 @@ export default function SummaryPage(): ReactElement {
                     </Grid2>
                   )}
                 </Grid2>
-              </Grid2>
-              {/* Additional information*/}
-              <Grid2 container padding={1} spacing={2} justifyContent="center">
-                <Grid2 container spacing={2}>
-                  <Grid2>
-                    <Typography variant="h6">Global timings</Typography>
-                    {selectedQueryPlan.planInfo?.globalTimings ? (
-                      <List dense sx={{ marginLeft: 4 }}>
-                        {Object.entries(
-                          selectedQueryPlan.planInfo.globalTimings,
-                        ).map(([key, value]) => (
-                          <ListItem key={key} disablePadding>
-                            <ListItemText primary={`${key} : ${value} ms`} />
-                          </ListItem>
-                        ))}
-                      </List>
-                    ) : (
-                      <Typography variant="body2" sx={{ marginLeft: 4 }}>
-                        No global timings available.
-                      </Typography>
-                    )}
-                  </Grid2>
-                </Grid2>
-
                 <Grid2 container direction="column" spacing={2}>
                   <Grid2>
                     <Typography variant="h6">Measures</Typography>
@@ -527,98 +536,98 @@ export default function SummaryPage(): ReactElement {
                       marginTop: 2,
                     }}
                   >
-                    <Grid2>
-                      <List dense sx={{ marginLeft: 4 }}>
-                        {filteredMeasures.map(([key, value]) => (
-                          <ListItem key={key} disablePadding>
-                            <ListItemText primary={`- ${value}`} />
-                          </ListItem>
-                        ))}
-                      </List>
-                    </Grid2>
+                    <List dense sx={{ marginLeft: 4 }}>
+                      {filteredMeasures.map(([key, value]) => (
+                        <ListItem key={key} disablePadding>
+                          <ListItemText primary={`- ${value}`} />
+                        </ListItem>
+                      ))}
+                    </List>
                   </Box>
                 </Grid2>
-                {!isDataAggregated && (
-                  <Grid2>
-                    <Grid2>
-                      <Typography variant="h6">More information</Typography>
-                    </Grid2>
-                    <Box
-                      sx={{
-                        border: "1px solid #ccc",
-                        padding: 2,
-                        marginTop: 2,
-                      }}
-                    >
-                      <Typography variant="body1" fontWeight="bold">
-                        Partial Providers (
-                        {selectedQueryPlan.querySummary?.partialProviders
-                          ?.length || 0}
-                        ) :
-                      </Typography>
-                      {selectedQueryPlan.querySummary?.partialProviders ? (
-                        <List dense sx={{ marginLeft: 4 }}>
-                          {Object.entries(
-                            selectedQueryPlan.querySummary.partialProviders,
-                          ).map(([key, value]) => (
-                            <ListItem key={key} disablePadding>
-                              <ListItemText primary={value} />
-                            </ListItem>
-                          ))}
-                        </List>
-                      ) : (
-                        <Typography variant="body2" sx={{ marginLeft: 4 }}>
-                          No partial providers available.
-                        </Typography>
-                      )}
-                    </Box>
-
-                    <Box
-                      sx={{
-                        border: "1px solid #ccc",
-                        padding: 2,
-                        marginTop: 2,
-                      }}
-                    >
-                      <Typography variant="body1" fontWeight="bold">
-                        Partitioning Count by Type:
-                      </Typography>
-                      <List dense sx={{ marginLeft: 4 }}>
-                        {Object.entries(
-                          selectedQueryPlan.querySummary
-                            .partitioningCountByType,
-                        ).map(([key, value]) => (
-                          <ListItem key={key} disablePadding>
-                            <ListItemText primary={`${key} : ${value}`} />
-                          </ListItem>
-                        ))}
-                      </List>
-                    </Box>
-
-                    <Box
-                      sx={{
-                        border: "1px solid #ccc",
-                        padding: 2,
-                        marginTop: 2,
-                      }}
-                    >
-                      <Typography variant="body1" fontWeight="bold">
-                        Result Size by Partitioning:
-                      </Typography>
-                      <List dense sx={{ marginLeft: 4 }}>
-                        {Object.entries(
-                          selectedQueryPlan.querySummary
-                            .resultSizeByPartitioning,
-                        ).map(([key, value]) => (
-                          <ListItem key={key} disablePadding>
-                            <ListItemText primary={`${key} : ${value}`} />
-                          </ListItem>
-                        ))}
-                      </List>
-                    </Box>
-                  </Grid2>
-                )}
               </Grid2>
+              {/* Line 3*/}
+
+              {!isDataAggregated && (
+                <Grid2
+                  container
+                  padding={1}
+                  spacing={2}
+                  justifyContent="center"
+                >
+                  <Box
+                    sx={{
+                      border: "1px solid #ccc",
+                      padding: 2,
+                      marginTop: 2,
+                    }}
+                  >
+                    <Typography variant="body1" fontWeight="bold">
+                      Partial Providers (
+                      {selectedQueryPlan.querySummary?.partialProviders
+                        ?.length || 0}
+                      ) :
+                    </Typography>
+                    {selectedQueryPlan.querySummary?.partialProviders ? (
+                      <List dense sx={{ marginLeft: 4 }}>
+                        {Object.entries(
+                          selectedQueryPlan.querySummary.partialProviders,
+                        ).map(([key, value]) => (
+                          <ListItem key={key} disablePadding>
+                            <ListItemText primary={value} />
+                          </ListItem>
+                        ))}
+                      </List>
+                    ) : (
+                      <Typography variant="body2" sx={{ marginLeft: 4 }}>
+                        No partial providers available.
+                      </Typography>
+                    )}
+                  </Box>
+
+                  <Box
+                    sx={{
+                      border: "1px solid #ccc",
+                      padding: 2,
+                      marginTop: 2,
+                    }}
+                  >
+                    <Typography variant="body1" fontWeight="bold">
+                      Partitioning Count by Type:
+                    </Typography>
+                    <List dense sx={{ marginLeft: 4 }}>
+                      {Object.entries(
+                        selectedQueryPlan.querySummary.partitioningCountByType,
+                      ).map(([key, value]) => (
+                        <ListItem key={key} disablePadding>
+                          <ListItemText primary={`${key} : ${value}`} />
+                        </ListItem>
+                      ))}
+                    </List>
+                  </Box>
+
+                  <Box
+                    sx={{
+                      border: "1px solid #ccc",
+                      padding: 2,
+                      marginTop: 2,
+                    }}
+                  >
+                    <Typography variant="body1" fontWeight="bold">
+                      Result Size by Partitioning:
+                    </Typography>
+                    <List dense sx={{ marginLeft: 4 }}>
+                      {Object.entries(
+                        selectedQueryPlan.querySummary.resultSizeByPartitioning,
+                      ).map(([key, value]) => (
+                        <ListItem key={key} disablePadding>
+                          <ListItemText primary={`${key} : ${value}`} />
+                        </ListItem>
+                      ))}
+                    </List>
+                  </Box>
+                </Grid2>
+              )}
             </Grid2>
           </CardContent>
         </Card>
