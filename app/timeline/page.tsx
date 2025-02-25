@@ -6,6 +6,7 @@ import {
   TimelineDiv,
   TimelineFooter,
 } from "@/components";
+import TimelineLegend from "@/components/timeline/TimelineLegend";
 import { buildTimeline } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
@@ -155,10 +156,11 @@ export default function TimelinePage(): ReactElement {
           Fit entire timeline
         </Button>
       </FormGroup>
+      <TimelineLegend />
       <Grid2
         container
         width="100%"
-        maxHeight="64vh"
+        maxHeight="59vh"
         marginTop={2}
         flexDirection="row"
         sx={{ overflowY: "auto", overflowX: "hidden" }}
