@@ -148,7 +148,7 @@ export default function SummaryPage(): ReactElement {
                         width: "40vw",
                       }}
                     >
-                      <ResponsiveContainer width={300} height={300}>
+                      <ResponsiveContainer width={250} height={250}>
                         <PieChart>
                           <Pie
                             data={pieDataElapsedTimings}
@@ -284,7 +284,7 @@ export default function SummaryPage(): ReactElement {
                         width: "40vw",
                       }}
                     >
-                      <ResponsiveContainer width={300} height={300}>
+                      <ResponsiveContainer width={250} height={250}>
                         <PieChart>
                           <Pie
                             data={groupedPieDataElaspedTimings}
@@ -380,7 +380,7 @@ export default function SummaryPage(): ReactElement {
                           width: "40vw",
                         }}
                       >
-                        <ResponsiveContainer width={300} height={300}>
+                        <ResponsiveContainer width={250} height={250}>
                           <PieChart>
                             <Pie
                               data={pieDataRetrievalsTypeCounts}
@@ -433,7 +433,7 @@ export default function SummaryPage(): ReactElement {
                           width: "40vw",
                         }}
                       >
-                        <ResponsiveContainer width={300} height={300}>
+                        <ResponsiveContainer width={250} height={250}>
                           <PieChart>
                             <Pie
                               data={groupedPieDataRetrievalsTypeCounts}
