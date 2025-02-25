@@ -126,7 +126,7 @@ export default function SummaryPage(): ReactElement {
           <CardContent>
             <Grid2 container padding={1} spacing={2}>
               {/* Pie charts*/}
-              <Grid2 container padding={1} spacing={2}>
+              <Grid2 container padding={1} spacing={2} justifyContent="center">
                 <Grid2 container padding={1} spacing={1} direction="column">
                   <Typography variant="h6">
                     Elapsed timings of retrievals :
@@ -477,7 +477,7 @@ export default function SummaryPage(): ReactElement {
                 </Grid2>
               </Grid2>
               {/* Additional information*/}
-              <Grid2 container padding={1} spacing={2}>
+              <Grid2 container padding={1} spacing={2} justifyContent="center">
                 <Grid2 container spacing={2}>
                   <Grid2>
                     <Typography variant="h6">Global timings</Typography>
