@@ -2,5 +2,6 @@
   "eslint.workingDirectories": ["./front"],
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "files.eol": "\n"
+  "files.eol": "\n",
+  "eslint.useFlatConfig": false
 }
