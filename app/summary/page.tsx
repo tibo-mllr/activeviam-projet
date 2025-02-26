@@ -88,7 +88,7 @@ export default function SummaryPage(): ReactElement {
   } = pieData;
 
   return (
-    <Box padding={2} width="100%">
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
       <Typography variant="h4" gutterBottom>
         Summary information
       </Typography>
@@ -120,19 +120,25 @@ export default function SummaryPage(): ReactElement {
           </Card>
         </Grid2>
       )}
-      {/* General information*/}
-      <Grid2 container spacing={2} sx={{ pt: 2 }}>
-        <Card>
-          <CardContent>
-            <Grid2 container padding={1} spacing={2}>
-              {/* Line 1*/}
-              <Grid2 container padding={1} spacing={2} justifyContent="center">
-                <Grid2 container padding={1} spacing={1} direction="column">
-                  <Typography variant="h6">
-                    Elapsed timings of retrievals
-                  </Typography>
-
+      {/* Principal card*/}
+      <Card>
+        <CardContent>
+          <Grid2 container padding={1} spacing={2}>
+            {/* Line 1*/}
+            <Grid2 container padding={1} spacing={2} justifyContent="center">
+              <Grid2 padding={1} spacing={1} direction="column">
+                <Typography variant="h6">
+                  Elapsed timings of retrievals
+                </Typography>
+                <Box
+                  sx={{
+                    border: "1px solid #ccc",
+                    padding: 2,
+                    marginTop: 2,
+                  }}
+                >
                   <Typography>Group retrievals</Typography>
+
                   <Switch
                     checked={isGroupedTimings}
                     onChange={() => setIsGroupedTimings((prev) => !prev)}
@@ -141,7 +147,6 @@ export default function SummaryPage(): ReactElement {
                   {!isGroupedTimings ? (
                     <Box
                       sx={{
-                        border: 1,
                         padding: 2,
                         marginTop: 2,
                         display: "flex",
@@ -280,7 +285,6 @@ export default function SummaryPage(): ReactElement {
                   ) : (
                     <Box
                       sx={{
-                        border: 1,
                         padding: 2,
                         marginTop: 2,
                         display: "flex",
@@ -366,38 +370,47 @@ export default function SummaryPage(): ReactElement {
                       </Box>
                     </Box>
                   )}
-                </Grid2>
-                <Grid2 padding={1}>
-                  <Typography variant="h6">Global timings</Typography>
-                  {selectedQueryPlan.planInfo?.globalTimings ? (
-                    <Box
-                      sx={{
-                        border: "1px solid #ccc",
-                        padding: 2,
-                        marginTop: 2,
-                      }}
-                    >
-                      <List dense sx={{ marginLeft: 4 }}>
-                        {Object.entries(
-                          selectedQueryPlan.planInfo.globalTimings,
-                        ).map(([key, value]) => (
-                          <ListItem key={key} disablePadding>
-                            <ListItemText primary={`${key} : ${value} ms`} />
-                          </ListItem>
-                        ))}
-                      </List>
-                    </Box>
-                  ) : (
-                    <Typography variant="body2" sx={{ marginLeft: 4 }}>
-                      No global timings available.
-                    </Typography>
-                  )}
-                </Grid2>
+                </Box>
               </Grid2>
-              {/* Line 2*/}
-              <Grid2 container padding={1} spacing={2} justifyContent="center">
-                <Grid2 container padding={1} spacing={1} direction="column">
-                  <Typography variant="h6">Number of retrievals</Typography>
+              <Grid2 padding={1} spacing={1}>
+                <Typography variant="h6">Global timings</Typography>
+                {selectedQueryPlan.planInfo?.globalTimings ? (
+                  <Box
+                    sx={{
+                      border: "1px solid #ccc",
+                      padding: 2,
+                      marginTop: 2,
+                    }}
+                  >
+                    <List dense sx={{ margin: 2 }}>
+                      {Object.entries(
+                        selectedQueryPlan.planInfo.globalTimings,
+                      ).map(([key, value]) => (
+                        <ListItem key={key} disablePadding>
+                          <ListItemText primary={`${key} : ${value} ms`} />
+                        </ListItem>
+                      ))}
+                    </List>
+                  </Box>
+                ) : (
+                  <Typography variant="body2" sx={{ marginLeft: 4 }}>
+                    No global timings available.
+                  </Typography>
+                )}
+              </Grid2>
+            </Grid2>
+            {/* Line 2*/}
+            <Grid2 container padding={1} spacing={2} justifyContent="center">
+              <Grid2 padding={1} spacing={1} direction="column">
+                <Typography variant="h6">Number of retrievals</Typography>
+
+                <Box
+                  sx={{
+                    border: "1px solid #ccc",
+                    padding: 2,
+                    marginTop: 2,
+                  }}
+                >
                   <Typography>Group retrievals</Typography>
                   <Switch
                     checked={isGroupedNumbers}
@@ -405,133 +418,128 @@ export default function SummaryPage(): ReactElement {
                   />
 
                   {!isGroupedNumbers ? (
-                    <Grid2 container spacing={2}>
-                      <Box
-                        sx={{
-                          border: 1,
-                          padding: 2,
-                          marginTop: 2,
-                          display: "flex",
-                          width: "40vw",
-                          minWidth: "670px",
-                        }}
-                      >
-                        <ResponsiveContainer width={250} height={250}>
-                          <PieChart>
-                            <Pie
-                              data={pieDataRetrievalsTypeCounts}
-                              dataKey="value"
-                              nameKey="name"
-                              cx="50%"
-                              cy="50%"
-                              outerRadius={100}
-                              isAnimationActive={false}
-                            >
-                              {pieDataRetrievalsTypeCounts.map((entry) => (
-                                <Cell key={entry.name} fill={entry.fill} />
-                              ))}
-                            </Pie>
-                          </PieChart>
-                        </ResponsiveContainer>
-                        <Box sx={{ marginLeft: 2, flex: 1 }}>
-                          <Typography variant="body1" fontWeight="bold">
-                            Retrievals (
-                            {selectedQueryPlan.querySummary.totalRetrievals}) :
-                          </Typography>
-                          <List dense sx={{ marginLeft: 4 }}>
-                            {Object.entries(retrievalsTypeCounts)
-                              .sort((a, b) => b[1] - a[1])
-                              .map(([key, value]) => (
-                                <ListItem key={key} disablePadding>
-                                  <Box
-                                    sx={{
-                                      width: 12,
-                                      height: 12,
-                                      backgroundColor: retrievalsColors[key],
-                                      marginRight: 1,
-                                    }}
-                                  />
-                                  <ListItemText primary={`${key} : ${value}`} />
-                                </ListItem>
-                              ))}
-                          </List>
-                        </Box>
+                    <Box
+                      sx={{
+                        padding: 2,
+                        marginTop: 2,
+                        display: "flex",
+                        width: "40vw",
+                        minWidth: "670px",
+                      }}
+                    >
+                      <ResponsiveContainer width={250} height={250}>
+                        <PieChart>
+                          <Pie
+                            data={pieDataRetrievalsTypeCounts}
+                            dataKey="value"
+                            nameKey="name"
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={100}
+                            isAnimationActive={false}
+                          >
+                            {pieDataRetrievalsTypeCounts.map((entry) => (
+                              <Cell key={entry.name} fill={entry.fill} />
+                            ))}
+                          </Pie>
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <Box sx={{ marginLeft: 2, flex: 1 }}>
+                        <Typography variant="body1" fontWeight="bold">
+                          Retrievals (
+                          {selectedQueryPlan.querySummary.totalRetrievals}) :
+                        </Typography>
+                        <List dense sx={{ marginLeft: 4 }}>
+                          {Object.entries(retrievalsTypeCounts)
+                            .sort((a, b) => b[1] - a[1])
+                            .map(([key, value]) => (
+                              <ListItem key={key} disablePadding>
+                                <Box
+                                  sx={{
+                                    width: 12,
+                                    height: 12,
+                                    backgroundColor: retrievalsColors[key],
+                                    marginRight: 1,
+                                  }}
+                                />
+                                <ListItemText primary={`${key} : ${value}`} />
+                              </ListItem>
+                            ))}
+                        </List>
                       </Box>
-                    </Grid2>
+                    </Box>
                   ) : (
-                    <Grid2 container spacing={2}>
-                      <Box
-                        sx={{
-                          border: 1,
-                          padding: 2,
-                          marginTop: 2,
-                          display: "flex",
-                          width: "40vw",
-                          minWidth: "670px",
-                        }}
-                      >
-                        <ResponsiveContainer width={250} height={250}>
-                          <PieChart>
-                            <Pie
-                              data={groupedPieDataRetrievalsTypeCounts}
-                              dataKey="value"
-                              nameKey="name"
-                              cx="50%"
-                              cy="50%"
-                              outerRadius={100}
-                              isAnimationActive={false}
-                            >
-                              {groupedPieDataRetrievalsTypeCounts.map(
-                                (entry) => (
-                                  <Cell key={entry.name} fill={entry.fill} />
-                                ),
-                              )}
-                            </Pie>
-                          </PieChart>
-                        </ResponsiveContainer>
-                        <Box sx={{ marginLeft: 2, flex: 1 }}>
-                          <Typography variant="body1" fontWeight="bold">
-                            Retrievals (
-                            {selectedQueryPlan.querySummary.totalRetrievals}) :
-                          </Typography>
-                          <List dense sx={{ marginLeft: 2 }}>
-                            {Object.entries(groupedRetrievalsTypeCounts)
-                              .sort((a, b) => b[1] - a[1])
-                              .map(([key, value]) => (
-                                <ListItem key={key} disablePadding>
-                                  <Box
-                                    sx={{
-                                      width: 12,
-                                      height: 12,
-                                      backgroundColor: GROUP_COLORS[key],
-                                      marginRight: 1,
-                                    }}
-                                  />
-                                  <ListItemText primary={`${key} : ${value}`} />
-                                </ListItem>
-                              ))}
-                          </List>
-                        </Box>
+                    <Box
+                      sx={{
+                        padding: 2,
+                        marginTop: 2,
+                        display: "flex",
+                        width: "40vw",
+                        minWidth: "670px",
+                      }}
+                    >
+                      <ResponsiveContainer width={250} height={250}>
+                        <PieChart>
+                          <Pie
+                            data={groupedPieDataRetrievalsTypeCounts}
+                            dataKey="value"
+                            nameKey="name"
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={100}
+                            isAnimationActive={false}
+                          >
+                            {groupedPieDataRetrievalsTypeCounts.map((entry) => (
+                              <Cell key={entry.name} fill={entry.fill} />
+                            ))}
+                          </Pie>
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <Box sx={{ marginLeft: 2, flex: 1 }}>
+                        <Typography variant="body1" fontWeight="bold">
+                          Retrievals (
+                          {selectedQueryPlan.querySummary.totalRetrievals}) :
+                        </Typography>
+                        <List dense sx={{ marginLeft: 2 }}>
+                          {Object.entries(groupedRetrievalsTypeCounts)
+                            .sort((a, b) => b[1] - a[1])
+                            .map(([key, value]) => (
+                              <ListItem key={key} disablePadding>
+                                <Box
+                                  sx={{
+                                    width: 12,
+                                    height: 12,
+                                    backgroundColor: GROUP_COLORS[key],
+                                    marginRight: 1,
+                                  }}
+                                />
+                                <ListItemText primary={`${key} : ${value}`} />
+                              </ListItem>
+                            ))}
+                        </List>
                       </Box>
-                    </Grid2>
+                    </Box>
                   )}
-                </Grid2>
-                <Grid2 container direction="column" spacing={2}>
-                  <Grid2>
-                    <Typography variant="h6">Measures</Typography>
-                  </Grid2>
-                  <Grid2>
-                    <TextField
-                      fullWidth
-                      label="Search Measures"
-                      variant="outlined"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </Grid2>
+                </Box>
+              </Grid2>
+              <Grid2 padding={1} spacing={1} direction="column">
+                <Typography variant="h6">Measures</Typography>
+                <Box
+                  sx={{
+                    border: "1px solid #ccc",
+                    padding: 2,
+                    marginTop: 2,
+                  }}
+                >
+                  <TextField
+                    fullWidth
+                    label="Search Measures"
+                    variant="outlined"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
                   <Box
                     sx={{
-                      border: "1px solid #ccc",
                       padding: 2,
                       marginTop: 2,
                     }}
@@ -544,17 +552,14 @@ export default function SummaryPage(): ReactElement {
                       ))}
                     </List>
                   </Box>
-                </Grid2>
+                </Box>
               </Grid2>
-              {/* Line 3*/}
+            </Grid2>
+            {/* Line 3*/}
 
-              {!isDataAggregated && (
-                <Grid2
-                  container
-                  padding={1}
-                  spacing={2}
-                  justifyContent="center"
-                >
+            {!isDataAggregated && (
+              <Grid2 container padding={1} spacing={2} justifyContent="center">
+                <Grid2 padding={1} spacing={1}>
                   <Box
                     sx={{
                       border: "1px solid #ccc",
@@ -584,7 +589,8 @@ export default function SummaryPage(): ReactElement {
                       </Typography>
                     )}
                   </Box>
-
+                </Grid2>
+                <Grid2 padding={1} spacing={1}>
                   <Box
                     sx={{
                       border: "1px solid #ccc",
@@ -605,7 +611,8 @@ export default function SummaryPage(): ReactElement {
                       ))}
                     </List>
                   </Box>
-
+                </Grid2>
+                <Grid2 padding={1} spacing={1}>
                   <Box
                     sx={{
                       border: "1px solid #ccc",
@@ -627,11 +634,11 @@ export default function SummaryPage(): ReactElement {
                     </List>
                   </Box>
                 </Grid2>
-              )}
-            </Grid2>
-          </CardContent>
-        </Card>
-      </Grid2>
+              </Grid2>
+            )}
+          </Grid2>
+        </CardContent>
+      </Card>
     </Box>
   );
 }
