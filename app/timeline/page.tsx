@@ -8,6 +8,7 @@ import {
   TimelineLegend,
 } from "@/components";
 import { buildTimeline } from "@/lib/functions";
+import { adjustTimings } from "@/lib/functions/adjustTimings";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
   AggregateRetrieval,
@@ -18,9 +19,11 @@ import {
 import {
   Box,
   Button,
+  FormControlLabel,
   FormGroup,
   Grid2,
   Slider,
+  Switch,
   Typography,
 } from "@mui/material";
 import { ReactElement, useEffect, useRef, useState } from "react";
@@ -29,6 +32,7 @@ import { useSelector } from "react-redux";
 export default function TimelinePage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
   const selectedIndex = useSelector(getSelectedIndex);
+  const [combinePasses, setCombinePasses] = useState<boolean>(false);
 
   const [showDialog, setShowDialog] = useState<boolean>(false);
   const [selectedRetrieval, setSelectedRetrieval] = useState<
@@ -108,7 +112,15 @@ export default function TimelinePage(): ReactElement {
 
   if (!queryPlan) return <>Please send a query to see the graph</>;
 
-  const { aggregateRetrievals, databaseRetrievals } = queryPlan[selectedIndex];
+  const adjustedQueryPlan = adjustTimings(queryPlan);
+
+  const aggregateRetrievals = combinePasses
+    ? adjustedQueryPlan.flatMap((qp) => qp.aggregateRetrievals)
+    : queryPlan[selectedIndex].aggregateRetrievals;
+
+  const databaseRetrievals = combinePasses
+    ? adjustedQueryPlan.flatMap((qp) => qp.databaseRetrievals)
+    : queryPlan[selectedIndex].databaseRetrievals;
 
   const openRetrievalDialog = (retrievalId: number, type: TimingType): void => {
     let retrieval: AggregateRetrieval | DatabaseRetrieval | undefined;
@@ -155,6 +167,15 @@ export default function TimelinePage(): ReactElement {
         >
           Fit entire timeline
         </Button>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={combinePasses}
+              onChange={() => setCombinePasses(!combinePasses)}
+            />
+          }
+          label="Aggregate passes on the same timeline"
+        />
       </FormGroup>
       <TimelineLegend />
       <Grid2
