@@ -4,12 +4,18 @@
 
 This project will be used to get information and analyse query plans resulting of MDX requests.
 
-## Requirements
+## Deployment
+
+This project is deployed on [this adress](https://activeviam-projet.vercel.app) using Vercel.
+
+## Local deployment
+
+### Requirements
 
 - [Node.js](https://nodejs.org) version 20.
 - [Yarn](https://yarnpkg.com) (latest version).
 
-## Getting Started
+### Getting Started
 
 First, install the dependencies:
 
