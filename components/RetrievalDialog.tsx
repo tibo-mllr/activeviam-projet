@@ -77,14 +77,28 @@ export function RetrievalDialog({
                   Timing Info :
                 </Typography>
                 <List>
-                  {Object.entries(retrieval.timingInfo).map(([key, values]) => (
-                    <ListItem key={key} disablePadding>
-                      <ListItemText
-                        primary={key}
-                        secondary={values.join(", ")}
-                      />
-                    </ListItem>
-                  ))}
+                  {Object.entries(retrieval.timingInfo).map(
+                    ([key, values]) =>
+                      !key.includes("elapsed") && (
+                        <ListItem key={key} disablePadding>
+                          <ListItemText
+                            primary={key}
+                            secondary={values.join(", ")}
+                          />
+                        </ListItem>
+                      ),
+                  )}
+                  {Object.entries(retrieval.timingInfo).map(
+                    ([key, values]) =>
+                      key.includes("elapsed") && (
+                        <ListItem key={key} disablePadding>
+                          <ListItemText
+                            primary={key}
+                            secondary={values.join(", ")}
+                          />
+                        </ListItem>
+                      ),
+                  )}
                 </List>
               </>
             )}
