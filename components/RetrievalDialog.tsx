@@ -104,8 +104,8 @@ export function RetrievalDialog({
                           >
                             {values
                               .map((value) => {
-                                let strValue = String(value);
-                                let diff =
+                                const strValue = String(value);
+                                const diff =
                                   maxTimingInfoLength - strValue.length;
                                 return " ".repeat(diff) + strValue;
                               })
