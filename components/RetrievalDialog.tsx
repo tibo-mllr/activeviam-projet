@@ -1,3 +1,5 @@
+"use client";
+
 import { AggregateRetrieval, DatabaseRetrieval } from "@/lib/types";
 import { Close } from "@mui/icons-material";
 import {
@@ -12,8 +14,11 @@ import {
   ListItem,
   ListItemText,
   Divider,
+  Switch,
+  Tooltip,
+  Box,
 } from "@mui/material";
-import { type ReactElement } from "react";
+import { type ReactElement, useState } from "react";
 
 type RetrievalDialogProps = {
   retrieval: AggregateRetrieval | DatabaseRetrieval;
@@ -27,6 +32,8 @@ export function RetrievalDialog({
   setOpen,
 }: RetrievalDialogProps): ReactElement | null {
   if (!retrieval) return null;
+
+  const [areNumbersAligned, setAreNumbersAligned] = useState<boolean>(false);
 
   const isAggregate = "partialProviderName" in retrieval;
   const excludedKeys = new Set(["timingInfo", "location"]);
@@ -76,17 +83,18 @@ export function RetrievalDialog({
                   </ListItem>
                 ))}
             </List>
-
+            <Divider sx={{ marginTop: 1, marginBottom: 3 }} />
             {/* TimingInfo */}
             {"timingInfo" in retrieval && (
               <>
                 <Typography
                   variant="subtitle1"
                   gutterBottom
-                  sx={{ marginTop: 2 }}
+                  sx={{ marginTop: 2, marginRight: 2 }}
                 >
                   Timing Info :
                 </Typography>
+
                 <List>
                   {Object.entries(reorderedTimingInfo).map(([key, values]) => (
                     <ListItem key={key} disablePadding>
@@ -105,9 +113,12 @@ export function RetrievalDialog({
                             {values
                               .map((value) => {
                                 const strValue = String(value);
-                                const diff =
-                                  maxTimingInfoLength - strValue.length;
-                                return " ".repeat(diff) + strValue;
+                                if (areNumbersAligned) {
+                                  const diff =
+                                    maxTimingInfoLength - strValue.length;
+                                  return " ".repeat(diff) + strValue;
+                                }
+                                return strValue;
                               })
                               .join(", ")}
                           </Typography>
@@ -116,9 +127,16 @@ export function RetrievalDialog({
                     </ListItem>
                   ))}
                 </List>
+                <Tooltip title="Align numbers" arrow placement="right">
+                  <Switch
+                    checked={areNumbersAligned}
+                    onChange={() => setAreNumbersAligned((prev) => !prev)}
+                    sx={{ transform: "scale(0.8)" }}
+                  />
+                </Tooltip>
               </>
             )}
-
+            <Divider sx={{ marginTop: 1, marginBottom: 3 }} />
             {/* Location (only if aggregate) */}
             {isAggregate &&
               "location" in retrieval &&
