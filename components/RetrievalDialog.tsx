@@ -30,9 +30,20 @@ export function RetrievalDialog({
 
   const isAggregate = "partialProviderName" in retrieval;
   const excludedKeys = new Set(["timingInfo", "location"]);
+  const maxTimingInfoLength = String(
+    Math.max(...Object.values(retrieval.timingInfo).flat()),
+  ).length;
+  const reorderedTimingInfo = Object.fromEntries([
+    ...Object.entries(retrieval.timingInfo).filter(
+      ([key]) => !key.includes("executionContext"),
+    ),
+    ...Object.entries(retrieval.timingInfo).filter(([key]) =>
+      key.includes("executionContext"),
+    ),
+  ]); // re-ordering timingInfo for keys in wanted order
 
   return (
-    <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md">
+    <Dialog open={open} onClose={() => setOpen(false)} maxWidth="lg">
       <DialogTitle>
         {isAggregate ? "Aggregate Retrieval" : "Database Retrieval"}
         <IconButton
@@ -77,28 +88,33 @@ export function RetrievalDialog({
                   Timing Info :
                 </Typography>
                 <List>
-                  {Object.entries(retrieval.timingInfo).map(
-                    ([key, values]) =>
-                      !key.includes("executionContext") && (
-                        <ListItem key={key} disablePadding>
-                          <ListItemText
-                            primary={key}
-                            secondary={values.join(", ")}
-                          />
-                        </ListItem>
-                      ),
-                  )}
-                  {Object.entries(retrieval.timingInfo).map(
-                    ([key, values]) =>
-                      key.includes("executionContext") && (
-                        <ListItem key={key} disablePadding>
-                          <ListItemText
-                            primary={key}
-                            secondary={values.join(", ")}
-                          />
-                        </ListItem>
-                      ),
-                  )}
+                  {Object.entries(reorderedTimingInfo).map(([key, values]) => (
+                    <ListItem key={key} disablePadding>
+                      <ListItemText
+                        primary={key}
+                        secondary={
+                          <Typography
+                            component="span"
+                            sx={{
+                              fontFamily: "monospace",
+                              whiteSpace: "pre",
+                              fontSize: "0.875rem",
+                              color: "lightgray",
+                            }}
+                          >
+                            {values
+                              .map((value) => {
+                                let strValue = String(value);
+                                let diff =
+                                  maxTimingInfoLength - strValue.length;
+                                return " ".repeat(diff) + strValue;
+                              })
+                              .join(", ")}
+                          </Typography>
+                        }
+                      />
+                    </ListItem>
+                  ))}
                 </List>
               </>
             )}
