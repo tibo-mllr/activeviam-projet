@@ -79,7 +79,7 @@ export function RetrievalDialog({
                 <List>
                   {Object.entries(retrieval.timingInfo).map(
                     ([key, values]) =>
-                      !key.includes("elapsed") && (
+                      !key.includes("executionContext") && (
                         <ListItem key={key} disablePadding>
                           <ListItemText
                             primary={key}
@@ -90,7 +90,7 @@ export function RetrievalDialog({
                   )}
                   {Object.entries(retrieval.timingInfo).map(
                     ([key, values]) =>
-                      key.includes("elapsed") && (
+                      key.includes("executionContext") && (
                         <ListItem key={key} disablePadding>
                           <ListItemText
                             primary={key}
