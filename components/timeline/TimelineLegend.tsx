@@ -2,7 +2,7 @@ import { TIMELINE_COLORS } from "@/lib/functions";
 import { Grid2, Typography } from "@mui/material";
 import { ReactElement } from "react";
 
-export default function TimelineLegend(): ReactElement {
+export function TimelineLegend(): ReactElement {
   return (
     <Grid2
       container
