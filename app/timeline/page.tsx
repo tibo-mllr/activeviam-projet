@@ -5,8 +5,8 @@ import {
   RetrievalDialog,
   TimelineDiv,
   TimelineFooter,
+  TimelineLegend,
 } from "@/components";
-import TimelineLegend from "@/components/timeline/TimelineLegend";
 import { buildTimeline } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
