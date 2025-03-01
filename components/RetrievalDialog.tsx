@@ -16,7 +16,6 @@ import {
   Divider,
   Switch,
   Tooltip,
-  Box,
 } from "@mui/material";
 import { type ReactElement, useState } from "react";
 
@@ -31,9 +30,8 @@ export function RetrievalDialog({
   open,
   setOpen,
 }: RetrievalDialogProps): ReactElement | null {
-  if (!retrieval) return null;
-
   const [areNumbersAligned, setAreNumbersAligned] = useState<boolean>(false);
+  if (!retrieval) return null;
 
   const isAggregate = "partialProviderName" in retrieval;
   const excludedKeys = new Set(["timingInfo", "location"]);
