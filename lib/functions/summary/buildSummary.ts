@@ -50,9 +50,10 @@ export function buildSummary(queryPlan: QueryPlan): Summary {
 
   // Filling the records
   aggregateRetrievals.forEach(({ timingInfo, type }) => {
-    const elapsedTimeSum = Object.values(timingInfo)
-      .flat()
-      .reduce((acc, num) => acc + num, 0);
+    const elapsedTimeSum = (timingInfo.elapsedTime ?? []).reduce(
+      (acc, num) => acc + num,
+      0,
+    );
 
     aggregateRetrievalsElapsedTimings[type] =
       (aggregateRetrievalsElapsedTimings[type] ?? 0) + elapsedTimeSum;
@@ -87,10 +88,10 @@ export function buildSummary(queryPlan: QueryPlan): Summary {
   });
 
   databaseRetrievals.forEach(({ timingInfo }) => {
-    const databaseRetrievalsElapsedTime = Object.values(timingInfo)
-      .flat()
-      .reduce((acc, num) => acc + num, 0);
-
+    const databaseRetrievalsElapsedTime = (timingInfo.elapsedTime ?? []).reduce(
+      (acc, num) => acc + num,
+      0,
+    );
     groupedRetrievalsElapsedTimings["Database"] +=
       databaseRetrievalsElapsedTime;
     databaseRetrievalsElapsedTimings["DatabaseRetrieval"] +=
