@@ -1,3 +1,5 @@
+"use client";
+
 import { AggregateRetrieval, DatabaseRetrieval } from "@/lib/types";
 import { Close } from "@mui/icons-material";
 import {
@@ -12,8 +14,10 @@ import {
   ListItem,
   ListItemText,
   Divider,
+  Switch,
+  Tooltip,
 } from "@mui/material";
-import { type ReactElement } from "react";
+import { type ReactElement, useState } from "react";
 
 type RetrievalDialogProps = {
   retrieval: AggregateRetrieval | DatabaseRetrieval;
@@ -26,13 +30,25 @@ export function RetrievalDialog({
   open,
   setOpen,
 }: RetrievalDialogProps): ReactElement | null {
+  const [areNumbersAligned, setAreNumbersAligned] = useState<boolean>(false);
   if (!retrieval) return null;
 
   const isAggregate = "partialProviderName" in retrieval;
   const excludedKeys = new Set(["timingInfo", "location"]);
+  const maxTimingInfoLength = String(
+    Math.max(...Object.values(retrieval.timingInfo).flat()),
+  ).length;
+  const reorderedTimingInfo = Object.fromEntries([
+    ...Object.entries(retrieval.timingInfo).filter(
+      ([key]) => !key.includes("executionContext"),
+    ),
+    ...Object.entries(retrieval.timingInfo).filter(([key]) =>
+      key.includes("executionContext"),
+    ),
+  ]); // re-ordering timingInfo for keys in wanted order
 
   return (
-    <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md">
+    <Dialog open={open} onClose={() => setOpen(false)} maxWidth="lg">
       <DialogTitle>
         {isAggregate ? "Aggregate Retrieval" : "Database Retrieval"}
         <IconButton
@@ -65,30 +81,60 @@ export function RetrievalDialog({
                   </ListItem>
                 ))}
             </List>
-
+            <Divider sx={{ marginTop: 1, marginBottom: 3 }} />
             {/* TimingInfo */}
             {"timingInfo" in retrieval && (
               <>
                 <Typography
                   variant="subtitle1"
                   gutterBottom
-                  sx={{ marginTop: 2 }}
+                  sx={{ marginTop: 2, marginRight: 2 }}
                 >
                   Timing Info :
                 </Typography>
+
                 <List>
-                  {Object.entries(retrieval.timingInfo).map(([key, values]) => (
+                  {Object.entries(reorderedTimingInfo).map(([key, values]) => (
                     <ListItem key={key} disablePadding>
                       <ListItemText
                         primary={key}
-                        secondary={values.join(", ")}
+                        secondary={
+                          <Typography
+                            component="span"
+                            sx={{
+                              fontFamily: "monospace",
+                              whiteSpace: "pre",
+                              fontSize: "0.875rem",
+                              color: "lightgray",
+                            }}
+                          >
+                            {values
+                              .map((value) => {
+                                const strValue = String(value);
+                                if (areNumbersAligned) {
+                                  const diff =
+                                    maxTimingInfoLength - strValue.length;
+                                  return " ".repeat(diff) + strValue;
+                                }
+                                return strValue;
+                              })
+                              .join(", ")}
+                          </Typography>
+                        }
                       />
                     </ListItem>
                   ))}
                 </List>
+                <Tooltip title="Align numbers" arrow placement="right">
+                  <Switch
+                    checked={areNumbersAligned}
+                    onChange={() => setAreNumbersAligned((prev) => !prev)}
+                    sx={{ transform: "scale(0.8)" }}
+                  />
+                </Tooltip>
               </>
             )}
-
+            <Divider sx={{ marginTop: 1, marginBottom: 3 }} />
             {/* Location (only if aggregate) */}
             {isAggregate &&
               "location" in retrieval &&
