@@ -204,6 +204,7 @@ export default function TimelinePage(): ReactElement {
         timeMode={timeMode}
         minTiming={minTiming}
         maxTiming={maxTiming}
+        threshold={threshold}
       />
       <Grid2
         container

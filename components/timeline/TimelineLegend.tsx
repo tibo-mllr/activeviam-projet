@@ -5,19 +5,21 @@ import {
   TIMELINE_MIN_GREEN,
   TIMELINE_MIN_RED,
 } from "@/lib/types";
-import { Grid2, Typography } from "@mui/material";
+import { Box, Grid2, Typography } from "@mui/material";
 import { ReactElement } from "react";
 
 type TimelineLegendProps = {
   timeMode: boolean;
   minTiming: number;
   maxTiming: number;
+  threshold: number;
 };
 
 export function TimelineLegend({
   timeMode,
   minTiming,
   maxTiming,
+  threshold,
 }: TimelineLegendProps): ReactElement {
   if (timeMode)
     // Gradient scale from minTiming to maxTiming
@@ -39,7 +41,20 @@ export function TimelineLegend({
           sx={{
             background: `linear-gradient(to right, rgb(${TIMELINE_MIN_RED}, ${TIMELINE_MAX_GREEN}, 0), rgb(${TIMELINE_MAX_RED}, ${TIMELINE_MIN_GREEN}, 0))`,
           }}
-        />
+          position="relative"
+        >
+          {/* Threshold line */}
+          {threshold >= minTiming && threshold <= maxTiming && (
+            <Box
+              position="absolute"
+              left={`${((threshold - minTiming) / (maxTiming - minTiming)) * 200}px`}
+              style={{ transform: "translateX(-50%)" }}
+              width="3px"
+              height="20px"
+              bgcolor="black"
+            />
+          )}
+        </Grid2>
         <Typography>{maxTiming}ms</Typography>
       </Grid2>
     );
