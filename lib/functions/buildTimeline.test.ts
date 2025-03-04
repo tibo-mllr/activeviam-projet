@@ -67,13 +67,21 @@ const databaseRetrievals: DatabaseRetrieval[] = [
 describe("buildTimeline", () => {
   it("gives nothing when given nothing", () => {
     const result = buildTimeline([], []);
-    expect(result).toEqual({ nbCores: 0 });
+    expect(result).toEqual({
+      nbCores: 0,
+      maxTiming: 0,
+      minTiming: Number.MAX_SAFE_INTEGER,
+    });
   });
 
   it("builds a timeline from aggregate retrievals", () => {
     const result = buildTimeline(aggregateRetrievals, []);
 
-    const expected: Timeline & { nbCores: number } = {
+    const expected: Timeline & {
+      nbCores: number;
+      minTiming: number;
+      maxTiming: number;
+    } = {
       "0": [
         {
           start: 0,
@@ -91,6 +99,8 @@ describe("buildTimeline", () => {
         },
       ],
       nbCores: 2,
+      minTiming: 10,
+      maxTiming: 37,
     };
 
     expect(result).toEqual(expected);
@@ -99,7 +109,11 @@ describe("buildTimeline", () => {
   it("builds a timeline from database retrievals", () => {
     const result = buildTimeline([], databaseRetrievals);
 
-    const expected: Timeline & { nbCores: number } = {
+    const expected: Timeline & {
+      nbCores: number;
+      minTiming: number;
+      maxTiming: number;
+    } = {
       "0": [
         {
           start: 8,
@@ -115,6 +129,8 @@ describe("buildTimeline", () => {
         },
       ],
       nbCores: 1,
+      minTiming: 1,
+      maxTiming: 10,
     };
 
     expect(result).toEqual(expected);
@@ -123,7 +139,11 @@ describe("buildTimeline", () => {
   it("builds a timeline from both aggregate and database retrievals", () => {
     const result = buildTimeline(aggregateRetrievals, databaseRetrievals);
 
-    const expected: Timeline & { nbCores: number } = {
+    const expected: Timeline & {
+      nbCores: number;
+      minTiming: number;
+      maxTiming: number;
+    } = {
       "0": [
         {
           start: 0,
@@ -155,6 +175,8 @@ describe("buildTimeline", () => {
         },
       ],
       nbCores: 3,
+      minTiming: 1,
+      maxTiming: 37,
     };
 
     expect(result).toEqual(expected);
@@ -165,7 +187,11 @@ describe("buildTimeline", () => {
 
     const result = buildTimeline(aggregateRetrievals, databaseRetrievals);
 
-    const expected: Timeline & { nbCores: number } = {
+    const expected: Timeline & {
+      nbCores: number;
+      minTiming: number;
+      maxTiming: number;
+    } = {
       "0": [
         {
           start: 0,
@@ -197,6 +223,8 @@ describe("buildTimeline", () => {
         },
       ],
       nbCores: 3,
+      minTiming: 1,
+      maxTiming: 37,
     };
 
     expect(result).toEqual(expected);
