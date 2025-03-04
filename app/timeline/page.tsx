@@ -194,10 +194,21 @@ export default function TimelinePage(): ReactElement {
           <Input
             type="number"
             value={threshold}
-            onChange={(event) => setThreshold(Number(event.target.value))}
+            onChange={(event) => {
+              const value = Number(event.target.value);
+              if (value >= minDuration && value <= maxDuration)
+                setThreshold(value);
+            }}
             sx={{ width: "50px", marginX: 1 }}
           />
           <Typography variant="body2">ms</Typography>
+          <Slider
+            sx={{ width: 200, marginLeft: 2 }}
+            min={minDuration}
+            max={maxDuration}
+            value={threshold}
+            onChange={(_event, value) => setThreshold(value as number)}
+          />
         </FormGroup>
       </Grid2>
       <TimelineLegend
