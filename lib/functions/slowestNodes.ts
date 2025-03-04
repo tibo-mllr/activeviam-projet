@@ -21,7 +21,10 @@ function computeTimingDetails(timingInfo: TimingInfo): {
   const startTimes: number[] = timingInfo.startTime ?? [];
   const elapsedTimes: number[] = timingInfo.elapsedTime ?? [];
 
-  if (startTimes.length != elapsedTimes.length) {
+  if (
+    (startTimes.length === 0 && elapsedTimes.length === 0) ||
+    startTimes.length != elapsedTimes.length
+  ) {
     return {
       totalTiming: 0,
       meanTiming: 0,
