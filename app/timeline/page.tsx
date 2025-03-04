@@ -34,6 +34,7 @@ export default function TimelinePage(): ReactElement {
   const [combinePasses, setCombinePasses] = useState<boolean>(false);
 
   const [showDialog, setShowDialog] = useState<boolean>(false);
+  const [timeMode, setTimeMode] = useState<boolean>(false);
   const [selectedRetrieval, setSelectedRetrieval] = useState<
     AggregateRetrieval | DatabaseRetrieval
   >(emptyAggregateRetrieval);
@@ -138,7 +139,7 @@ export default function TimelinePage(): ReactElement {
 
   const timeline = buildTimeline(aggregateRetrievals, databaseRetrievals);
 
-  const { nbCores, ...coresTimeline } = timeline;
+  const { nbCores, maxTiming, minTiming, ...coresTimeline } = timeline;
 
   // Find the maximum end time to calculate the content width
   maxEnd = Math.max(
@@ -176,7 +177,20 @@ export default function TimelinePage(): ReactElement {
           label="Aggregate passes on the same timeline"
         />
       </FormGroup>
-      <TimelineLegend />
+      <FormGroup row sx={{ alignItems: "center" }}>
+        <Typography variant="body2">Show type mode</Typography>
+        <Switch
+          checked={timeMode}
+          onChange={() => setTimeMode(!timeMode)}
+          color="primary"
+        />
+        <Typography variant="body2">Show time mode</Typography>
+      </FormGroup>
+      <TimelineLegend
+        timeMode={timeMode}
+        minTiming={minTiming}
+        maxTiming={maxTiming}
+      />
       <Grid2
         container
         width="100%"
@@ -219,6 +233,9 @@ export default function TimelinePage(): ReactElement {
                 timings={coresTimeline[index] || []}
                 scale={scale}
                 openRetrievalDialog={openRetrievalDialog}
+                timeMode={timeMode}
+                minTiming={minTiming}
+                maxTiming={maxTiming}
               />
             </TimelineDiv>
           ))}
