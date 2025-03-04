@@ -21,6 +21,7 @@ import {
   FormControlLabel,
   FormGroup,
   Grid2,
+  Input,
   Slider,
   Switch,
   Typography,
@@ -35,6 +36,7 @@ export default function TimelinePage(): ReactElement {
 
   const [showDialog, setShowDialog] = useState<boolean>(false);
   const [timeMode, setTimeMode] = useState<boolean>(false);
+  const [threshold, setThreshold] = useState<number>(0);
   const [selectedRetrieval, setSelectedRetrieval] = useState<
     AggregateRetrieval | DatabaseRetrieval
   >(emptyAggregateRetrieval);
@@ -177,15 +179,27 @@ export default function TimelinePage(): ReactElement {
           label="Aggregate passes on the same timeline"
         />
       </FormGroup>
-      <FormGroup row sx={{ alignItems: "center" }}>
-        <Typography variant="body2">Show type mode</Typography>
-        <Switch
-          checked={timeMode}
-          onChange={() => setTimeMode(!timeMode)}
-          color="primary"
-        />
-        <Typography variant="body2">Show time mode</Typography>
-      </FormGroup>
+      <Grid2 container justifyContent="space-between" marginTop={2}>
+        <FormGroup row sx={{ alignItems: "center" }}>
+          <Typography variant="body2">Show type mode</Typography>
+          <Switch
+            checked={timeMode}
+            onChange={() => setTimeMode(!timeMode)}
+            color="primary"
+          />
+          <Typography variant="body2">Show time mode</Typography>
+        </FormGroup>
+        <FormGroup row sx={{ alignItems: "center" }}>
+          <Typography variant="body2">Use a threshold:</Typography>
+          <Input
+            type="number"
+            value={threshold}
+            onChange={(event) => setThreshold(Number(event.target.value))}
+            sx={{ width: "50px", marginX: 1 }}
+          />
+          <Typography variant="body2">ms</Typography>
+        </FormGroup>
+      </Grid2>
       <TimelineLegend
         timeMode={timeMode}
         minTiming={minTiming}
@@ -236,6 +250,7 @@ export default function TimelinePage(): ReactElement {
                 timeMode={timeMode}
                 minTiming={minTiming}
                 maxTiming={maxTiming}
+                threshold={threshold}
               />
             </TimelineDiv>
           ))}

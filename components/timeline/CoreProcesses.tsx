@@ -18,6 +18,7 @@ type CoreProcessesProps = {
   timeMode: boolean;
   minTiming: number;
   maxTiming: number;
+  threshold: number;
 };
 
 export function CoreProcesses({
@@ -28,6 +29,7 @@ export function CoreProcesses({
   timeMode,
   minTiming,
   maxTiming,
+  threshold,
 }: CoreProcessesProps): ReactElement {
   const getColor = (start: number, end: number): string => {
     const duration = end - start;
@@ -73,7 +75,13 @@ export function CoreProcesses({
             border={1}
             borderColor="black"
             borderRadius={2}
-            bgcolor={timeMode ? getColor(start, end) : TIMELINE_COLORS[type]}
+            bgcolor={
+              end - start < threshold
+                ? "gray"
+                : timeMode
+                  ? getColor(start, end)
+                  : TIMELINE_COLORS[type]
+            }
             onClick={() => openRetrievalDialog(retrievalId, type)}
           />
         </Tooltip>
