@@ -7,8 +7,7 @@ import {
   TimelineFooter,
   TimelineLegend,
 } from "@/components";
-import { buildTimeline } from "@/lib/functions";
-import { adjustTimings } from "@/lib/functions/adjustTimings";
+import { adjustTimings, buildTimeline } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
   AggregateRetrieval,
