@@ -1,5 +1,12 @@
-import { TIMELINE_COLORS } from "@/lib/functions";
-import { TimelineTiming, TimingType } from "@/lib/types";
+import {
+  TimelineTiming,
+  TimingType,
+  TIMELINE_COLORS,
+  TIMELINE_MAX_GREEN,
+  TIMELINE_MAX_RED,
+  TIMELINE_MIN_GREEN,
+  TIMELINE_MIN_RED,
+} from "@/lib/types";
 import { Box, Tooltip } from "@mui/material";
 import { ReactElement } from "react";
 
@@ -8,6 +15,10 @@ type CoreProcessesProps = {
   timings: TimelineTiming[];
   scale: number;
   openRetrievalDialog: (retrievalId: number, type: TimingType) => void;
+  timeMode: boolean;
+  minDuration: number;
+  maxDuration: number;
+  threshold: number;
 };
 
 export function CoreProcesses({
@@ -15,7 +26,25 @@ export function CoreProcesses({
   timings,
   scale,
   openRetrievalDialog,
+  timeMode,
+  minDuration,
+  maxDuration,
+  threshold,
 }: CoreProcessesProps): ReactElement {
+  const getColor = (start: number, end: number): string => {
+    const duration = end - start;
+    const percentage = (duration - minDuration) / (maxDuration - minDuration);
+
+    const red =
+      TIMELINE_MIN_RED +
+      Math.floor((TIMELINE_MAX_RED - TIMELINE_MIN_RED) * percentage);
+    const green =
+      TIMELINE_MAX_GREEN -
+      Math.floor((TIMELINE_MAX_GREEN - TIMELINE_MIN_GREEN) * percentage);
+
+    return `rgb(${red}, ${green}, 0)`;
+  };
+
   return (
     <Box
       position="relative"
@@ -46,7 +75,13 @@ export function CoreProcesses({
             border={1}
             borderColor="black"
             borderRadius={2}
-            bgcolor={TIMELINE_COLORS[type]}
+            bgcolor={
+              end - start < threshold
+                ? "gray"
+                : timeMode
+                  ? getColor(start, end)
+                  : TIMELINE_COLORS[type]
+            }
             onClick={() => openRetrievalDialog(retrievalId, type)}
           />
         </Tooltip>

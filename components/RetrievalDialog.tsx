@@ -35,7 +35,7 @@ export function RetrievalDialog({
 
   const isAggregate = "partialProviderName" in retrieval;
   const excludedKeys = new Set(["timingInfo", "location"]);
-  const maxTimingInfoLength = String(
+  const maxDurationInfoLength = String(
     Math.max(...Object.values(retrieval.timingInfo).flat()),
   ).length;
   const reorderedTimingInfo = Object.fromEntries([
@@ -113,7 +113,7 @@ export function RetrievalDialog({
                                 const strValue = String(value);
                                 if (areNumbersAligned) {
                                   const diff =
-                                    maxTimingInfoLength - strValue.length;
+                                    maxDurationInfoLength - strValue.length;
                                   return " ".repeat(diff) + strValue;
                                 }
                                 return strValue;

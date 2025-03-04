@@ -21,6 +21,7 @@ import {
   FormControlLabel,
   FormGroup,
   Grid2,
+  Input,
   Slider,
   Switch,
   Typography,
@@ -34,6 +35,8 @@ export default function TimelinePage(): ReactElement {
   const [combinePasses, setCombinePasses] = useState<boolean>(false);
 
   const [showDialog, setShowDialog] = useState<boolean>(false);
+  const [timeMode, setTimeMode] = useState<boolean>(false);
+  const [threshold, setThreshold] = useState<number>(0);
   const [selectedRetrieval, setSelectedRetrieval] = useState<
     AggregateRetrieval | DatabaseRetrieval
   >(emptyAggregateRetrieval);
@@ -138,7 +141,7 @@ export default function TimelinePage(): ReactElement {
 
   const timeline = buildTimeline(aggregateRetrievals, databaseRetrievals);
 
-  const { nbCores, ...coresTimeline } = timeline;
+  const { nbCores, maxDuration, minDuration, ...coresTimeline } = timeline;
 
   // Find the maximum end time to calculate the content width
   maxEnd = Math.max(
@@ -166,6 +169,13 @@ export default function TimelinePage(): ReactElement {
         >
           Fit entire timeline
         </Button>
+      </FormGroup>
+      <Grid2
+        container
+        justifyContent="space-between"
+        marginTop={2}
+        marginBottom={2}
+      >
         <FormControlLabel
           control={
             <Switch
@@ -174,13 +184,72 @@ export default function TimelinePage(): ReactElement {
             />
           }
           label="Aggregate passes on the same timeline"
+          sx={{
+            borderWidth: 1,
+            borderColor: "primary.main",
+            borderRadius: 2,
+            padding: 1,
+          }}
         />
-      </FormGroup>
-      <TimelineLegend />
+        <FormGroup
+          row
+          sx={{
+            alignItems: "center",
+            borderWidth: 1,
+            borderColor: "primary.main",
+            borderRadius: 2,
+            padding: 1,
+          }}
+        >
+          <Typography>Show type mode</Typography>
+          <Switch
+            checked={timeMode}
+            onChange={() => setTimeMode(!timeMode)}
+            color="primary"
+          />
+          <Typography>Show time mode</Typography>
+        </FormGroup>
+        <FormGroup
+          row
+          sx={{
+            alignItems: "center",
+            borderWidth: 1,
+            borderColor: "primary.main",
+            borderRadius: 2,
+            padding: 1,
+          }}
+        >
+          <Typography variant="body2">Use a threshold:</Typography>
+          <Input
+            type="number"
+            value={threshold}
+            onChange={(event) => {
+              const value = Number(event.target.value);
+              if (value >= minDuration && value <= maxDuration)
+                setThreshold(value);
+            }}
+            sx={{ width: "50px", marginX: 1 }}
+          />
+          <Typography variant="body2">ms</Typography>
+          <Slider
+            sx={{ width: 200, marginLeft: 2 }}
+            min={minDuration}
+            max={maxDuration}
+            value={threshold}
+            onChange={(_event, value) => setThreshold(value as number)}
+          />
+        </FormGroup>
+      </Grid2>
+      <TimelineLegend
+        timeMode={timeMode}
+        minDuration={minDuration}
+        maxDuration={maxDuration}
+        threshold={threshold}
+      />
       <Grid2
         container
         width="100%"
-        maxHeight="59vh"
+        maxHeight="51vh"
         marginTop={2}
         flexDirection="row"
         sx={{ overflowY: "auto", overflowX: "hidden" }}
@@ -219,6 +288,10 @@ export default function TimelinePage(): ReactElement {
                 timings={coresTimeline[index] || []}
                 scale={scale}
                 openRetrievalDialog={openRetrievalDialog}
+                timeMode={timeMode}
+                minDuration={minDuration}
+                maxDuration={maxDuration}
+                threshold={threshold}
               />
             </TimelineDiv>
           ))}

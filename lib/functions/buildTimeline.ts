@@ -5,18 +5,13 @@ import {
   TimelineTiming,
 } from "@/lib/types";
 
-export const TIMELINE_COLORS: Record<string, string> = {
-  AggregateRetrieval: "secondary.dark",
-  AggregateRetrievalExecutionContext: "secondary.light",
-  DatabaseRetrieval: "primary.dark",
-  DatabaseRetrievalExecutionContext: "primary.light",
-};
-
 export function buildTimeline(
   aggregateRetrievals: AggregateRetrieval[],
   databaseRetrievals: DatabaseRetrieval[],
-): Timeline & { nbCores: number } {
+): Timeline & { nbCores: number; minDuration: number; maxDuration: number } {
   let maxCores: number = 0;
+  let minDuration: number = Number.MAX_SAFE_INTEGER;
+  let maxDuration: number = 0;
 
   const allTimings: TimelineTiming[] = [];
 
@@ -28,6 +23,19 @@ export function buildTimeline(
       maxCores,
       timingInfo.startTime?.length ?? 0,
       timingInfo.executionContextStartTime?.length ?? 0,
+    );
+    // Keep track of the minimum and maximum timing
+    minDuration = Math.min(
+      minDuration,
+      ...(timingInfo.elapsedTime ?? []).filter((time) => time !== 0),
+      ...(timingInfo.executionContextElapsedTime ?? []).filter(
+        (time) => time !== 0,
+      ),
+    );
+    maxDuration = Math.max(
+      maxDuration,
+      ...(timingInfo.elapsedTime ?? []),
+      ...(timingInfo.executionContextElapsedTime ?? []),
     );
 
     Object.entries(timingInfo).map(([key, values]) => {
@@ -65,6 +73,19 @@ export function buildTimeline(
       maxCores,
       timingInfo.startTime?.length ?? 0,
       timingInfo.executionContextStartTime?.length ?? 0,
+    );
+    // Keep track of the minimum and maximum timing
+    minDuration = Math.min(
+      minDuration,
+      ...(timingInfo.elapsedTime ?? []).filter((time) => time !== 0),
+      ...(timingInfo.executionContextElapsedTime ?? []).filter(
+        (time) => time !== 0,
+      ),
+    );
+    maxDuration = Math.max(
+      maxDuration,
+      ...(timingInfo.elapsedTime ?? []),
+      ...(timingInfo.executionContextElapsedTime ?? []),
     );
 
     Object.entries(timingInfo).map(([key, values]) => {
@@ -127,5 +148,5 @@ export function buildTimeline(
     maxCores = Math.max(maxCores, core + 1);
   }
 
-  return { ...timeline, nbCores: maxCores };
+  return { ...timeline, nbCores: maxCores, minDuration, maxDuration };
 }
