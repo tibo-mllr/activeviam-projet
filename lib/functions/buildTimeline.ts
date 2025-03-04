@@ -8,10 +8,10 @@ import {
 export function buildTimeline(
   aggregateRetrievals: AggregateRetrieval[],
   databaseRetrievals: DatabaseRetrieval[],
-): Timeline & { nbCores: number; minTiming: number; maxTiming: number } {
+): Timeline & { nbCores: number; minDuration: number; maxDuration: number } {
   let maxCores: number = 0;
-  let minTiming: number = Number.MAX_SAFE_INTEGER;
-  let maxTiming: number = 0;
+  let minDuration: number = Number.MAX_SAFE_INTEGER;
+  let maxDuration: number = 0;
 
   const allTimings: TimelineTiming[] = [];
 
@@ -25,15 +25,15 @@ export function buildTimeline(
       timingInfo.executionContextStartTime?.length ?? 0,
     );
     // Keep track of the minimum and maximum timing
-    minTiming = Math.min(
-      minTiming,
+    minDuration = Math.min(
+      minDuration,
       ...(timingInfo.elapsedTime ?? []).filter((time) => time !== 0),
       ...(timingInfo.executionContextElapsedTime ?? []).filter(
         (time) => time !== 0,
       ),
     );
-    maxTiming = Math.max(
-      maxTiming,
+    maxDuration = Math.max(
+      maxDuration,
       ...(timingInfo.elapsedTime ?? []),
       ...(timingInfo.executionContextElapsedTime ?? []),
     );
@@ -75,15 +75,15 @@ export function buildTimeline(
       timingInfo.executionContextStartTime?.length ?? 0,
     );
     // Keep track of the minimum and maximum timing
-    minTiming = Math.min(
-      minTiming,
+    minDuration = Math.min(
+      minDuration,
       ...(timingInfo.elapsedTime ?? []).filter((time) => time !== 0),
       ...(timingInfo.executionContextElapsedTime ?? []).filter(
         (time) => time !== 0,
       ),
     );
-    maxTiming = Math.max(
-      maxTiming,
+    maxDuration = Math.max(
+      maxDuration,
       ...(timingInfo.elapsedTime ?? []),
       ...(timingInfo.executionContextElapsedTime ?? []),
     );
@@ -148,5 +148,5 @@ export function buildTimeline(
     maxCores = Math.max(maxCores, core + 1);
   }
 
-  return { ...timeline, nbCores: maxCores, minTiming, maxTiming };
+  return { ...timeline, nbCores: maxCores, minDuration, maxDuration };
 }

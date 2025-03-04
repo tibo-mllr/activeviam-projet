@@ -141,7 +141,7 @@ export default function TimelinePage(): ReactElement {
 
   const timeline = buildTimeline(aggregateRetrievals, databaseRetrievals);
 
-  const { nbCores, maxTiming, minTiming, ...coresTimeline } = timeline;
+  const { nbCores, maxDuration, minDuration, ...coresTimeline } = timeline;
 
   // Find the maximum end time to calculate the content width
   maxEnd = Math.max(
@@ -202,8 +202,8 @@ export default function TimelinePage(): ReactElement {
       </Grid2>
       <TimelineLegend
         timeMode={timeMode}
-        minTiming={minTiming}
-        maxTiming={maxTiming}
+        minDuration={minDuration}
+        maxDuration={maxDuration}
         threshold={threshold}
       />
       <Grid2
@@ -249,8 +249,8 @@ export default function TimelinePage(): ReactElement {
                 scale={scale}
                 openRetrievalDialog={openRetrievalDialog}
                 timeMode={timeMode}
-                minTiming={minTiming}
-                maxTiming={maxTiming}
+                minDuration={minDuration}
+                maxDuration={maxDuration}
                 threshold={threshold}
               />
             </TimelineDiv>

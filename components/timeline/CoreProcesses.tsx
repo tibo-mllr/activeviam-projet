@@ -16,8 +16,8 @@ type CoreProcessesProps = {
   scale: number;
   openRetrievalDialog: (retrievalId: number, type: TimingType) => void;
   timeMode: boolean;
-  minTiming: number;
-  maxTiming: number;
+  minDuration: number;
+  maxDuration: number;
   threshold: number;
 };
 
@@ -27,13 +27,13 @@ export function CoreProcesses({
   scale,
   openRetrievalDialog,
   timeMode,
-  minTiming,
-  maxTiming,
+  minDuration,
+  maxDuration,
   threshold,
 }: CoreProcessesProps): ReactElement {
   const getColor = (start: number, end: number): string => {
     const duration = end - start;
-    const percentage = (duration - minTiming) / (maxTiming - minTiming);
+    const percentage = (duration - minDuration) / (maxDuration - minDuration);
 
     const red =
       TIMELINE_MIN_RED +

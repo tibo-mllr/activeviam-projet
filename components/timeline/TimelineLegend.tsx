@@ -10,19 +10,19 @@ import { ReactElement } from "react";
 
 type TimelineLegendProps = {
   timeMode: boolean;
-  minTiming: number;
-  maxTiming: number;
+  minDuration: number;
+  maxDuration: number;
   threshold: number;
 };
 
 export function TimelineLegend({
   timeMode,
-  minTiming,
-  maxTiming,
+  minDuration,
+  maxDuration,
   threshold,
 }: TimelineLegendProps): ReactElement {
   if (timeMode)
-    // Gradient scale from minTiming to maxTiming
+    // Gradient scale from minDuration to maxDuration
     return (
       <Grid2
         container
@@ -32,7 +32,7 @@ export function TimelineLegend({
         justifyContent="center"
         alignItems="center"
       >
-        <Typography>{minTiming}ms</Typography>
+        <Typography>{minDuration}ms</Typography>
         <Grid2
           width={200}
           height={20}
@@ -44,10 +44,10 @@ export function TimelineLegend({
           position="relative"
         >
           {/* Threshold line */}
-          {threshold >= minTiming && threshold <= maxTiming && (
+          {threshold >= minDuration && threshold <= maxDuration && (
             <Box
               position="absolute"
-              left={`${((threshold - minTiming) / (maxTiming - minTiming)) * 200}px`}
+              left={`${((threshold - minDuration) / (maxDuration - minDuration)) * 200}px`}
               style={{ transform: "translateX(-50%)" }}
               width="3px"
               height="20px"
@@ -55,7 +55,7 @@ export function TimelineLegend({
             />
           )}
         </Grid2>
-        <Typography>{maxTiming}ms</Typography>
+        <Typography>{maxDuration}ms</Typography>
       </Grid2>
     );
 

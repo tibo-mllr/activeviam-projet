@@ -69,8 +69,8 @@ describe("buildTimeline", () => {
     const result = buildTimeline([], []);
     expect(result).toEqual({
       nbCores: 0,
-      maxTiming: 0,
-      minTiming: Number.MAX_SAFE_INTEGER,
+      maxDuration: 0,
+      minDuration: Number.MAX_SAFE_INTEGER,
     });
   });
 
@@ -79,8 +79,8 @@ describe("buildTimeline", () => {
 
     const expected: Timeline & {
       nbCores: number;
-      minTiming: number;
-      maxTiming: number;
+      minDuration: number;
+      maxDuration: number;
     } = {
       "0": [
         {
@@ -99,8 +99,8 @@ describe("buildTimeline", () => {
         },
       ],
       nbCores: 2,
-      minTiming: 10,
-      maxTiming: 37,
+      minDuration: 10,
+      maxDuration: 37,
     };
 
     expect(result).toEqual(expected);
@@ -111,8 +111,8 @@ describe("buildTimeline", () => {
 
     const expected: Timeline & {
       nbCores: number;
-      minTiming: number;
-      maxTiming: number;
+      minDuration: number;
+      maxDuration: number;
     } = {
       "0": [
         {
@@ -129,8 +129,8 @@ describe("buildTimeline", () => {
         },
       ],
       nbCores: 1,
-      minTiming: 1,
-      maxTiming: 10,
+      minDuration: 1,
+      maxDuration: 10,
     };
 
     expect(result).toEqual(expected);
@@ -141,8 +141,8 @@ describe("buildTimeline", () => {
 
     const expected: Timeline & {
       nbCores: number;
-      minTiming: number;
-      maxTiming: number;
+      minDuration: number;
+      maxDuration: number;
     } = {
       "0": [
         {
@@ -175,8 +175,8 @@ describe("buildTimeline", () => {
         },
       ],
       nbCores: 3,
-      minTiming: 1,
-      maxTiming: 37,
+      minDuration: 1,
+      maxDuration: 37,
     };
 
     expect(result).toEqual(expected);
@@ -189,8 +189,8 @@ describe("buildTimeline", () => {
 
     const expected: Timeline & {
       nbCores: number;
-      minTiming: number;
-      maxTiming: number;
+      minDuration: number;
+      maxDuration: number;
     } = {
       "0": [
         {
@@ -223,8 +223,8 @@ describe("buildTimeline", () => {
         },
       ],
       nbCores: 3,
-      minTiming: 1,
-      maxTiming: 37,
+      minDuration: 1,
+      maxDuration: 37,
     };
 
     expect(result).toEqual(expected);
