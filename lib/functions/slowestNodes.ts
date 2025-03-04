@@ -18,8 +18,8 @@ function computeTimingDetails(timingInfo: TimingInfo): {
   stdDevTiming: number;
   parallelCount: number;
 } {
-  const startTimes: number[] = timingInfo.startTime;
-  const elapsedTimes: number[] = timingInfo.elapsedTime;
+  const startTimes: number[] = timingInfo.startTime ?? [];
+  const elapsedTimes: number[] = timingInfo.elapsedTime ?? [];
 
   if (startTimes.length != elapsedTimes.length) {
     return {
@@ -55,30 +55,43 @@ export function getSlowestNodes(
   databaseRetrievals: DatabaseRetrieval[],
   numberOfNodes: number,
 ): ProcessedNode[] {
-  const aggregateNodes: ProcessedNode[] = aggregateRetrievals.map((node) => {
-    const { totalTiming, meanTiming, stdDevTiming, parallelCount } =
-      computeTimingDetails(node.timingInfo);
-    return {
-      id: node.retrievalId,
-      type: "Aggregate",
-      timing: totalTiming,
-      mean: meanTiming,
-      stdDev: stdDevTiming,
-      parallelCount,
-    };
-  });
-  const databaseNodes: ProcessedNode[] = databaseRetrievals.map((node) => {
-    const { totalTiming, meanTiming, stdDevTiming, parallelCount } =
-      computeTimingDetails(node.timingInfo);
-    return {
-      id: node.retrievalId,
-      type: "Database",
-      timing: totalTiming,
-      mean: meanTiming,
-      stdDev: stdDevTiming,
-      parallelCount,
-    };
-  });
+  const aggregateNodes: ProcessedNode[] = aggregateRetrievals
+    .filter(
+      (node) =>
+        node.timingInfo.startTime?.length &&
+        node.timingInfo.elapsedTime?.length,
+    )
+    .map((node) => {
+      const { totalTiming, meanTiming, stdDevTiming, parallelCount } =
+        computeTimingDetails(node.timingInfo);
+      return {
+        id: node.retrievalId,
+        type: "Aggregate",
+        timing: totalTiming,
+        mean: meanTiming,
+        stdDev: stdDevTiming,
+        parallelCount,
+      };
+    });
+
+  const databaseNodes: ProcessedNode[] = databaseRetrievals
+    .filter(
+      (node) =>
+        node.timingInfo.startTime?.length &&
+        node.timingInfo.elapsedTime?.length,
+    )
+    .map((node) => {
+      const { totalTiming, meanTiming, stdDevTiming, parallelCount } =
+        computeTimingDetails(node.timingInfo);
+      return {
+        id: node.retrievalId,
+        type: "Database",
+        timing: totalTiming,
+        mean: meanTiming,
+        stdDev: stdDevTiming,
+        parallelCount,
+      };
+    });
 
   const allNodes: ProcessedNode[] = [...aggregateNodes, ...databaseNodes];
 
