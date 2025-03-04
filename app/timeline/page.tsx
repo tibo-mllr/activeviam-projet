@@ -169,6 +169,13 @@ export default function TimelinePage(): ReactElement {
         >
           Fit entire timeline
         </Button>
+      </FormGroup>
+      <Grid2
+        container
+        justifyContent="space-between"
+        marginTop={2}
+        marginBottom={2}
+      >
         <FormControlLabel
           control={
             <Switch
@@ -177,19 +184,41 @@ export default function TimelinePage(): ReactElement {
             />
           }
           label="Aggregate passes on the same timeline"
+          sx={{
+            borderWidth: 1,
+            borderColor: "primary.main",
+            borderRadius: 2,
+            padding: 1,
+          }}
         />
-      </FormGroup>
-      <Grid2 container justifyContent="space-between" marginTop={2}>
-        <FormGroup row sx={{ alignItems: "center" }}>
-          <Typography variant="body2">Show type mode</Typography>
+        <FormGroup
+          row
+          sx={{
+            alignItems: "center",
+            borderWidth: 1,
+            borderColor: "primary.main",
+            borderRadius: 2,
+            padding: 1,
+          }}
+        >
+          <Typography>Show type mode</Typography>
           <Switch
             checked={timeMode}
             onChange={() => setTimeMode(!timeMode)}
             color="primary"
           />
-          <Typography variant="body2">Show time mode</Typography>
+          <Typography>Show time mode</Typography>
         </FormGroup>
-        <FormGroup row sx={{ alignItems: "center" }}>
+        <FormGroup
+          row
+          sx={{
+            alignItems: "center",
+            borderWidth: 1,
+            borderColor: "primary.main",
+            borderRadius: 2,
+            padding: 1,
+          }}
+        >
           <Typography variant="body2">Use a threshold:</Typography>
           <Input
             type="number"
@@ -220,7 +249,7 @@ export default function TimelinePage(): ReactElement {
       <Grid2
         container
         width="100%"
-        maxHeight="59vh"
+        maxHeight="51vh"
         marginTop={2}
         flexDirection="row"
         sx={{ overflowY: "auto", overflowX: "hidden" }}
