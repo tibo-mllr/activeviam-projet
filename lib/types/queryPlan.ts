@@ -50,6 +50,10 @@ const aggregateRetrievalSchema = z.object({
 
 export type AggregateRetrieval = z.infer<typeof aggregateRetrievalSchema>;
 
+export type AggregatedAggregateRetrieval = AggregateRetrieval & {
+  pass: string;
+};
+
 export const emptyAggregateRetrieval: AggregateRetrieval =
   aggregateRetrievalSchema.parse({});
 
@@ -64,6 +68,10 @@ const databaseRetrievalSchema = z.object({
 });
 
 export type DatabaseRetrieval = z.infer<typeof databaseRetrievalSchema>;
+
+export type AggregatedDatabaseRetrieval = DatabaseRetrieval & {
+  pass: string;
+};
 
 const dependenciesSchema = z
   .record(z.string(), z.array(z.number()))
@@ -99,3 +107,11 @@ export const queryPlansSchema = z.array(queryPlanSchema);
 export type QueryPlan = z.infer<typeof queryPlanSchema>;
 
 export const emptyQueryPlan: QueryPlan = queryPlanSchema.parse({});
+
+export type AggregatedQueryPlan = Omit<
+  QueryPlan,
+  "aggregateRetrievals" | "databaseRetrievals"
+> & {
+  aggregateRetrievals: AggregatedAggregateRetrieval[];
+  databaseRetrievals: AggregatedDatabaseRetrieval[];
+};

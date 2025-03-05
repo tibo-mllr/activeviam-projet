@@ -7,7 +7,7 @@ import {
   GROUP_COLORS,
 } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
-import { QueryPlan } from "@/lib/types";
+import { AggregatedQueryPlan, QueryPlan } from "@/lib/types";
 import {
   Card,
   CardContent,
@@ -45,7 +45,7 @@ export default function SummaryPage(): ReactElement {
 
   // Select the currently active query plan
 
-  let selectedQueryPlan: QueryPlan;
+  let selectedQueryPlan: QueryPlan | AggregatedQueryPlan;
   if (selectedIndex === -1) selectedQueryPlan = aggregateData(queryPlan);
   else selectedQueryPlan = queryPlan[selectedIndex];
 

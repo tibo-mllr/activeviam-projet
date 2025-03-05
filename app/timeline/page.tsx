@@ -10,6 +10,8 @@ import {
 import { aggregateData, buildTimeline } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
+  AggregatedAggregateRetrieval,
+  AggregatedDatabaseRetrieval,
   AggregateRetrieval,
   DatabaseRetrieval,
   emptyAggregateRetrieval,
@@ -119,14 +121,32 @@ export default function TimelinePage(): ReactElement {
 
   const { aggregateRetrievals, databaseRetrievals } = selectedQueryPlan;
 
-  const openRetrievalDialog = (retrievalId: number, type: TimingType): void => {
+  const openRetrievalDialog = (
+    retrievalId: number,
+    type: TimingType,
+    pass: string,
+  ): void => {
     let retrieval: AggregateRetrieval | DatabaseRetrieval | undefined;
-    if (type.startsWith("AggregateRetrieval"))
-      retrieval = aggregateRetrievals.find(
-        (r) => r.retrievalId === retrievalId,
-      );
-    else if (type.startsWith("DatabaseRetrieval"))
-      retrieval = databaseRetrievals.find((r) => r.retrievalId === retrievalId);
+
+    if (selectedIndex !== -1) {
+      if (type.startsWith("AggregateRetrieval"))
+        retrieval = aggregateRetrievals.find(
+          (r) => r.retrievalId === retrievalId,
+        );
+      else if (type.startsWith("DatabaseRetrieval"))
+        retrieval = databaseRetrievals.find(
+          (r) => r.retrievalId === retrievalId,
+        );
+    } else {
+      if (type.startsWith("AggregateRetrieval"))
+        retrieval = (
+          aggregateRetrievals as AggregatedAggregateRetrieval[]
+        ).find((r) => r.retrievalId === retrievalId && r.pass === pass);
+      else if (type.startsWith("DatabaseRetrieval"))
+        retrieval = (databaseRetrievals as AggregatedDatabaseRetrieval[]).find(
+          (r) => r.retrievalId === retrievalId && r.pass === pass,
+        );
+    }
 
     if (retrieval) {
       setSelectedRetrieval(retrieval);
@@ -134,7 +154,7 @@ export default function TimelinePage(): ReactElement {
     }
   };
 
-  const timeline = buildTimeline(aggregateRetrievals, databaseRetrievals);
+  const timeline = buildTimeline(selectedQueryPlan);
 
   const { nbCores, maxDuration, minDuration, ...coresTimeline } = timeline;
 

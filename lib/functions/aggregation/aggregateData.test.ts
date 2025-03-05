@@ -1,4 +1,9 @@
-import { AggregateRetrieval, DatabaseRetrieval, QueryPlan } from "@/lib/types";
+import {
+  AggregatedQueryPlan,
+  AggregateRetrieval,
+  DatabaseRetrieval,
+  QueryPlan,
+} from "@/lib/types";
 import { aggregateData } from "./aggregateData";
 
 const emptyQueryplan: QueryPlan = {
@@ -113,11 +118,12 @@ describe("aggregateData", () => {
       { ...emptyQueryplan, aggregateRetrievals, databaseRetrievals },
     ]);
 
-    const expected: QueryPlan = {
+    const expected: AggregatedQueryPlan = {
       ...emptyQueryplan,
       aggregateRetrievals: [
         ...aggregateRetrievals.map((retrieval) => ({
           ...retrieval,
+          pass: "Aggregation",
           timingInfo: {
             startTime: [], // Added when aggregating
             executionContextStartTime: [], // Added when aggregating
@@ -128,6 +134,7 @@ describe("aggregateData", () => {
       databaseRetrievals: [
         ...databaseRetrievals.map((retrieval) => ({
           ...retrieval,
+          pass: "Aggregation",
           timingInfo: {
             startTime: [], // Added when aggregating
             executionContextStartTime: [], // Added when aggregating
@@ -146,10 +153,13 @@ describe("aggregateData", () => {
       { ...emptyQueryplan, aggregateRetrievals, databaseRetrievals },
     ]);
 
-    const expected: QueryPlan = {
+    const expected: AggregatedQueryPlan = {
       ...emptyQueryplan,
       aggregateRetrievals: [
-        ...aggregateRetrievals,
+        ...aggregateRetrievals.map((retrieval) => ({
+          ...retrieval,
+          pass: "Aggregation",
+        })),
         {
           retrievalId: 0,
           partialProviderName: "N/A",
@@ -181,11 +191,13 @@ describe("aggregateData", () => {
             executionContextElapsedTime: [10],
           },
           underlyingDataNodes: [],
+          pass: "Aggregation",
         },
       ],
       databaseRetrievals: [
         ...databaseRetrievals.map((retrieval) => ({
           ...retrieval,
+          pass: "Aggregation",
           timingInfo: {
             startTime: [], // Added when aggregating
             executionContextStartTime: [], // Added when aggregating
@@ -204,6 +216,7 @@ describe("aggregateData", () => {
             executionContextStartTime: [], // Added when aggregating
             elapsedTime: [1],
           },
+          pass: "Aggregation",
         },
         {
           store: "Forex",
@@ -218,6 +231,7 @@ describe("aggregateData", () => {
             executionContextStartTime: [47], // 10 + 37
             executionContextElapsedTime: [10],
           },
+          pass: "Aggregation",
         },
       ],
     };

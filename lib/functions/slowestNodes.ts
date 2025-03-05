@@ -1,7 +1,9 @@
 import {
-  AggregateRetrieval,
-  DatabaseRetrieval,
+  AggregatedAggregateRetrieval,
+  AggregatedDatabaseRetrieval,
+  AggregatedQueryPlan,
   ProcessedNode,
+  QueryPlan,
   TimingInfo,
 } from "@/lib/types";
 
@@ -59,12 +61,39 @@ function computeTimingDetails(timingInfo: TimingInfo): {
 }
 
 export function getSlowestNodes(
-  aggregateRetrievals: AggregateRetrieval[],
-  databaseRetrievals: DatabaseRetrieval[],
+  queryPlan: QueryPlan | AggregatedQueryPlan,
   numberOfNodes: number,
 ): ProcessedNode[] {
+  let aggregateRetrievals: AggregatedAggregateRetrieval[];
+  let databaseRetrievals: AggregatedDatabaseRetrieval[];
+
+  // If the queryPlan is an AggregatedQueryPlan, the aggregateRetrievals and databaseRetrievals
+  // are already aggregated, so we don't need to do it again.
+  if (
+    queryPlan.aggregateRetrievals?.length &&
+    "pass" in queryPlan.aggregateRetrievals[0]
+  ) {
+    aggregateRetrievals =
+      queryPlan.aggregateRetrievals as AggregatedAggregateRetrieval[];
+    databaseRetrievals =
+      queryPlan.databaseRetrievals as AggregatedDatabaseRetrieval[];
+  } else {
+    aggregateRetrievals = (queryPlan.aggregateRetrievals ?? []).map(
+      (retrieval) => ({
+        ...retrieval,
+        pass: queryPlan.planInfo.mdxPass,
+      }),
+    );
+    databaseRetrievals = (queryPlan.databaseRetrievals ?? []).map(
+      (retrieval) => ({
+        ...retrieval,
+        pass: queryPlan.planInfo.mdxPass,
+      }),
+    );
+  }
+
   const aggregateNodes: ProcessedNode[] = aggregateRetrievals
-    .filter(
+    ?.filter(
       (node) =>
         node.timingInfo.startTime?.length &&
         node.timingInfo.elapsedTime?.length,
@@ -85,11 +114,12 @@ export function getSlowestNodes(
         mean: meanTiming,
         stdDev: stdDevTiming,
         parallelCount,
+        pass: node.pass,
       };
     });
 
   const databaseNodes: ProcessedNode[] = databaseRetrievals
-    .filter(
+    ?.filter(
       (node) =>
         node.timingInfo.startTime?.length &&
         node.timingInfo.elapsedTime?.length,
@@ -110,6 +140,7 @@ export function getSlowestNodes(
         mean: meanTiming,
         stdDev: stdDevTiming,
         parallelCount,
+        pass: node.pass,
       };
     });
 

@@ -4,6 +4,9 @@ import { RetrievalDialog } from "@/components";
 import { aggregateData, getSlowestNodes } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
+  AggregatedAggregateRetrieval,
+  AggregatedDatabaseRetrieval,
+  AggregatedQueryPlan,
   AggregateRetrieval,
   DatabaseRetrieval,
   emptyAggregateRetrieval,
@@ -47,15 +50,10 @@ export default function NodesPage(): ReactElement {
 
   useEffect(() => {
     if (queryPlan && queryPlan.length > 0) {
-      let selectedQueryPlan: QueryPlan;
+      let selectedQueryPlan: QueryPlan | AggregatedQueryPlan;
       if (selectedIndex === -1) selectedQueryPlan = aggregateData(queryPlan);
       else selectedQueryPlan = queryPlan[selectedIndex];
-      const { aggregateRetrievals, databaseRetrievals } = selectedQueryPlan;
-      const nodes = getSlowestNodes(
-        aggregateRetrievals,
-        databaseRetrievals,
-        numberOfNodes,
-      );
+      const nodes = getSlowestNodes(selectedQueryPlan, numberOfNodes);
       setDisplayedNodes(nodes);
     }
   }, [queryPlan, selectedIndex, numberOfNodes]);
@@ -66,7 +64,7 @@ export default function NodesPage(): ReactElement {
     );
   }
 
-  let selectedQueryPlan: QueryPlan;
+  let selectedQueryPlan: QueryPlan | AggregatedQueryPlan;
   if (selectedIndex === -1) selectedQueryPlan = aggregateData(queryPlan);
   else selectedQueryPlan = queryPlan[selectedIndex];
 
@@ -92,10 +90,22 @@ export default function NodesPage(): ReactElement {
   ): AggregateRetrieval | DatabaseRetrieval => {
     const retrievalId = node.id;
 
+    if (selectedIndex !== -1) {
+      const retrieval =
+        node.type == "Aggregate"
+          ? aggregateRetrievals.find((r) => r.retrievalId === retrievalId)
+          : databaseRetrievals.find((r) => r.retrievalId === retrievalId);
+
+      return retrieval || emptyAggregateRetrieval;
+    }
     const retrieval =
       node.type == "Aggregate"
-        ? aggregateRetrievals.find((r) => r.retrievalId === retrievalId)
-        : databaseRetrievals.find((r) => r.retrievalId === retrievalId);
+        ? (aggregateRetrievals as AggregatedAggregateRetrieval[]).find(
+            (r) => r.retrievalId === retrievalId && r.pass === node.pass,
+          )
+        : (databaseRetrievals as AggregatedDatabaseRetrieval[]).find(
+            (r) => r.retrievalId === retrievalId && r.pass === node.pass,
+          );
 
     return retrieval || emptyAggregateRetrieval;
   };
@@ -185,7 +195,7 @@ export default function NodesPage(): ReactElement {
           <TableBody>
             {displayedNodes.map((node) => (
               <TableRow
-                key={`${node.type} ${node.id}`}
+                key={`${node.pass} ${node.type} ${node.id}`}
                 onClick={() => {
                   setSelectedRetrieval(getRetrievalFromNode(node));
                   setShowDialog(true);
@@ -195,7 +205,10 @@ export default function NodesPage(): ReactElement {
                   "&:hover": { bgcolor: "rgba(0, 0, 0, 0.04)" },
                 }}
               >
-                <TableCell>{`${node.type} ${node.id}`}</TableCell>
+                <TableCell>
+                  {selectedIndex === -1 && `${node.pass} `}
+                  {node.type} {node.id}
+                </TableCell>
                 <TableCell align="right">{node.maxTiming.toFixed(2)}</TableCell>
                 <TableCell align="right">
                   {node.totalTiming.toFixed(2)}
