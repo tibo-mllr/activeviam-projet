@@ -13,6 +13,7 @@ function calculateStandardDeviation(values: number[], mean: number): number {
 }
 
 function computeTimingDetails(timingInfo: TimingInfo): {
+  maxTiming: number;
   totalTiming: number;
   meanTiming: number;
   stdDevTiming: number;
@@ -26,6 +27,7 @@ function computeTimingDetails(timingInfo: TimingInfo): {
     startTimes.length != elapsedTimes.length
   ) {
     return {
+      maxTiming: 0,
       totalTiming: 0,
       meanTiming: 0,
       stdDevTiming: 0,
@@ -45,7 +47,10 @@ function computeTimingDetails(timingInfo: TimingInfo): {
     elapsedTimes.reduce((sum, time) => sum + time, 0) / elapsedTimes.length;
   const stdDevTiming = calculateStandardDeviation(elapsedTimes, meanTiming);
 
+  const maxTiming = Math.max(...elapsedTimes);
+
   return {
+    maxTiming,
     totalTiming,
     meanTiming,
     stdDevTiming,
@@ -65,12 +70,18 @@ export function getSlowestNodes(
         node.timingInfo.elapsedTime?.length,
     )
     .map((node) => {
-      const { totalTiming, meanTiming, stdDevTiming, parallelCount } =
-        computeTimingDetails(node.timingInfo);
+      const {
+        maxTiming,
+        totalTiming,
+        meanTiming,
+        stdDevTiming,
+        parallelCount,
+      } = computeTimingDetails(node.timingInfo);
       return {
         id: node.retrievalId,
         type: "Aggregate",
-        timing: totalTiming,
+        maxTiming,
+        totalTiming,
         mean: meanTiming,
         stdDev: stdDevTiming,
         parallelCount,
@@ -84,12 +95,18 @@ export function getSlowestNodes(
         node.timingInfo.elapsedTime?.length,
     )
     .map((node) => {
-      const { totalTiming, meanTiming, stdDevTiming, parallelCount } =
-        computeTimingDetails(node.timingInfo);
+      const {
+        maxTiming,
+        totalTiming,
+        meanTiming,
+        stdDevTiming,
+        parallelCount,
+      } = computeTimingDetails(node.timingInfo);
       return {
         id: node.retrievalId,
         type: "Database",
-        timing: totalTiming,
+        maxTiming,
+        totalTiming,
         mean: meanTiming,
         stdDev: stdDevTiming,
         parallelCount,
@@ -98,5 +115,7 @@ export function getSlowestNodes(
 
   const allNodes: ProcessedNode[] = [...aggregateNodes, ...databaseNodes];
 
-  return allNodes.sort((a, b) => b.timing - a.timing).slice(0, numberOfNodes);
+  return allNodes
+    .sort((a, b) => b.totalTiming - a.totalTiming)
+    .slice(0, numberOfNodes);
 }
