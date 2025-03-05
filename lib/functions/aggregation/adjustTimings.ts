@@ -1,4 +1,4 @@
-import { QueryPlan } from "../types";
+import { QueryPlan } from "@/lib/types";
 
 export function adjustTimings(queryPlan: QueryPlan[]): QueryPlan[] {
   let offset = 0;
@@ -6,7 +6,7 @@ export function adjustTimings(queryPlan: QueryPlan[]): QueryPlan[] {
     let maxEndTime = 0;
 
     const newAggregateRetrievals = pass.aggregateRetrievals.map((retrieval) => {
-      const newStartTime = retrieval.timingInfo.startTime.map(
+      const newStartTime = (retrieval.timingInfo.startTime ?? []).map(
         (start) => start + offset,
       );
 
@@ -35,7 +35,7 @@ export function adjustTimings(queryPlan: QueryPlan[]): QueryPlan[] {
     });
 
     const newDatabaseRetrievals = pass.databaseRetrievals.map((retrieval) => {
-      const newStartTime = retrieval.timingInfo.startTime.map(
+      const newStartTime = (retrieval.timingInfo.startTime ?? []).map(
         (start) => start + offset,
       );
 

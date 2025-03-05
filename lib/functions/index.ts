@@ -1,5 +1,4 @@
-export * from "./adjustTimings";
-export * from "./aggregateData";
+export * from "./aggregation";
 export * from "./buildTimeline";
 export * from "./postRequest";
 export * from "./slowestNodes";
