@@ -19,7 +19,6 @@ import {
 import {
   Box,
   Button,
-  FormControlLabel,
   FormGroup,
   Grid2,
   Input,
@@ -33,7 +32,6 @@ import { useSelector } from "react-redux";
 export default function TimelinePage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
   const selectedIndex = useSelector(getSelectedIndex);
-  const [combinePasses, setCombinePasses] = useState<boolean>(false);
 
   const [showDialog, setShowDialog] = useState<boolean>(false);
   const [timeMode, setTimeMode] = useState<boolean>(false);
@@ -116,7 +114,7 @@ export default function TimelinePage(): ReactElement {
   if (!queryPlan) return <>Please send a query to see the graph</>;
 
   let selectedQueryPlan: QueryPlan;
-  if (combinePasses) selectedQueryPlan = aggregateData(queryPlan);
+  if (selectedIndex == -1) selectedQueryPlan = aggregateData(queryPlan);
   else selectedQueryPlan = queryPlan[selectedIndex];
 
   const { aggregateRetrievals, databaseRetrievals } = selectedQueryPlan;
@@ -173,21 +171,6 @@ export default function TimelinePage(): ReactElement {
         marginTop={2}
         marginBottom={2}
       >
-        <FormControlLabel
-          control={
-            <Switch
-              checked={combinePasses}
-              onChange={() => setCombinePasses(!combinePasses)}
-            />
-          }
-          label="Aggregate passes on the same timeline"
-          sx={{
-            borderWidth: 1,
-            borderColor: "primary.main",
-            borderRadius: 2,
-            padding: 1,
-          }}
-        />
         <FormGroup
           row
           sx={{
