@@ -93,7 +93,9 @@ export function RetrievalDialog({
                   Timing Info :
                 </Typography>
 
-                <List>
+                <List
+                  sx={{ overflowX: "auto", display: "block", maxWidth: "100%" }}
+                >
                   {Object.entries(reorderedTimingInfo).map(([key, values]) => (
                     <ListItem key={key} disablePadding>
                       <ListItemText
