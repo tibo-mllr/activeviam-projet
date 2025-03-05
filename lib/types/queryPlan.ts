@@ -97,3 +97,5 @@ const queryPlanSchema = z.object({
 export const queryPlansSchema = z.array(queryPlanSchema);
 
 export type QueryPlan = z.infer<typeof queryPlanSchema>;
+
+export const emptyQueryPlan: QueryPlan = queryPlanSchema.parse({});
