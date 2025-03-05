@@ -18,7 +18,6 @@ import {
 import {
   Box,
   Button,
-  FormControlLabel,
   FormGroup,
   Grid2,
   Input,
@@ -32,7 +31,6 @@ import { useSelector } from "react-redux";
 export default function TimelinePage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
   const selectedIndex = useSelector(getSelectedIndex);
-  const [combinePasses, setCombinePasses] = useState<boolean>(false);
 
   const [showDialog, setShowDialog] = useState<boolean>(false);
   const [timeMode, setTimeMode] = useState<boolean>(false);
@@ -116,13 +114,15 @@ export default function TimelinePage(): ReactElement {
 
   const adjustedQueryPlan = adjustTimings(queryPlan);
 
-  const aggregateRetrievals = combinePasses
-    ? adjustedQueryPlan.flatMap((qp) => qp.aggregateRetrievals)
-    : queryPlan[selectedIndex].aggregateRetrievals;
+  const aggregateRetrievals =
+    selectedIndex === -1
+      ? adjustedQueryPlan.flatMap((qp) => qp.aggregateRetrievals)
+      : queryPlan[selectedIndex].aggregateRetrievals;
 
-  const databaseRetrievals = combinePasses
-    ? adjustedQueryPlan.flatMap((qp) => qp.databaseRetrievals)
-    : queryPlan[selectedIndex].databaseRetrievals;
+  const databaseRetrievals =
+    selectedIndex === -1
+      ? adjustedQueryPlan.flatMap((qp) => qp.databaseRetrievals)
+      : queryPlan[selectedIndex].databaseRetrievals;
 
   const openRetrievalDialog = (retrievalId: number, type: TimingType): void => {
     let retrieval: AggregateRetrieval | DatabaseRetrieval | undefined;
@@ -176,21 +176,6 @@ export default function TimelinePage(): ReactElement {
         marginTop={2}
         marginBottom={2}
       >
-        <FormControlLabel
-          control={
-            <Switch
-              checked={combinePasses}
-              onChange={() => setCombinePasses(!combinePasses)}
-            />
-          }
-          label="Aggregate passes on the same timeline"
-          sx={{
-            borderWidth: 1,
-            borderColor: "primary.main",
-            borderRadius: 2,
-            padding: 1,
-          }}
-        />
         <FormGroup
           row
           sx={{

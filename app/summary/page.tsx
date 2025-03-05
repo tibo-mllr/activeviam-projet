@@ -7,7 +7,6 @@ import {
   GROUP_COLORS,
 } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
-import InfoIcon from "@mui/icons-material/Info";
 import {
   Card,
   CardContent,
@@ -19,8 +18,6 @@ import {
   TextField,
   Box,
   Switch,
-  Tooltip,
-  IconButton,
 } from "@mui/material";
 
 import { ReactElement, useState } from "react";
@@ -31,7 +28,6 @@ export default function SummaryPage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
   const selectedIndex = useSelector(getSelectedIndex);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isDataAggregated, setIsDataAggregated] = useState<boolean>(false);
   const [isGroupedTimings, setIsGroupedTimings] = useState<boolean>(false);
   const [isGroupedNumbers, setIsGroupedNumbers] = useState<boolean>(false);
 
@@ -49,9 +45,8 @@ export default function SummaryPage(): ReactElement {
   // Select the currently active query plan
 
   let selectedQueryPlan = queryPlan[selectedIndex];
-  if (isDataAggregated) {
-    selectedQueryPlan = aggregateData(queryPlan);
-  }
+  if (selectedIndex === -1) selectedQueryPlan = aggregateData(queryPlan);
+
   const filteredMeasures = Object.entries(
     selectedQueryPlan.querySummary.measures,
   ).filter(
@@ -97,24 +92,11 @@ export default function SummaryPage(): ReactElement {
         <Grid2 container spacing={2}>
           <Card
             style={{
-              backgroundColor: isDataAggregated
-                ? "rgb(40, 40, 40)"
-                : "rgb(20, 20, 20)",
+              backgroundColor:
+                selectedIndex === -1 ? "rgb(40, 40, 40)" : "rgb(20, 20, 20)",
             }}
           >
             <CardContent>
-              <Typography display="flex" alignItems="center">
-                Aggregate all parts
-                <Tooltip title="Toggle this switch to aggregate all the data in one single page. Measures appearing twice will be excluded">
-                  <IconButton size="small" style={{ marginLeft: 8 }}>
-                    <InfoIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              </Typography>
-              <Switch
-                checked={isDataAggregated}
-                onChange={() => setIsDataAggregated((prev) => !prev)}
-              />
               <Typography>There are {queryPlan.length} Select Pass</Typography>
             </CardContent>
           </Card>
@@ -557,7 +539,7 @@ export default function SummaryPage(): ReactElement {
             </Grid2>
             {/* Line 3*/}
 
-            {!isDataAggregated && (
+            {selectedIndex !== -1 && (
               <Grid2 container padding={1} spacing={2} justifyContent="center">
                 <Grid2 padding={1} spacing={1}>
                   <Box
