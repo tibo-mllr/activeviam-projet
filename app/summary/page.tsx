@@ -95,13 +95,7 @@ export default function SummaryPage(): ReactElement {
       {/* Aggregation option, only if several pass*/}
       {queryPlan.length >= 2 && (
         <Grid2 container spacing={2}>
-          <Card
-            style={{
-              backgroundColor: isDataAggregated
-                ? "rgb(40, 40, 40)"
-                : "rgb(20, 20, 20)",
-            }}
-          >
+          <Card>
             <CardContent>
               <Typography display="flex" alignItems="center">
                 Aggregate all parts
