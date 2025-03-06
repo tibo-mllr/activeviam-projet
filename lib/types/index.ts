@@ -4,7 +4,8 @@ export * from "./timeline";
 export type ProcessedNode = {
   id: number;
   type: "Aggregate" | "Database";
-  timing: number;
+  maxTiming: number;
+  totalTiming: number;
   parallelCount: number;
   mean: number;
   stdDev: number;

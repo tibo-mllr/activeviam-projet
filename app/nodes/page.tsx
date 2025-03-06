@@ -9,6 +9,7 @@ import {
   emptyAggregateRetrieval,
   ProcessedNode,
 } from "@/lib/types";
+import InfoIcon from "@mui/icons-material/Info";
 import {
   Box,
   Table,
@@ -25,6 +26,8 @@ import {
   TableSortLabel,
   FormControlLabel,
   Switch,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
 import { ReactElement, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -34,7 +37,8 @@ export default function NodesPage(): ReactElement {
   const selectedIndex = useSelector(getSelectedIndex);
 
   const [numberOfNodes, setNumberOfNodes] = useState<number>(10);
-  const [sortColumn, setSortColumn] = useState<keyof ProcessedNode>("timing");
+  const [sortColumn, setSortColumn] =
+    useState<keyof ProcessedNode>("totalTiming");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [displayedNodes, setDisplayedNodes] = useState<ProcessedNode[]>([]);
   const [showDialog, setShowDialog] = useState<boolean>(false);
@@ -137,26 +141,59 @@ export default function NodesPage(): ReactElement {
           <TableHead>
             <TableRow>
               {[
-                { id: "id", label: "Node ID" },
-                { id: "timing", label: "Timing (ms)" },
-                { id: "mean", label: "Average (ms)" },
-                { id: "stdDev", label: "Std Dev (ms)" },
-                { id: "parallelCount", label: "Parallel Count" },
+                {
+                  id: "id",
+                  label: "Node ID",
+                  tooltip: "Unique identifier for the node in the query plan",
+                },
+                {
+                  id: "maxTiming",
+                  label: "Max Timing (ms)",
+                  tooltip:
+                    "Maximum execution time among all partitions of this node",
+                },
+                {
+                  id: "totalTiming",
+                  label: "Total Timing (ms)",
+                  tooltip:
+                    "Total elapsed time from the start of the first partition to the end of the last partition",
+                },
+                {
+                  id: "mean",
+                  label: "Average (ms)",
+                  tooltip:
+                    "Mean execution time across all partitions of this node",
+                },
+                {
+                  id: "stdDev",
+                  label: "Std Dev (ms)",
+                  tooltip:
+                    "Standard deviation of execution times across partitions, indicating variability.",
+                },
+                {
+                  id: "parallelCount",
+                  label: "Parallel Count",
+                  tooltip:
+                    "Number of partitions executed in parallel for this node",
+                },
               ].map((column) => (
                 <TableCell
                   key={column.id}
-                  align={
-                    column.id === "id" || column.id === "type"
-                      ? "left"
-                      : "right"
-                  }
+                  align={column.id === "id" ? "left" : "right"}
                 >
                   <TableSortLabel
                     active={sortColumn === column.id}
                     direction={sortOrder}
                     onClick={() => handleSort(column.id as keyof ProcessedNode)}
                   >
-                    {column.label}
+                    <Typography display="flex" alignItems="center">
+                      {column.label}
+                      <Tooltip title={column.tooltip}>
+                        <IconButton size="small">
+                          <InfoIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </Typography>
                   </TableSortLabel>
                 </TableCell>
               ))}
@@ -176,7 +213,10 @@ export default function NodesPage(): ReactElement {
                 }}
               >
                 <TableCell>{`${node.type} ${node.id}`}</TableCell>
-                <TableCell align="right">{node.timing.toFixed(2)}</TableCell>
+                <TableCell align="right">{node.maxTiming.toFixed(2)}</TableCell>
+                <TableCell align="right">
+                  {node.totalTiming.toFixed(2)}
+                </TableCell>
                 <TableCell align="right">{node.mean.toFixed(2)}</TableCell>
                 <TableCell align="right">{node.stdDev.toFixed(2)}</TableCell>
                 <TableCell align="right">{node.parallelCount}</TableCell>

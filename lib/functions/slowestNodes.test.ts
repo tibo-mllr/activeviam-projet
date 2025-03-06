@@ -79,7 +79,8 @@ describe("getSlowestNodes", () => {
       {
         id: 0,
         type: "Aggregate",
-        timing: 37,
+        maxTiming: 37,
+        totalTiming: 37,
         mean: 37,
         stdDev: 0,
         parallelCount: 1,
@@ -96,7 +97,8 @@ describe("getSlowestNodes", () => {
       {
         id: 1,
         type: "Database",
-        timing: 25,
+        maxTiming: 20,
+        totalTiming: 25,
         mean: 15,
         stdDev: 5,
         parallelCount: 2,
@@ -113,7 +115,8 @@ describe("getSlowestNodes", () => {
       {
         id: 0,
         type: "Aggregate",
-        timing: 37,
+        maxTiming: 37,
+        totalTiming: 37,
         mean: 37,
         stdDev: 0,
         parallelCount: 1,
@@ -121,7 +124,8 @@ describe("getSlowestNodes", () => {
       {
         id: 1,
         type: "Database",
-        timing: 25,
+        maxTiming: 20,
+        totalTiming: 25,
         mean: 15,
         stdDev: 5,
         parallelCount: 2,
