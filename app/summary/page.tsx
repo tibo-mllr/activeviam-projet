@@ -89,16 +89,6 @@ export default function SummaryPage(): ReactElement {
       <Typography variant="h4" gutterBottom>
         Summary information
       </Typography>
-      {/* Aggregation option, only if several pass*/}
-      {queryPlan.length >= 2 && (
-        <Grid2 container spacing={2}>
-          <Card>
-            <CardContent>
-              <Typography>There are {queryPlan.length} Select Pass</Typography>
-            </CardContent>
-          </Card>
-        </Grid2>
-      )}
       {/* Principal card*/}
       <Card>
         <CardContent>
