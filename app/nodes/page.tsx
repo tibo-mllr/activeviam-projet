@@ -1,7 +1,7 @@
 "use client";
 
 import { RetrievalDialog } from "@/components";
-import { getSlowestNodes } from "@/lib/functions";
+import { aggregateData, getSlowestNodes } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
   AggregateRetrieval,
@@ -23,6 +23,8 @@ import {
   Grid2,
   Slider,
   TableSortLabel,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
 import { ReactElement, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -36,6 +38,7 @@ export default function NodesPage(): ReactElement {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [displayedNodes, setDisplayedNodes] = useState<ProcessedNode[]>([]);
   const [showDialog, setShowDialog] = useState<boolean>(false);
+  const [isDataAggregated, setIsDataAggregated] = useState<boolean>(false);
   const [selectedRetrieval, setSelectedRetrieval] = useState<
     AggregateRetrieval | DatabaseRetrieval
   >(emptyAggregateRetrieval);
@@ -59,7 +62,10 @@ export default function NodesPage(): ReactElement {
     );
   }
 
-  const { aggregateRetrievals, databaseRetrievals } = queryPlan[selectedIndex];
+  let selectedQueryPlan = queryPlan[selectedIndex];
+  if (isDataAggregated) selectedQueryPlan = aggregateData(queryPlan);
+
+  const { aggregateRetrievals, databaseRetrievals } = selectedQueryPlan;
 
   const handleSort = (column: keyof ProcessedNode): void => {
     const isAsc = sortColumn === column && sortOrder === "asc";
@@ -95,17 +101,35 @@ export default function NodesPage(): ReactElement {
         Top {numberOfNodes} Slowest Nodes
       </Typography>
 
-      <Grid2>
-        <InputLabel id="query-plan-select-number-of-nodes">
-          Select the number of nodes
-        </InputLabel>
-        <Slider
-          sx={{ width: { xs: "100%", md: "30%" } }}
-          value={numberOfNodes}
-          onChange={(_event, value) => setNumberOfNodes(value as number)}
-          min={1}
-          max={aggregateRetrievals.length + databaseRetrievals.length}
-        />
+      <Grid2 container flexDirection="row" spacing={2} marginBottom={2}>
+        <Grid2 size={{ xs: 12, md: 4 }} marginRight={4}>
+          <InputLabel id="query-plan-select-number-of-nodes">
+            Select the number of nodes
+          </InputLabel>
+          <Slider
+            value={numberOfNodes}
+            onChange={(_event, value) => setNumberOfNodes(value as number)}
+            min={1}
+            max={aggregateRetrievals.length + databaseRetrievals.length}
+          />
+        </Grid2>
+        <Grid2>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={isDataAggregated}
+                onChange={() => setIsDataAggregated((prev) => !prev)}
+              />
+            }
+            label="Aggregate all passes"
+            sx={{
+              borderWidth: 1,
+              borderColor: "primary.main",
+              borderRadius: 2,
+              padding: 1,
+            }}
+          />
+        </Grid2>
       </Grid2>
 
       <TableContainer component={Paper}>
