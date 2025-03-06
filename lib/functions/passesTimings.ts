@@ -28,8 +28,6 @@ function passTiming(pass: QueryPlan): PassTiming {
     .map(getMaxRetrievalTimings)
     .concat(pass.databaseRetrievals.map(getMaxRetrievalTimings));
 
-  console.log(pass.planInfo.mdxPass, maxRetrievalTimings);
-
   return {
     passName: pass.planInfo.mdxPass,
     totalTiming: Math.max(...maxRetrievalTimings, 0),
