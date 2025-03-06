@@ -121,7 +121,7 @@ export default function NodesPage(): ReactElement {
                 onChange={() => setIsDataAggregated((prev) => !prev)}
               />
             }
-            label="Aggregate passes on the same timeline"
+            label="Aggregate all passes"
             sx={{
               borderWidth: 1,
               borderColor: "primary.main",
