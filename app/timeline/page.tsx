@@ -7,12 +7,13 @@ import {
   TimelineFooter,
   TimelineLegend,
 } from "@/components";
-import { adjustTimings, buildTimeline } from "@/lib/functions";
+import { aggregateData, buildTimeline } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
   AggregateRetrieval,
   DatabaseRetrieval,
   emptyAggregateRetrieval,
+  QueryPlan,
   TimingType,
 } from "@/lib/types";
 import {
@@ -114,15 +115,11 @@ export default function TimelinePage(): ReactElement {
 
   if (!queryPlan) return <>Please send a query to see the graph</>;
 
-  const adjustedQueryPlan = adjustTimings(queryPlan);
+  let selectedQueryPlan: QueryPlan;
+  if (combinePasses) selectedQueryPlan = aggregateData(queryPlan);
+  else selectedQueryPlan = queryPlan[selectedIndex];
 
-  const aggregateRetrievals = combinePasses
-    ? adjustedQueryPlan.flatMap((qp) => qp.aggregateRetrievals)
-    : queryPlan[selectedIndex].aggregateRetrievals;
-
-  const databaseRetrievals = combinePasses
-    ? adjustedQueryPlan.flatMap((qp) => qp.databaseRetrievals)
-    : queryPlan[selectedIndex].databaseRetrievals;
+  const { aggregateRetrievals, databaseRetrievals } = selectedQueryPlan;
 
   const openRetrievalDialog = (retrievalId: number, type: TimingType): void => {
     let retrieval: AggregateRetrieval | DatabaseRetrieval | undefined;

@@ -3,7 +3,7 @@ import {
   emptyAggregateRetrieval,
   emptyQueryPlan,
   QueryPlan,
-} from "../types";
+} from "@/lib/types";
 import { adjustTimings } from "./adjustTimings";
 
 const aggregateRetrievals: AggregateRetrieval[] = [

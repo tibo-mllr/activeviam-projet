@@ -1,8 +1,11 @@
-import { AggregateRetrieval, DatabaseRetrieval, QueryPlan } from "../types";
+import { AggregateRetrieval, DatabaseRetrieval, QueryPlan } from "@/lib/types";
+import { adjustTimings } from "./adjustTimings";
 
 // the objective is to return an object of type QueryPlan that contains all the data
 // the page will be able to display it.
 export function aggregateData(queryPlan: QueryPlan[]): QueryPlan {
+  const adjustedQueryPlan = adjustTimings(queryPlan);
+
   let aggregatedMeasures: string[] = [];
   let aggregatedPartialProviders: string[] = [];
   const aggregatedRetrievalsCountsByType: Record<string, number> = {};
@@ -11,7 +14,7 @@ export function aggregateData(queryPlan: QueryPlan[]): QueryPlan {
   const aggregatedAggregateRetrievals: AggregateRetrieval[] = [];
   const aggregatedDatabaseRetrievals: DatabaseRetrieval[] = [];
 
-  queryPlan.forEach((element) => {
+  adjustedQueryPlan.forEach((element) => {
     // aggregating unique measures (excluding if appears twice)
     aggregatedMeasures = Array.from(
       new Set([
