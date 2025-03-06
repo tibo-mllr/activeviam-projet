@@ -14,7 +14,11 @@ type CoreProcessesProps = {
   core: number;
   timings: TimelineTiming[];
   scale: number;
-  openRetrievalDialog: (retrievalId: number, type: TimingType) => void;
+  openRetrievalDialog: (
+    retrievalId: number,
+    type: TimingType,
+    pass: string,
+  ) => void;
   timeMode: boolean;
   minDuration: number;
   maxDuration: number;
@@ -55,9 +59,9 @@ export function CoreProcesses({
       borderRadius={2}
       overflow="hidden"
     >
-      {timings.map(({ start, end, retrievalId, type }) => (
+      {timings.map(({ start, end, retrievalId, type, pass }) => (
         <Tooltip
-          key={`${core}-${start}-${end}`}
+          key={`${pass}-${core}-${start}-${end}`}
           title={
             <>
               Retrieval ID: {retrievalId},<br />
@@ -82,7 +86,7 @@ export function CoreProcesses({
                   ? getColor(start, end)
                   : TIMELINE_COLORS[type]
             }
-            onClick={() => openRetrievalDialog(retrievalId, type)}
+            onClick={() => openRetrievalDialog(retrievalId, type, pass)}
           />
         </Tooltip>
       ))}

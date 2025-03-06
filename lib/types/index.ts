@@ -9,6 +9,7 @@ export type ProcessedNode = {
   parallelCount: number;
   mean: number;
   stdDev: number;
+  pass: string;
 };
 
 type PiePartData = {

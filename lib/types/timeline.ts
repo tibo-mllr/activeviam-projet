@@ -9,6 +9,7 @@ export type TimelineTiming = {
   retrievalId: number;
   start: number;
   end: number;
+  pass: string;
 };
 
 export type Timeline = Record<number, TimelineTiming[]>;

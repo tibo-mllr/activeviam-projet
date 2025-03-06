@@ -37,6 +37,7 @@ export default function PlanSelector(): ReactElement {
             {queryPlan[index].planInfo.mdxPass}
           </MenuItem>
         ))}
+        {queryPlan.length > 1 && <MenuItem value={-1}>All Plans</MenuItem>}
       </Select>
     </FormControl>
   );

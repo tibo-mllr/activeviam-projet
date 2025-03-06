@@ -1,17 +1,46 @@
 import {
-  AggregateRetrieval,
-  DatabaseRetrieval,
+  AggregatedAggregateRetrieval,
+  AggregatedDatabaseRetrieval,
+  AggregatedQueryPlan,
+  QueryPlan,
   Timeline,
   TimelineTiming,
 } from "@/lib/types";
 
 export function buildTimeline(
-  aggregateRetrievals: AggregateRetrieval[],
-  databaseRetrievals: DatabaseRetrieval[],
+  queryPlan: QueryPlan | AggregatedQueryPlan,
 ): Timeline & { nbCores: number; minDuration: number; maxDuration: number } {
   let maxCores: number = 0;
   let minDuration: number = Number.MAX_SAFE_INTEGER;
   let maxDuration: number = 0;
+
+  let aggregateRetrievals: AggregatedAggregateRetrieval[];
+  let databaseRetrievals: AggregatedDatabaseRetrieval[];
+
+  // If the queryPlan is an AggregatedQueryPlan, the aggregateRetrievals and databaseRetrievals
+  // are already aggregated, so we don't need to do it again.
+  if (
+    queryPlan.aggregateRetrievals?.length &&
+    "pass" in queryPlan.aggregateRetrievals[0]
+  ) {
+    aggregateRetrievals =
+      queryPlan.aggregateRetrievals as AggregatedAggregateRetrieval[];
+    databaseRetrievals =
+      queryPlan.databaseRetrievals as AggregatedDatabaseRetrieval[];
+  } else {
+    aggregateRetrievals = (queryPlan.aggregateRetrievals ?? []).map(
+      (retrieval) => ({
+        ...retrieval,
+        pass: queryPlan.planInfo.mdxPass,
+      }),
+    );
+    databaseRetrievals = (queryPlan.databaseRetrievals ?? []).map(
+      (retrieval) => ({
+        ...retrieval,
+        pass: queryPlan.planInfo.mdxPass,
+      }),
+    );
+  }
 
   const allTimings: TimelineTiming[] = [];
 
@@ -48,6 +77,7 @@ export function buildTimeline(
               end: value + elapsedTime,
               retrievalId,
               type: "AggregateRetrieval",
+              pass: aggregateRetrieval.pass,
             });
         });
       } else if (key === "executionContextStartTime") {
@@ -59,6 +89,7 @@ export function buildTimeline(
               end: value + elapsedTime,
               retrievalId,
               type: "AggregateRetrievalExecutionContext",
+              pass: aggregateRetrieval.pass,
             });
         });
       }
@@ -98,6 +129,7 @@ export function buildTimeline(
               end: value + elapsedTime,
               retrievalId,
               type: "DatabaseRetrieval",
+              pass: databaseRetrieval.pass,
             });
         });
       } else if (key === "executionContextStartTime") {
@@ -109,6 +141,7 @@ export function buildTimeline(
               end: value + elapsedTime,
               retrievalId,
               type: "DatabaseRetrievalExecutionContext",
+              pass: databaseRetrieval.pass,
             });
         });
       }

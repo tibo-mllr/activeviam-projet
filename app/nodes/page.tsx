@@ -4,10 +4,14 @@ import { RetrievalDialog } from "@/components";
 import { aggregateData, getSlowestNodes } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
+  AggregatedAggregateRetrieval,
+  AggregatedDatabaseRetrieval,
+  AggregatedQueryPlan,
   AggregateRetrieval,
   DatabaseRetrieval,
   emptyAggregateRetrieval,
   ProcessedNode,
+  QueryPlan,
 } from "@/lib/types";
 import InfoIcon from "@mui/icons-material/Info";
 import {
@@ -24,8 +28,6 @@ import {
   Grid2,
   Slider,
   TableSortLabel,
-  FormControlLabel,
-  Switch,
   Tooltip,
   IconButton,
 } from "@mui/material";
@@ -42,20 +44,16 @@ export default function NodesPage(): ReactElement {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [displayedNodes, setDisplayedNodes] = useState<ProcessedNode[]>([]);
   const [showDialog, setShowDialog] = useState<boolean>(false);
-  const [isDataAggregated, setIsDataAggregated] = useState<boolean>(false);
   const [selectedRetrieval, setSelectedRetrieval] = useState<
     AggregateRetrieval | DatabaseRetrieval
   >(emptyAggregateRetrieval);
 
   useEffect(() => {
     if (queryPlan && queryPlan.length > 0) {
-      const { aggregateRetrievals, databaseRetrievals } =
-        queryPlan[selectedIndex];
-      const nodes = getSlowestNodes(
-        aggregateRetrievals,
-        databaseRetrievals,
-        numberOfNodes,
-      );
+      let selectedQueryPlan: QueryPlan | AggregatedQueryPlan;
+      if (selectedIndex === -1) selectedQueryPlan = aggregateData(queryPlan);
+      else selectedQueryPlan = queryPlan[selectedIndex];
+      const nodes = getSlowestNodes(selectedQueryPlan, numberOfNodes);
       setDisplayedNodes(nodes);
     }
   }, [queryPlan, selectedIndex, numberOfNodes]);
@@ -66,8 +64,9 @@ export default function NodesPage(): ReactElement {
     );
   }
 
-  let selectedQueryPlan = queryPlan[selectedIndex];
-  if (isDataAggregated) selectedQueryPlan = aggregateData(queryPlan);
+  let selectedQueryPlan: QueryPlan | AggregatedQueryPlan;
+  if (selectedIndex === -1) selectedQueryPlan = aggregateData(queryPlan);
+  else selectedQueryPlan = queryPlan[selectedIndex];
 
   const { aggregateRetrievals, databaseRetrievals } = selectedQueryPlan;
 
@@ -91,10 +90,22 @@ export default function NodesPage(): ReactElement {
   ): AggregateRetrieval | DatabaseRetrieval => {
     const retrievalId = node.id;
 
+    if (selectedIndex !== -1) {
+      const retrieval =
+        node.type == "Aggregate"
+          ? aggregateRetrievals.find((r) => r.retrievalId === retrievalId)
+          : databaseRetrievals.find((r) => r.retrievalId === retrievalId);
+
+      return retrieval || emptyAggregateRetrieval;
+    }
     const retrieval =
       node.type == "Aggregate"
-        ? aggregateRetrievals.find((r) => r.retrievalId === retrievalId)
-        : databaseRetrievals.find((r) => r.retrievalId === retrievalId);
+        ? (aggregateRetrievals as AggregatedAggregateRetrieval[]).find(
+            (r) => r.retrievalId === retrievalId && r.pass === node.pass,
+          )
+        : (databaseRetrievals as AggregatedDatabaseRetrieval[]).find(
+            (r) => r.retrievalId === retrievalId && r.pass === node.pass,
+          );
 
     return retrieval || emptyAggregateRetrieval;
   };
@@ -105,35 +116,17 @@ export default function NodesPage(): ReactElement {
         Top {numberOfNodes} Slowest Nodes
       </Typography>
 
-      <Grid2 container flexDirection="row" spacing={2} marginBottom={2}>
-        <Grid2 size={{ xs: 12, md: 4 }} marginRight={4}>
-          <InputLabel id="query-plan-select-number-of-nodes">
-            Select the number of nodes
-          </InputLabel>
-          <Slider
-            value={numberOfNodes}
-            onChange={(_event, value) => setNumberOfNodes(value as number)}
-            min={1}
-            max={aggregateRetrievals.length + databaseRetrievals.length}
-          />
-        </Grid2>
-        <Grid2>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={isDataAggregated}
-                onChange={() => setIsDataAggregated((prev) => !prev)}
-              />
-            }
-            label="Aggregate all passes"
-            sx={{
-              borderWidth: 1,
-              borderColor: "primary.main",
-              borderRadius: 2,
-              padding: 1,
-            }}
-          />
-        </Grid2>
+      <Grid2>
+        <InputLabel id="query-plan-select-number-of-nodes">
+          Select the number of nodes
+        </InputLabel>
+        <Slider
+          sx={{ width: { xs: "100%", md: "30%" } }}
+          value={numberOfNodes}
+          onChange={(_event, value) => setNumberOfNodes(value as number)}
+          min={1}
+          max={aggregateRetrievals.length + databaseRetrievals.length}
+        />
       </Grid2>
 
       <TableContainer component={Paper}>
@@ -202,7 +195,7 @@ export default function NodesPage(): ReactElement {
           <TableBody>
             {displayedNodes.map((node) => (
               <TableRow
-                key={`${node.type} ${node.id}`}
+                key={`${node.pass} ${node.type} ${node.id}`}
                 onClick={() => {
                   setSelectedRetrieval(getRetrievalFromNode(node));
                   setShowDialog(true);
@@ -212,7 +205,10 @@ export default function NodesPage(): ReactElement {
                   "&:hover": { bgcolor: "rgba(0, 0, 0, 0.04)" },
                 }}
               >
-                <TableCell>{`${node.type} ${node.id}`}</TableCell>
+                <TableCell>
+                  {selectedIndex === -1 && `${node.pass} `}
+                  {node.type} {node.id}
+                </TableCell>
                 <TableCell align="right">{node.maxTiming.toFixed(2)}</TableCell>
                 <TableCell align="right">
                   {node.totalTiming.toFixed(2)}

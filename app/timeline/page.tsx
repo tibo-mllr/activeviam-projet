@@ -10,6 +10,8 @@ import {
 import { aggregateData, buildTimeline } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
+  AggregatedAggregateRetrieval,
+  AggregatedDatabaseRetrieval,
   AggregateRetrieval,
   DatabaseRetrieval,
   emptyAggregateRetrieval,
@@ -19,7 +21,6 @@ import {
 import {
   Box,
   Button,
-  FormControlLabel,
   FormGroup,
   Grid2,
   Input,
@@ -33,7 +34,6 @@ import { useSelector } from "react-redux";
 export default function TimelinePage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
   const selectedIndex = useSelector(getSelectedIndex);
-  const [combinePasses, setCombinePasses] = useState<boolean>(false);
 
   const [showDialog, setShowDialog] = useState<boolean>(false);
   const [timeMode, setTimeMode] = useState<boolean>(false);
@@ -116,19 +116,37 @@ export default function TimelinePage(): ReactElement {
   if (!queryPlan) return <>Please send a query to see the graph</>;
 
   let selectedQueryPlan: QueryPlan;
-  if (combinePasses) selectedQueryPlan = aggregateData(queryPlan);
+  if (selectedIndex == -1) selectedQueryPlan = aggregateData(queryPlan);
   else selectedQueryPlan = queryPlan[selectedIndex];
 
   const { aggregateRetrievals, databaseRetrievals } = selectedQueryPlan;
 
-  const openRetrievalDialog = (retrievalId: number, type: TimingType): void => {
+  const openRetrievalDialog = (
+    retrievalId: number,
+    type: TimingType,
+    pass: string,
+  ): void => {
     let retrieval: AggregateRetrieval | DatabaseRetrieval | undefined;
-    if (type.startsWith("AggregateRetrieval"))
-      retrieval = aggregateRetrievals.find(
-        (r) => r.retrievalId === retrievalId,
-      );
-    else if (type.startsWith("DatabaseRetrieval"))
-      retrieval = databaseRetrievals.find((r) => r.retrievalId === retrievalId);
+
+    if (selectedIndex !== -1) {
+      if (type.startsWith("AggregateRetrieval"))
+        retrieval = aggregateRetrievals.find(
+          (r) => r.retrievalId === retrievalId,
+        );
+      else if (type.startsWith("DatabaseRetrieval"))
+        retrieval = databaseRetrievals.find(
+          (r) => r.retrievalId === retrievalId,
+        );
+    } else {
+      if (type.startsWith("AggregateRetrieval"))
+        retrieval = (
+          aggregateRetrievals as AggregatedAggregateRetrieval[]
+        ).find((r) => r.retrievalId === retrievalId && r.pass === pass);
+      else if (type.startsWith("DatabaseRetrieval"))
+        retrieval = (databaseRetrievals as AggregatedDatabaseRetrieval[]).find(
+          (r) => r.retrievalId === retrievalId && r.pass === pass,
+        );
+    }
 
     if (retrieval) {
       setSelectedRetrieval(retrieval);
@@ -136,7 +154,7 @@ export default function TimelinePage(): ReactElement {
     }
   };
 
-  const timeline = buildTimeline(aggregateRetrievals, databaseRetrievals);
+  const timeline = buildTimeline(selectedQueryPlan);
 
   const { nbCores, maxDuration, minDuration, ...coresTimeline } = timeline;
 
@@ -173,21 +191,6 @@ export default function TimelinePage(): ReactElement {
         marginTop={2}
         marginBottom={2}
       >
-        <FormControlLabel
-          control={
-            <Switch
-              checked={combinePasses}
-              onChange={() => setCombinePasses(!combinePasses)}
-            />
-          }
-          label="Aggregate passes on the same timeline"
-          sx={{
-            borderWidth: 1,
-            borderColor: "primary.main",
-            borderRadius: 2,
-            padding: 1,
-          }}
-        />
         <FormGroup
           row
           sx={{
