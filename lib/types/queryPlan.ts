@@ -23,6 +23,10 @@ const planInfoSchema = z.object({
   continuous: z.boolean().default(false),
 });
 
+export type PlanInfo = z.infer<typeof planInfoSchema>;
+
+export const emptyPlanInfo: PlanInfo = planInfoSchema.parse({});
+
 const locationSchema = z.object({
   dimension: z.string().default(""),
   hierarchy: z.string().default(""),
@@ -72,6 +76,8 @@ export type DatabaseRetrieval = z.infer<typeof databaseRetrievalSchema>;
 export type AggregatedDatabaseRetrieval = DatabaseRetrieval & {
   pass: string;
 };
+export const emptyDatabaseRetrieval: DatabaseRetrieval =
+  databaseRetrievalSchema.parse({});
 
 const dependenciesSchema = z
   .record(z.string(), z.array(z.number()))
