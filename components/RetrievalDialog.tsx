@@ -12,8 +12,6 @@ import {
   ListItem,
   ListItemText,
   Divider,
-  Switch,
-  Tooltip,
 } from "@mui/material";
 import { type ReactElement } from "react";
 
