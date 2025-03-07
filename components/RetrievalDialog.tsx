@@ -1,5 +1,3 @@
-"use client";
-
 import { AggregateRetrieval, DatabaseRetrieval } from "@/lib/types";
 import { Close } from "@mui/icons-material";
 import {
@@ -17,7 +15,7 @@ import {
   Switch,
   Tooltip,
 } from "@mui/material";
-import { type ReactElement, useState } from "react";
+import { type ReactElement } from "react";
 
 type RetrievalDialogProps = {
   retrieval: AggregateRetrieval | DatabaseRetrieval;
