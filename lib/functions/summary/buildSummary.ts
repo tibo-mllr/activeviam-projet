@@ -50,7 +50,7 @@ export function buildSummary(queryPlan: QueryPlan): Summary {
 
   // Filling the records
   aggregateRetrievals.forEach(({ timingInfo, type }) => {
-    const elapsedTimeSum = timingInfo.elapsedTime.reduce(
+    const elapsedTimeSum = (timingInfo.elapsedTime ?? []).reduce(
       (acc, num) => acc + num,
       0,
     );
@@ -88,7 +88,7 @@ export function buildSummary(queryPlan: QueryPlan): Summary {
   });
 
   databaseRetrievals.forEach(({ timingInfo }) => {
-    const databaseRetrievalsElapsedTime = timingInfo.elapsedTime.reduce(
+    const databaseRetrievalsElapsedTime = (timingInfo.elapsedTime ?? []).reduce(
       (acc, num) => acc + num,
       0,
     );

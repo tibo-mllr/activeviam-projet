@@ -29,6 +29,9 @@ export function Header(): ReactElement {
               <Link href="/nodes">
                 <Button variant="outlined">Nodes</Button>
               </Link>
+              <Link href="/passes">
+                <Button variant="outlined">Passes</Button>
+              </Link>
             </>
           )}
           <div className="py-3 ml-auto">

@@ -1,17 +1,25 @@
-import { AggregateRetrieval, DatabaseRetrieval, QueryPlan } from "../types";
+import {
+  AggregatedAggregateRetrieval,
+  AggregatedDatabaseRetrieval,
+  AggregatedQueryPlan,
+  QueryPlan,
+} from "@/lib/types";
+import { adjustTimings } from "./adjustTimings";
 
 // the objective is to return an object of type QueryPlan that contains all the data
 // the page will be able to display it.
-export function aggregateData(queryPlan: QueryPlan[]): QueryPlan {
+export function aggregateData(queryPlan: QueryPlan[]): AggregatedQueryPlan {
+  const adjustedQueryPlan = adjustTimings(queryPlan);
+
   let aggregatedMeasures: string[] = [];
   let aggregatedPartialProviders: string[] = [];
   const aggregatedRetrievalsCountsByType: Record<string, number> = {};
   const aggregatedGlobalTimings: Record<string, number> = {};
   let aggregatedTotalRetrievals: number = 0;
-  const aggregatedAggregateRetrievals: AggregateRetrieval[] = [];
-  const aggregatedDatabaseRetrievals: DatabaseRetrieval[] = [];
+  const aggregatedAggregateRetrievals: AggregatedAggregateRetrieval[] = [];
+  const aggregatedDatabaseRetrievals: AggregatedDatabaseRetrieval[] = [];
 
-  queryPlan.forEach((element) => {
+  adjustedQueryPlan.forEach((element) => {
     // aggregating unique measures (excluding if appears twice)
     aggregatedMeasures = Array.from(
       new Set([
@@ -47,12 +55,22 @@ export function aggregateData(queryPlan: QueryPlan[]): QueryPlan {
     aggregatedTotalRetrievals += element.querySummary.totalRetrievals;
 
     // aggregating aggregate retrievals data
-    aggregatedAggregateRetrievals.push(...element.aggregateRetrievals);
+    aggregatedAggregateRetrievals.push(
+      ...element.aggregateRetrievals.map((retrieval) => ({
+        ...retrieval,
+        pass: element.planInfo.mdxPass,
+      })),
+    );
     // aggregating database retrievals data
-    aggregatedDatabaseRetrievals.push(...element.databaseRetrievals);
+    aggregatedDatabaseRetrievals.push(
+      ...element.databaseRetrievals.map((retrieval) => ({
+        ...retrieval,
+        pass: element.planInfo.mdxPass,
+      })),
+    );
   });
 
-  const aggregatedQueryPlan: QueryPlan = {
+  const aggregatedQueryPlan: AggregatedQueryPlan = {
     planInfo: {
       pivotType: "",
       pivotId: "",

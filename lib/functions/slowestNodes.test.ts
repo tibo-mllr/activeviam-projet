@@ -1,6 +1,7 @@
 import {
   AggregateRetrieval,
   DatabaseRetrieval,
+  emptyQueryPlan,
   ProcessedNode,
 } from "@/lib/types";
 import { getSlowestNodes } from "./slowestNodes";
@@ -68,21 +69,26 @@ const databaseRetrievals: DatabaseRetrieval[] = [
 
 describe("getSlowestNodes", () => {
   it("gives nothing when given nothing", () => {
-    const result = getSlowestNodes([], [], 1);
+    const result = getSlowestNodes(emptyQueryPlan, 1);
     expect(result).toEqual([]);
   });
 
   it("gives the slowest node when given one", () => {
-    const result = getSlowestNodes(aggregateRetrievals, [], 1);
+    const result = getSlowestNodes(
+      { ...emptyQueryPlan, aggregateRetrievals },
+      1,
+    );
 
     const expected: ProcessedNode[] = [
       {
         id: 0,
         type: "Aggregate",
-        timing: 37,
+        maxTiming: 37,
+        totalTiming: 37,
         mean: 37,
         stdDev: 0,
         parallelCount: 1,
+        pass: "",
       },
     ];
 
@@ -90,16 +96,21 @@ describe("getSlowestNodes", () => {
   });
 
   it("gives the slowest node when given two", () => {
-    const result = getSlowestNodes([], databaseRetrievals, 1);
+    const result = getSlowestNodes(
+      { ...emptyQueryPlan, databaseRetrievals },
+      1,
+    );
 
     const expected: ProcessedNode[] = [
       {
         id: 1,
         type: "Database",
-        timing: 25,
+        maxTiming: 20,
+        totalTiming: 25,
         mean: 15,
         stdDev: 5,
         parallelCount: 2,
+        pass: "",
       },
     ];
 
@@ -107,24 +118,31 @@ describe("getSlowestNodes", () => {
   });
 
   it("gives the slowest nodes", () => {
-    const result = getSlowestNodes(aggregateRetrievals, databaseRetrievals, 2);
+    const result = getSlowestNodes(
+      { ...emptyQueryPlan, aggregateRetrievals, databaseRetrievals },
+      2,
+    );
 
     const expected: ProcessedNode[] = [
       {
         id: 0,
         type: "Aggregate",
-        timing: 37,
+        maxTiming: 37,
+        totalTiming: 37,
         mean: 37,
         stdDev: 0,
         parallelCount: 1,
+        pass: "",
       },
       {
         id: 1,
         type: "Database",
-        timing: 25,
+        maxTiming: 20,
+        totalTiming: 25,
         mean: 15,
         stdDev: 5,
         parallelCount: 2,
+        pass: "",
       },
     ];
 

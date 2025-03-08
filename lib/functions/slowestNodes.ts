@@ -1,7 +1,9 @@
 import {
-  AggregateRetrieval,
-  DatabaseRetrieval,
+  AggregatedAggregateRetrieval,
+  AggregatedDatabaseRetrieval,
+  AggregatedQueryPlan,
   ProcessedNode,
+  QueryPlan,
   TimingInfo,
 } from "@/lib/types";
 
@@ -13,16 +15,21 @@ function calculateStandardDeviation(values: number[], mean: number): number {
 }
 
 function computeTimingDetails(timingInfo: TimingInfo): {
+  maxTiming: number;
   totalTiming: number;
   meanTiming: number;
   stdDevTiming: number;
   parallelCount: number;
 } {
-  const startTimes: number[] = timingInfo.startTime;
-  const elapsedTimes: number[] = timingInfo.elapsedTime;
+  const startTimes: number[] = timingInfo.startTime ?? [];
+  const elapsedTimes: number[] = timingInfo.elapsedTime ?? [];
 
-  if (startTimes.length != elapsedTimes.length) {
+  if (
+    (startTimes.length === 0 && elapsedTimes.length === 0) ||
+    startTimes.length != elapsedTimes.length
+  ) {
     return {
+      maxTiming: 0,
       totalTiming: 0,
       meanTiming: 0,
       stdDevTiming: 0,
@@ -42,7 +49,10 @@ function computeTimingDetails(timingInfo: TimingInfo): {
     elapsedTimes.reduce((sum, time) => sum + time, 0) / elapsedTimes.length;
   const stdDevTiming = calculateStandardDeviation(elapsedTimes, meanTiming);
 
+  const maxTiming = Math.max(...elapsedTimes);
+
   return {
+    maxTiming,
     totalTiming,
     meanTiming,
     stdDevTiming,
@@ -51,36 +61,92 @@ function computeTimingDetails(timingInfo: TimingInfo): {
 }
 
 export function getSlowestNodes(
-  aggregateRetrievals: AggregateRetrieval[],
-  databaseRetrievals: DatabaseRetrieval[],
+  queryPlan: QueryPlan | AggregatedQueryPlan,
   numberOfNodes: number,
 ): ProcessedNode[] {
-  const aggregateNodes: ProcessedNode[] = aggregateRetrievals.map((node) => {
-    const { totalTiming, meanTiming, stdDevTiming, parallelCount } =
-      computeTimingDetails(node.timingInfo);
-    return {
-      id: node.retrievalId,
-      type: "Aggregate",
-      timing: totalTiming,
-      mean: meanTiming,
-      stdDev: stdDevTiming,
-      parallelCount,
-    };
-  });
-  const databaseNodes: ProcessedNode[] = databaseRetrievals.map((node) => {
-    const { totalTiming, meanTiming, stdDevTiming, parallelCount } =
-      computeTimingDetails(node.timingInfo);
-    return {
-      id: node.retrievalId,
-      type: "Database",
-      timing: totalTiming,
-      mean: meanTiming,
-      stdDev: stdDevTiming,
-      parallelCount,
-    };
-  });
+  let aggregateRetrievals: AggregatedAggregateRetrieval[];
+  let databaseRetrievals: AggregatedDatabaseRetrieval[];
+
+  // If the queryPlan is an AggregatedQueryPlan, the aggregateRetrievals and databaseRetrievals
+  // are already aggregated, so we don't need to do it again.
+  if (
+    queryPlan.aggregateRetrievals?.length &&
+    "pass" in queryPlan.aggregateRetrievals[0]
+  ) {
+    aggregateRetrievals =
+      queryPlan.aggregateRetrievals as AggregatedAggregateRetrieval[];
+    databaseRetrievals =
+      queryPlan.databaseRetrievals as AggregatedDatabaseRetrieval[];
+  } else {
+    aggregateRetrievals = (queryPlan.aggregateRetrievals ?? []).map(
+      (retrieval) => ({
+        ...retrieval,
+        pass: queryPlan.planInfo.mdxPass,
+      }),
+    );
+    databaseRetrievals = (queryPlan.databaseRetrievals ?? []).map(
+      (retrieval) => ({
+        ...retrieval,
+        pass: queryPlan.planInfo.mdxPass,
+      }),
+    );
+  }
+
+  const aggregateNodes: ProcessedNode[] = aggregateRetrievals
+    ?.filter(
+      (node) =>
+        node.timingInfo.startTime?.length &&
+        node.timingInfo.elapsedTime?.length,
+    )
+    .map((node) => {
+      const {
+        maxTiming,
+        totalTiming,
+        meanTiming,
+        stdDevTiming,
+        parallelCount,
+      } = computeTimingDetails(node.timingInfo);
+      return {
+        id: node.retrievalId,
+        type: "Aggregate",
+        maxTiming,
+        totalTiming,
+        mean: meanTiming,
+        stdDev: stdDevTiming,
+        parallelCount,
+        pass: node.pass,
+      };
+    });
+
+  const databaseNodes: ProcessedNode[] = databaseRetrievals
+    ?.filter(
+      (node) =>
+        node.timingInfo.startTime?.length &&
+        node.timingInfo.elapsedTime?.length,
+    )
+    .map((node) => {
+      const {
+        maxTiming,
+        totalTiming,
+        meanTiming,
+        stdDevTiming,
+        parallelCount,
+      } = computeTimingDetails(node.timingInfo);
+      return {
+        id: node.retrievalId,
+        type: "Database",
+        maxTiming,
+        totalTiming,
+        mean: meanTiming,
+        stdDev: stdDevTiming,
+        parallelCount,
+        pass: node.pass,
+      };
+    });
 
   const allNodes: ProcessedNode[] = [...aggregateNodes, ...databaseNodes];
 
-  return allNodes.sort((a, b) => b.timing - a.timing).slice(0, numberOfNodes);
+  return allNodes
+    .sort((a, b) => b.totalTiming - a.totalTiming)
+    .slice(0, numberOfNodes);
 }

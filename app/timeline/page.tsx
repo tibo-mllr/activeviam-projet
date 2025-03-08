@@ -7,12 +7,15 @@ import {
   TimelineFooter,
   TimelineLegend,
 } from "@/components";
-import { buildTimeline } from "@/lib/functions";
+import { aggregateData, buildTimeline } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
+  AggregatedAggregateRetrieval,
+  AggregatedDatabaseRetrieval,
   AggregateRetrieval,
   DatabaseRetrieval,
   emptyAggregateRetrieval,
+  QueryPlan,
   TimingType,
 } from "@/lib/types";
 import {
@@ -20,7 +23,9 @@ import {
   Button,
   FormGroup,
   Grid2,
+  Input,
   Slider,
+  Switch,
   Typography,
 } from "@mui/material";
 import { ReactElement, useEffect, useRef, useState } from "react";
@@ -31,6 +36,8 @@ export default function TimelinePage(): ReactElement {
   const selectedIndex = useSelector(getSelectedIndex);
 
   const [showDialog, setShowDialog] = useState<boolean>(false);
+  const [timeMode, setTimeMode] = useState<boolean>(false);
+  const [threshold, setThreshold] = useState<number>(0);
   const [selectedRetrieval, setSelectedRetrieval] = useState<
     AggregateRetrieval | DatabaseRetrieval
   >(emptyAggregateRetrieval);
@@ -108,16 +115,38 @@ export default function TimelinePage(): ReactElement {
 
   if (!queryPlan) return <>Please send a query to see the graph</>;
 
-  const { aggregateRetrievals, databaseRetrievals } = queryPlan[selectedIndex];
+  let selectedQueryPlan: QueryPlan;
+  if (selectedIndex == -1) selectedQueryPlan = aggregateData(queryPlan);
+  else selectedQueryPlan = queryPlan[selectedIndex];
 
-  const openRetrievalDialog = (retrievalId: number, type: TimingType): void => {
+  const { aggregateRetrievals, databaseRetrievals } = selectedQueryPlan;
+
+  const openRetrievalDialog = (
+    retrievalId: number,
+    type: TimingType,
+    pass: string,
+  ): void => {
     let retrieval: AggregateRetrieval | DatabaseRetrieval | undefined;
-    if (type.startsWith("AggregateRetrieval"))
-      retrieval = aggregateRetrievals.find(
-        (r) => r.retrievalId === retrievalId,
-      );
-    else if (type.startsWith("DatabaseRetrieval"))
-      retrieval = databaseRetrievals.find((r) => r.retrievalId === retrievalId);
+
+    if (selectedIndex !== -1) {
+      if (type.startsWith("AggregateRetrieval"))
+        retrieval = aggregateRetrievals.find(
+          (r) => r.retrievalId === retrievalId,
+        );
+      else if (type.startsWith("DatabaseRetrieval"))
+        retrieval = databaseRetrievals.find(
+          (r) => r.retrievalId === retrievalId,
+        );
+    } else {
+      if (type.startsWith("AggregateRetrieval"))
+        retrieval = (
+          aggregateRetrievals as AggregatedAggregateRetrieval[]
+        ).find((r) => r.retrievalId === retrievalId && r.pass === pass);
+      else if (type.startsWith("DatabaseRetrieval"))
+        retrieval = (databaseRetrievals as AggregatedDatabaseRetrieval[]).find(
+          (r) => r.retrievalId === retrievalId && r.pass === pass,
+        );
+    }
 
     if (retrieval) {
       setSelectedRetrieval(retrieval);
@@ -125,9 +154,9 @@ export default function TimelinePage(): ReactElement {
     }
   };
 
-  const timeline = buildTimeline(aggregateRetrievals, databaseRetrievals);
+  const timeline = buildTimeline(selectedQueryPlan);
 
-  const { nbCores, ...coresTimeline } = timeline;
+  const { nbCores, maxDuration, minDuration, ...coresTimeline } = timeline;
 
   // Find the maximum end time to calculate the content width
   maxEnd = Math.max(
@@ -156,11 +185,71 @@ export default function TimelinePage(): ReactElement {
           Fit entire timeline
         </Button>
       </FormGroup>
-      <TimelineLegend />
+      <Grid2
+        container
+        justifyContent="space-between"
+        marginTop={2}
+        marginBottom={2}
+      >
+        <FormGroup
+          row
+          sx={{
+            alignItems: "center",
+            borderWidth: 1,
+            borderColor: "primary.main",
+            borderRadius: 2,
+            padding: 1,
+          }}
+        >
+          <Typography>Show type mode</Typography>
+          <Switch
+            checked={timeMode}
+            onChange={() => setTimeMode(!timeMode)}
+            color="primary"
+          />
+          <Typography>Show time mode</Typography>
+        </FormGroup>
+        <FormGroup
+          row
+          sx={{
+            alignItems: "center",
+            borderWidth: 1,
+            borderColor: "primary.main",
+            borderRadius: 2,
+            padding: 1,
+          }}
+        >
+          <Typography variant="body2">Use a threshold:</Typography>
+          <Input
+            type="number"
+            value={threshold}
+            onChange={(event) => {
+              const value = Number(event.target.value);
+              if (value >= minDuration && value <= maxDuration)
+                setThreshold(value);
+            }}
+            sx={{ width: "50px", marginX: 1 }}
+          />
+          <Typography variant="body2">ms</Typography>
+          <Slider
+            sx={{ width: 200, marginLeft: 2 }}
+            min={minDuration}
+            max={maxDuration}
+            value={threshold}
+            onChange={(_event, value) => setThreshold(value as number)}
+          />
+        </FormGroup>
+      </Grid2>
+      <TimelineLegend
+        timeMode={timeMode}
+        minDuration={minDuration}
+        maxDuration={maxDuration}
+        threshold={threshold}
+      />
       <Grid2
         container
         width="100%"
-        maxHeight="59vh"
+        maxHeight="51vh"
         marginTop={2}
         flexDirection="row"
         sx={{ overflowY: "auto", overflowX: "hidden" }}
@@ -199,6 +288,10 @@ export default function TimelinePage(): ReactElement {
                 timings={coresTimeline[index] || []}
                 scale={scale}
                 openRetrievalDialog={openRetrievalDialog}
+                timeMode={timeMode}
+                minDuration={minDuration}
+                maxDuration={maxDuration}
+                threshold={threshold}
               />
             </TimelineDiv>
           ))}

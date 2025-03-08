@@ -17,8 +17,9 @@ export default function PlanSelector(): ReactElement {
   const dispatch = useAppDispatch();
 
   const pathname = usePathname();
+  const excludedPaths = ["/submit-query", "/passes"];
 
-  if (pathname == "/submit-query" || !queryPlan || queryPlan.length < 2)
+  if (excludedPaths.includes(pathname) || !queryPlan || queryPlan.length < 2)
     return <></>;
 
   return (
@@ -37,6 +38,7 @@ export default function PlanSelector(): ReactElement {
             {queryPlan[index].planInfo.mdxPass}
           </MenuItem>
         ))}
+        {queryPlan.length > 1 && <MenuItem value={-1}>All Plans</MenuItem>}
       </Select>
     </FormControl>
   );

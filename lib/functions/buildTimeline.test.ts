@@ -1,4 +1,9 @@
-import { AggregateRetrieval, DatabaseRetrieval, Timeline } from "@/lib/types";
+import {
+  AggregateRetrieval,
+  DatabaseRetrieval,
+  emptyQueryPlan,
+  Timeline,
+} from "@/lib/types";
 import { buildTimeline } from "./buildTimeline";
 
 const aggregateRetrievals: AggregateRetrieval[] = [
@@ -66,20 +71,29 @@ const databaseRetrievals: DatabaseRetrieval[] = [
 
 describe("buildTimeline", () => {
   it("gives nothing when given nothing", () => {
-    const result = buildTimeline([], []);
-    expect(result).toEqual({ nbCores: 0 });
+    const result = buildTimeline(emptyQueryPlan);
+    expect(result).toEqual({
+      nbCores: 0,
+      maxDuration: 0,
+      minDuration: Number.MAX_SAFE_INTEGER,
+    });
   });
 
   it("builds a timeline from aggregate retrievals", () => {
-    const result = buildTimeline(aggregateRetrievals, []);
+    const result = buildTimeline({ ...emptyQueryPlan, aggregateRetrievals });
 
-    const expected: Timeline & { nbCores: number } = {
+    const expected: Timeline & {
+      nbCores: number;
+      minDuration: number;
+      maxDuration: number;
+    } = {
       "0": [
         {
           start: 0,
           end: 37,
           retrievalId: 0,
           type: "AggregateRetrieval",
+          pass: "",
         },
       ],
       "1": [
@@ -88,48 +102,68 @@ describe("buildTimeline", () => {
           retrievalId: 0,
           start: 0,
           type: "AggregateRetrievalExecutionContext",
+          pass: "",
         },
       ],
       nbCores: 2,
+      minDuration: 10,
+      maxDuration: 37,
     };
 
     expect(result).toEqual(expected);
   });
 
   it("builds a timeline from database retrievals", () => {
-    const result = buildTimeline([], databaseRetrievals);
+    const result = buildTimeline({ ...emptyQueryPlan, databaseRetrievals });
 
-    const expected: Timeline & { nbCores: number } = {
+    const expected: Timeline & {
+      nbCores: number;
+      minDuration: number;
+      maxDuration: number;
+    } = {
       "0": [
         {
           start: 8,
           end: 9,
           retrievalId: 0,
           type: "DatabaseRetrieval",
+          pass: "",
         },
         {
           start: 10,
           end: 20,
           retrievalId: 1,
           type: "DatabaseRetrievalExecutionContext",
+          pass: "",
         },
       ],
       nbCores: 1,
+      minDuration: 1,
+      maxDuration: 10,
     };
 
     expect(result).toEqual(expected);
   });
 
   it("builds a timeline from both aggregate and database retrievals", () => {
-    const result = buildTimeline(aggregateRetrievals, databaseRetrievals);
+    const result = buildTimeline({
+      ...emptyQueryPlan,
+      aggregateRetrievals,
+      databaseRetrievals,
+    });
 
-    const expected: Timeline & { nbCores: number } = {
+    const expected: Timeline & {
+      nbCores: number;
+      minDuration: number;
+      maxDuration: number;
+    } = {
       "0": [
         {
           start: 0,
           end: 37,
           retrievalId: 0,
           type: "AggregateRetrieval",
+          pass: "",
         },
       ],
       "1": [
@@ -138,12 +172,14 @@ describe("buildTimeline", () => {
           end: 10,
           retrievalId: 0,
           type: "AggregateRetrievalExecutionContext",
+          pass: "",
         },
         {
           start: 10,
           end: 20,
           retrievalId: 1,
           type: "DatabaseRetrievalExecutionContext",
+          pass: "",
         },
       ],
       "2": [
@@ -152,9 +188,12 @@ describe("buildTimeline", () => {
           retrievalId: 0,
           start: 8,
           type: "DatabaseRetrieval",
+          pass: "",
         },
       ],
       nbCores: 3,
+      minDuration: 1,
+      maxDuration: 37,
     };
 
     expect(result).toEqual(expected);
@@ -163,15 +202,24 @@ describe("buildTimeline", () => {
   it("builds a timeline from both aggregate and database retrievals without duplicates", () => {
     aggregateRetrievals.push(aggregateRetrievals[0]);
 
-    const result = buildTimeline(aggregateRetrievals, databaseRetrievals);
+    const result = buildTimeline({
+      ...emptyQueryPlan,
+      aggregateRetrievals,
+      databaseRetrievals,
+    });
 
-    const expected: Timeline & { nbCores: number } = {
+    const expected: Timeline & {
+      nbCores: number;
+      minDuration: number;
+      maxDuration: number;
+    } = {
       "0": [
         {
           start: 0,
           end: 37,
           retrievalId: 0,
           type: "AggregateRetrieval",
+          pass: "",
         },
       ],
       "1": [
@@ -180,12 +228,14 @@ describe("buildTimeline", () => {
           end: 10,
           retrievalId: 0,
           type: "AggregateRetrievalExecutionContext",
+          pass: "",
         },
         {
           start: 10,
           end: 20,
           retrievalId: 1,
           type: "DatabaseRetrievalExecutionContext",
+          pass: "",
         },
       ],
       "2": [
@@ -194,9 +244,12 @@ describe("buildTimeline", () => {
           retrievalId: 0,
           start: 8,
           type: "DatabaseRetrieval",
+          pass: "",
         },
       ],
       nbCores: 3,
+      minDuration: 1,
+      maxDuration: 37,
     };
 
     expect(result).toEqual(expected);
