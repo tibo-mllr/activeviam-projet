@@ -103,7 +103,7 @@ export default function SummaryPage(): ReactElement {
                   <Typography variant="h6">
                     Elapsed timings of retrievals
                   </Typography>
-                  <Tooltip title="How long do the retrievals take, by type">
+                  <Tooltip title="How long do the retrievals take, by type. A retrieval is a data access operation.">
                     <IconButton size="small" style={{ marginLeft: 8 }}>
                       <InfoIcon fontSize="small" />
                     </IconButton>
@@ -601,6 +601,7 @@ export default function SummaryPage(): ReactElement {
                     <Typography variant="body1" fontWeight="bold">
                       Partitioning Count by Type:
                     </Typography>
+
                     <List dense sx={{ marginLeft: 4 }}>
                       {Object.entries(
                         selectedQueryPlan.querySummary.partitioningCountByType,
@@ -633,6 +634,13 @@ export default function SummaryPage(): ReactElement {
                       ))}
                     </List>
                   </Box>
+                </Grid2>
+                <Grid2 padding={1} spacing={1}>
+                  <Tooltip title="How much of each partitioning is used. Partitioning can be constant, single or multiple (separated with | )">
+                    <IconButton size="small" style={{ marginLeft: 8 }}>
+                      <InfoIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
                 </Grid2>
               </Grid2>
             )}
