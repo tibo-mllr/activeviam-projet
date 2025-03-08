@@ -8,6 +8,7 @@ import {
 } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import { AggregatedQueryPlan, QueryPlan } from "@/lib/types";
+import InfoIcon from "@mui/icons-material/Info";
 import {
   Card,
   CardContent,
@@ -19,6 +20,8 @@ import {
   TextField,
   Box,
   Switch,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
 
 import { ReactElement, useState } from "react";
