@@ -1,5 +1,3 @@
-"use client";
-
 import { AggregateRetrieval, DatabaseRetrieval } from "@/lib/types";
 import { Close } from "@mui/icons-material";
 import {
@@ -14,10 +12,8 @@ import {
   ListItem,
   ListItemText,
   Divider,
-  Switch,
-  Tooltip,
 } from "@mui/material";
-import { type ReactElement, useState } from "react";
+import { type ReactElement } from "react";
 
 type RetrievalDialogProps = {
   retrieval: AggregateRetrieval | DatabaseRetrieval;
@@ -30,7 +26,6 @@ export function RetrievalDialog({
   open,
   setOpen,
 }: RetrievalDialogProps): ReactElement | null {
-  const [areNumbersAligned, setAreNumbersAligned] = useState<boolean>(false);
   if (!retrieval) return null;
 
   const isAggregate = "partialProviderName" in retrieval;
@@ -113,12 +108,9 @@ export function RetrievalDialog({
                             {values
                               .map((value) => {
                                 const strValue = String(value);
-                                if (areNumbersAligned) {
-                                  const diff =
-                                    maxDurationInfoLength - strValue.length;
-                                  return " ".repeat(diff) + strValue;
-                                }
-                                return strValue;
+                                const diff =
+                                  maxDurationInfoLength - strValue.length;
+                                return " ".repeat(diff) + strValue;
                               })
                               .join(", ")}
                           </Typography>
@@ -127,13 +119,6 @@ export function RetrievalDialog({
                     </ListItem>
                   ))}
                 </List>
-                <Tooltip title="Align numbers" arrow placement="right">
-                  <Switch
-                    checked={areNumbersAligned}
-                    onChange={() => setAreNumbersAligned((prev) => !prev)}
-                    sx={{ transform: "scale(0.8)" }}
-                  />
-                </Tooltip>
               </>
             )}
             <Divider sx={{ marginTop: 1, marginBottom: 3 }} />
