@@ -12,7 +12,10 @@ import {
   TableHead,
   TableRow,
   Typography,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
+import InfoIcon from "@mui/icons-material/Info";
 import { ReactElement } from "react";
 import { useSelector } from "react-redux";
 
@@ -39,8 +42,31 @@ export default function PassesPage(): ReactElement {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Pass Name</TableCell>
-              <TableCell align="right">Total Timing (ms)</TableCell>
+              <TableCell>
+                <Box display="flex" alignItems="center" gap={1}>
+                  Pass Name
+                  <Tooltip title="Names of the several passes of the query plan">
+                    <IconButton size="small">
+                      <InfoIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              </TableCell>
+              <TableCell align="right">
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="flex-end"
+                  gap={1}
+                >
+                  Total Timing (ms)
+                  <Tooltip title="Total execution time for each pass in milliseconds">
+                    <IconButton size="small">
+                      <InfoIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
