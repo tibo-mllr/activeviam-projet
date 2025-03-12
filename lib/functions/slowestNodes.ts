@@ -63,7 +63,11 @@ function computeTimingDetails(timingInfo: TimingInfo): {
 export function getSlowestNodes(
   queryPlan: QueryPlan | AggregatedQueryPlan,
   numberOfNodes: number,
-): ProcessedNode[] {
+): {
+  minDuration: number;
+  maxDuration: number;
+  processedNodes: ProcessedNode[];
+} {
   let aggregateRetrievals: AggregatedAggregateRetrieval[];
   let databaseRetrievals: AggregatedDatabaseRetrieval[];
 
@@ -146,7 +150,15 @@ export function getSlowestNodes(
 
   const allNodes: ProcessedNode[] = [...aggregateNodes, ...databaseNodes];
 
-  return allNodes
-    .sort((a, b) => b.totalTiming - a.totalTiming)
-    .slice(0, numberOfNodes);
+  const minDuration = Math.min(...allNodes.map((node) => node.totalTiming));
+
+  const maxDuration = Math.max(...allNodes.map((node) => node.totalTiming));
+
+  return {
+    minDuration,
+    maxDuration,
+    processedNodes: allNodes
+      .sort((a, b) => b.totalTiming - a.totalTiming)
+      .slice(0, numberOfNodes),
+  };
 }

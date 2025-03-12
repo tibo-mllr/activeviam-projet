@@ -1,6 +1,7 @@
 "use client";
 
 import { NodesTable, RetrievalDialog } from "@/components";
+import { NodesLegend } from "@/components/nodes/NodesLegend";
 import { aggregateData, getSlowestNodes } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
@@ -25,6 +26,8 @@ export default function NodesPage(): ReactElement {
   const [sortColumn, setSortColumn] =
     useState<keyof ProcessedNode>("totalTiming");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [minDuration, setMinDuration] = useState<number>(0);
+  const [maxDuration, setMaxDuration] = useState<number>(0);
   const [displayedNodes, setDisplayedNodes] = useState<ProcessedNode[]>([]);
   const [showDialog, setShowDialog] = useState<boolean>(false);
   const [selectedRetrieval, setSelectedRetrieval] = useState<
@@ -36,8 +39,13 @@ export default function NodesPage(): ReactElement {
       let selectedQueryPlan: QueryPlan | AggregatedQueryPlan;
       if (selectedIndex === -1) selectedQueryPlan = aggregateData(queryPlan);
       else selectedQueryPlan = queryPlan[selectedIndex];
-      const nodes = getSlowestNodes(selectedQueryPlan, numberOfNodes);
-      setDisplayedNodes(nodes);
+      const { minDuration, maxDuration, processedNodes } = getSlowestNodes(
+        selectedQueryPlan,
+        numberOfNodes,
+      );
+      setMinDuration(minDuration);
+      setMaxDuration(maxDuration);
+      setDisplayedNodes(processedNodes);
     }
   }, [queryPlan, selectedIndex, numberOfNodes]);
 
@@ -112,10 +120,14 @@ export default function NodesPage(): ReactElement {
         />
       </Grid2>
 
+      <NodesLegend minDuration={minDuration} maxDuration={maxDuration} />
+
       <NodesTable
         displayedNodes={displayedNodes}
         sortColumn={sortColumn}
         sortOrder={sortOrder}
+        minDuration={minDuration}
+        maxDuration={maxDuration}
         handleSort={handleSort}
         getRetrievalFromNode={getRetrievalFromNode}
         setSelectedRetrieval={setSelectedRetrieval}

@@ -2,6 +2,10 @@ import {
   ProcessedNode,
   AggregateRetrieval,
   DatabaseRetrieval,
+  NODES_MIN_RED,
+  NODES_MAX_RED,
+  NODES_MAX_GREEN,
+  NODES_MIN_GREEN,
 } from "@/lib/types";
 import InfoIcon from "@mui/icons-material/Info";
 import {
@@ -23,6 +27,8 @@ interface NodesTableProps {
   displayedNodes: ProcessedNode[];
   sortColumn: keyof ProcessedNode;
   sortOrder: "asc" | "desc";
+  minDuration: number;
+  maxDuration: number;
   handleSort: (column: keyof ProcessedNode) => void;
   getRetrievalFromNode: (
     node: ProcessedNode,
@@ -38,12 +44,26 @@ export function NodesTable({
   displayedNodes,
   sortColumn,
   sortOrder,
+  minDuration,
+  maxDuration,
   handleSort,
   getRetrievalFromNode,
   setSelectedRetrieval,
   setShowDialog,
   selectedIndex,
 }: NodesTableProps): ReactElement {
+  const getColor = (duration: number, hover?: boolean): string => {
+    const percentage = (duration - minDuration) / (maxDuration - minDuration);
+
+    const red =
+      NODES_MIN_RED + Math.floor((NODES_MAX_RED - NODES_MIN_RED) * percentage);
+    const green =
+      NODES_MAX_GREEN -
+      Math.floor((NODES_MAX_GREEN - NODES_MIN_GREEN) * percentage);
+
+    return `rgba(${red}, ${green}, 0, ${hover ? 0.5 : 0.8})`;
+  };
+
   return (
     <TableContainer component={Paper}>
       <Table>
@@ -118,7 +138,8 @@ export function NodesTable({
               }}
               sx={{
                 cursor: "pointer",
-                "&:hover": { bgcolor: "rgba(0, 0, 0, 0.04)" },
+                bgcolor: getColor(node.totalTiming),
+                "&:hover": { bgcolor: getColor(node.totalTiming, true) },
               }}
             >
               <TableCell>
