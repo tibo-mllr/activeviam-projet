@@ -18,6 +18,7 @@ import {
   QueryPlan,
   TimingType,
 } from "@/lib/types";
+import InfoIcon from "@mui/icons-material/Info";
 import {
   Box,
   Button,
@@ -27,6 +28,8 @@ import {
   Slider,
   Switch,
   Typography,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
 import { ReactElement, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
@@ -202,12 +205,22 @@ export default function TimelinePage(): ReactElement {
           }}
         >
           <Typography>Show type mode</Typography>
+          <Tooltip title="Color depending on types. Retrievals can have different types: Aggregate, Database, and can be of ExecutionContext or not">
+            <IconButton size="small">
+              <InfoIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
           <Switch
             checked={timeMode}
             onChange={() => setTimeMode(!timeMode)}
             color="primary"
           />
           <Typography>Show time mode</Typography>
+          <Tooltip title="Color depending on the time length">
+            <IconButton size="small">
+              <InfoIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
         </FormGroup>
         <FormGroup
           row
@@ -219,6 +232,11 @@ export default function TimelinePage(): ReactElement {
             padding: 1,
           }}
         >
+          <Tooltip title="Selecting only retrievals with a minimum timing">
+            <IconButton size="small">
+              <InfoIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
           <Typography variant="body2">Use a threshold:</Typography>
           <Input
             type="number"
@@ -240,6 +258,7 @@ export default function TimelinePage(): ReactElement {
           />
         </FormGroup>
       </Grid2>
+
       <TimelineLegend
         timeMode={timeMode}
         minDuration={minDuration}

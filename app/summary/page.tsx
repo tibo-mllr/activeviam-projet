@@ -8,6 +8,7 @@ import {
 } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import { AggregatedQueryPlan, QueryPlan } from "@/lib/types";
+import InfoIcon from "@mui/icons-material/Info";
 import {
   Card,
   CardContent,
@@ -19,6 +20,8 @@ import {
   TextField,
   Box,
   Switch,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
 
 import { ReactElement, useState } from "react";
@@ -96,9 +99,16 @@ export default function SummaryPage(): ReactElement {
             {/* Line 1*/}
             <Grid2 container padding={1} spacing={2} justifyContent="center">
               <Grid2 padding={1} spacing={1} direction="column">
-                <Typography variant="h6">
-                  Elapsed timings of retrievals
-                </Typography>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <Typography variant="h6">
+                    Elapsed timings of retrievals
+                  </Typography>
+                  <Tooltip title="How long do the retrievals take, by type. A retrieval is a data access operation.">
+                    <IconButton size="small" style={{ marginLeft: 8 }}>
+                      <InfoIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
                 <Box
                   sx={{
                     border: "1px solid #ccc",
@@ -342,7 +352,14 @@ export default function SummaryPage(): ReactElement {
                 </Box>
               </Grid2>
               <Grid2 padding={1} spacing={1}>
-                <Typography variant="h6">Global timings</Typography>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <Typography variant="h6">Global timings</Typography>
+                  <Tooltip title="Total timings of all the query plan">
+                    <IconButton size="small" style={{ marginLeft: 8 }}>
+                      <InfoIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
                 {selectedQueryPlan.planInfo?.globalTimings ? (
                   <Box
                     sx={{
@@ -371,7 +388,14 @@ export default function SummaryPage(): ReactElement {
             {/* Line 2*/}
             <Grid2 container padding={1} spacing={2} justifyContent="center">
               <Grid2 padding={1} spacing={1} direction="column">
-                <Typography variant="h6">Number of retrievals</Typography>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <Typography variant="h6">Number of retrievals</Typography>
+                  <Tooltip title="Number of retrievals, by type">
+                    <IconButton size="small" style={{ marginLeft: 8 }}>
+                      <InfoIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
 
                 <Box
                   sx={{
@@ -492,7 +516,14 @@ export default function SummaryPage(): ReactElement {
                 </Box>
               </Grid2>
               <Grid2 padding={1} spacing={1} direction="column">
-                <Typography variant="h6">Measures</Typography>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <Typography variant="h6">Measures</Typography>
+                  <Tooltip title="The different measures that are queried">
+                    <IconButton size="small" style={{ marginLeft: 8 }}>
+                      <InfoIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
                 <Box
                   sx={{
                     border: "1px solid #ccc",
@@ -570,6 +601,7 @@ export default function SummaryPage(): ReactElement {
                     <Typography variant="body1" fontWeight="bold">
                       Partitioning Count by Type:
                     </Typography>
+
                     <List dense sx={{ marginLeft: 4 }}>
                       {Object.entries(
                         selectedQueryPlan.querySummary.partitioningCountByType,
@@ -602,6 +634,13 @@ export default function SummaryPage(): ReactElement {
                       ))}
                     </List>
                   </Box>
+                </Grid2>
+                <Grid2 padding={1} spacing={1}>
+                  <Tooltip title="How much of each partitioning is used. Partitioning can be constant, single or multiple (separated with | )">
+                    <IconButton size="small" style={{ marginLeft: 8 }}>
+                      <InfoIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
                 </Grid2>
               </Grid2>
             )}
