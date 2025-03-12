@@ -150,9 +150,15 @@ export function getSlowestNodes(
 
   const allNodes: ProcessedNode[] = [...aggregateNodes, ...databaseNodes];
 
-  const minDuration = Math.min(...allNodes.map((node) => node.totalTiming));
+  const minDuration =
+    allNodes.length > 0
+      ? Math.min(...allNodes.map((node) => node.totalTiming))
+      : 0;
 
-  const maxDuration = Math.max(...allNodes.map((node) => node.totalTiming));
+  const maxDuration =
+    allNodes.length > 0
+      ? Math.max(...allNodes.map((node) => node.totalTiming))
+      : 0;
 
   return {
     minDuration,
