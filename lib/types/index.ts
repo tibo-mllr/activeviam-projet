@@ -36,3 +36,8 @@ export type Summary = {
   databaseRetrievalsExecutionContextElapsedTimings: Record<string, number>;
   retrievalsTypeCounts: Record<string, number>;
 };
+
+export const MAX_GREEN: number = 175;
+export const MIN_GREEN: number = 50;
+export const MAX_RED: number = 255;
+export const MIN_RED: number = 0;

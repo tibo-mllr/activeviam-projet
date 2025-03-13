@@ -70,7 +70,11 @@ const databaseRetrievals: DatabaseRetrieval[] = [
 describe("getSlowestNodes", () => {
   it("gives nothing when given nothing", () => {
     const result = getSlowestNodes(emptyQueryPlan, 1);
-    expect(result).toEqual([]);
+    expect(result).toEqual({
+      minDuration: 0,
+      maxDuration: 0,
+      processedNodes: [],
+    });
   });
 
   it("gives the slowest node when given one", () => {
@@ -79,18 +83,26 @@ describe("getSlowestNodes", () => {
       1,
     );
 
-    const expected: ProcessedNode[] = [
-      {
-        id: 0,
-        type: "Aggregate",
-        maxTiming: 37,
-        totalTiming: 37,
-        mean: 37,
-        stdDev: 0,
-        parallelCount: 1,
-        pass: "",
-      },
-    ];
+    const expected: {
+      minDuration: number;
+      maxDuration: number;
+      processedNodes: ProcessedNode[];
+    } = {
+      minDuration: 37,
+      maxDuration: 37,
+      processedNodes: [
+        {
+          id: 0,
+          maxTiming: 37,
+          mean: 37,
+          parallelCount: 1,
+          pass: "",
+          stdDev: 0,
+          totalTiming: 37,
+          type: "Aggregate",
+        },
+      ],
+    };
 
     expect(result).toEqual(expected);
   });
@@ -101,18 +113,26 @@ describe("getSlowestNodes", () => {
       1,
     );
 
-    const expected: ProcessedNode[] = [
-      {
-        id: 1,
-        type: "Database",
-        maxTiming: 20,
-        totalTiming: 25,
-        mean: 15,
-        stdDev: 5,
-        parallelCount: 2,
-        pass: "",
-      },
-    ];
+    const expected: {
+      minDuration: number;
+      maxDuration: number;
+      processedNodes: ProcessedNode[];
+    } = {
+      minDuration: 1,
+      maxDuration: 25,
+      processedNodes: [
+        {
+          id: 1,
+          maxTiming: 20,
+          mean: 15,
+          parallelCount: 2,
+          pass: "",
+          stdDev: 5,
+          totalTiming: 25,
+          type: "Database",
+        },
+      ],
+    };
 
     expect(result).toEqual(expected);
   });
@@ -123,28 +143,36 @@ describe("getSlowestNodes", () => {
       2,
     );
 
-    const expected: ProcessedNode[] = [
-      {
-        id: 0,
-        type: "Aggregate",
-        maxTiming: 37,
-        totalTiming: 37,
-        mean: 37,
-        stdDev: 0,
-        parallelCount: 1,
-        pass: "",
-      },
-      {
-        id: 1,
-        type: "Database",
-        maxTiming: 20,
-        totalTiming: 25,
-        mean: 15,
-        stdDev: 5,
-        parallelCount: 2,
-        pass: "",
-      },
-    ];
+    const expected: {
+      minDuration: number;
+      maxDuration: number;
+      processedNodes: ProcessedNode[];
+    } = {
+      maxDuration: 37,
+      minDuration: 1,
+      processedNodes: [
+        {
+          id: 0,
+          maxTiming: 37,
+          mean: 37,
+          parallelCount: 1,
+          pass: "",
+          stdDev: 0,
+          totalTiming: 37,
+          type: "Aggregate",
+        },
+        {
+          id: 1,
+          maxTiming: 20,
+          mean: 15,
+          parallelCount: 2,
+          pass: "",
+          stdDev: 5,
+          totalTiming: 25,
+          type: "Database",
+        },
+      ],
+    };
 
     expect(result).toEqual(expected);
   });

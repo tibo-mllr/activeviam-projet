@@ -2,10 +2,10 @@ import {
   TimelineTiming,
   TimingType,
   TIMELINE_COLORS,
-  TIMELINE_MAX_GREEN,
-  TIMELINE_MAX_RED,
-  TIMELINE_MIN_GREEN,
-  TIMELINE_MIN_RED,
+  MAX_GREEN,
+  MAX_RED,
+  MIN_GREEN,
+  MIN_RED,
 } from "@/lib/types";
 import { Box, Tooltip } from "@mui/material";
 import { ReactElement } from "react";
@@ -39,12 +39,8 @@ export function CoreProcesses({
     const duration = end - start;
     const percentage = (duration - minDuration) / (maxDuration - minDuration);
 
-    const red =
-      TIMELINE_MIN_RED +
-      Math.floor((TIMELINE_MAX_RED - TIMELINE_MIN_RED) * percentage);
-    const green =
-      TIMELINE_MAX_GREEN -
-      Math.floor((TIMELINE_MAX_GREEN - TIMELINE_MIN_GREEN) * percentage);
+    const red = MIN_RED + Math.floor((MAX_RED - MIN_RED) * percentage);
+    const green = MAX_GREEN - Math.floor((MAX_GREEN - MIN_GREEN) * percentage);
 
     return `rgb(${red}, ${green}, 0)`;
   };
