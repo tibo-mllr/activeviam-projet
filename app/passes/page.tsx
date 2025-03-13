@@ -2,6 +2,7 @@
 
 import { getPassesTimings } from "@/lib/functions";
 import { getQueryPlan } from "@/lib/redux";
+import InfoIcon from "@mui/icons-material/Info";
 import {
   Box,
   Paper,
@@ -15,7 +16,6 @@ import {
   Tooltip,
   IconButton,
 } from "@mui/material";
-import InfoIcon from "@mui/icons-material/Info";
 import { ReactElement } from "react";
 import { useSelector } from "react-redux";
 
