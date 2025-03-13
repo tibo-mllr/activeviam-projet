@@ -27,10 +27,10 @@ import { useSelector } from "react-redux";
 const DEFAULT_URL =
   "https://activepivot-ranch.activeviam.com:6100/activeviam/pivot/rest/v9/cube/query/mdx/queryplan";
 
-function isJsonString(str: string) {
+function isJsonString(str: string): boolean {
   try {
     JSON.parse(str);
-  } catch (e) {
+  } catch {
     return false;
   }
   return true;
