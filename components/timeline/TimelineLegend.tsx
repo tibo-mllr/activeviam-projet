@@ -1,9 +1,9 @@
 import {
   TIMELINE_COLORS,
-  TIMELINE_MAX_GREEN,
-  TIMELINE_MAX_RED,
-  TIMELINE_MIN_GREEN,
-  TIMELINE_MIN_RED,
+  MAX_GREEN,
+  MAX_RED,
+  MIN_GREEN,
+  MIN_RED,
 } from "@/lib/types";
 import { Box, Grid2, Typography } from "@mui/material";
 import { ReactElement } from "react";
@@ -39,7 +39,7 @@ export function TimelineLegend({
           borderRadius={4}
           marginX={1}
           sx={{
-            background: `linear-gradient(to right, rgb(${TIMELINE_MIN_RED}, ${TIMELINE_MAX_GREEN}, 0), rgb(${TIMELINE_MAX_RED}, ${TIMELINE_MIN_GREEN}, 0))`,
+            background: `linear-gradient(to right, rgb(${MIN_RED}, ${MAX_GREEN}, 0), rgb(${MAX_RED}, ${MIN_GREEN}, 0))`,
           }}
           position="relative"
         >

@@ -1,9 +1,4 @@
-import {
-  NODES_MAX_GREEN,
-  NODES_MAX_RED,
-  NODES_MIN_GREEN,
-  NODES_MIN_RED,
-} from "@/lib/types";
+import { MAX_GREEN, MAX_RED, MIN_GREEN, MIN_RED } from "@/lib/types";
 import { Grid2, Typography } from "@mui/material";
 import { ReactElement } from "react";
 
@@ -33,7 +28,7 @@ export function NodesLegend({
         borderRadius={4}
         marginX={1}
         sx={{
-          background: `linear-gradient(to right, rgba(${NODES_MIN_RED}, ${NODES_MAX_GREEN}, 0.8), rgba(${NODES_MAX_RED}, ${NODES_MIN_GREEN}, 0.8))`,
+          background: `linear-gradient(to right, rgba(${MIN_RED}, ${MAX_GREEN}, 0.8), rgba(${MAX_RED}, ${MIN_GREEN}, 0.8))`,
         }}
         position="relative"
       ></Grid2>

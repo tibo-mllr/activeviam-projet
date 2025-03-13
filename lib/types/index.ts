@@ -37,7 +37,7 @@ export type Summary = {
   retrievalsTypeCounts: Record<string, number>;
 };
 
-export const NODES_MAX_GREEN: number = 175;
-export const NODES_MIN_GREEN: number = 50;
-export const NODES_MAX_RED: number = 255;
-export const NODES_MIN_RED: number = 0;
+export const MAX_GREEN: number = 175;
+export const MIN_GREEN: number = 50;
+export const MAX_RED: number = 255;
+export const MIN_RED: number = 0;

@@ -2,10 +2,10 @@ import {
   ProcessedNode,
   AggregateRetrieval,
   DatabaseRetrieval,
-  NODES_MIN_RED,
-  NODES_MAX_RED,
-  NODES_MAX_GREEN,
-  NODES_MIN_GREEN,
+  MIN_RED,
+  MAX_RED,
+  MAX_GREEN,
+  MIN_GREEN,
 } from "@/lib/types";
 import InfoIcon from "@mui/icons-material/Info";
 import {
@@ -55,11 +55,8 @@ export function NodesTable({
   const getColor = (duration: number, hover?: boolean): string => {
     const percentage = (duration - minDuration) / (maxDuration - minDuration);
 
-    const red =
-      NODES_MIN_RED + Math.floor((NODES_MAX_RED - NODES_MIN_RED) * percentage);
-    const green =
-      NODES_MAX_GREEN -
-      Math.floor((NODES_MAX_GREEN - NODES_MIN_GREEN) * percentage);
+    const red = MIN_RED + Math.floor((MAX_RED - MIN_RED) * percentage);
+    const green = MAX_GREEN - Math.floor((MAX_GREEN - MIN_GREEN) * percentage);
 
     return `rgba(${red}, ${green}, 0, ${hover ? 0.5 : 0.8})`;
   };
