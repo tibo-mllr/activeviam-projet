@@ -39,17 +39,29 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 Submit a query and get a query plan, or submit directly a query plan
 
+### Summary
+
+`./app/summary`
+
+Get general information and statistics about the query plan
+
 ### Timeline
 
 `./app/timeline`
 
 See the retrievals organized in the timeline
 
-### Summary
+### Nodes
 
-`./app/summary`
+`./app/nodes`
 
-Get general information and statistics about the query plan
+Get different timings about the slowest nodes of the query plan
+
+### Passes
+
+`./app/passes`
+
+Get the timings of the different passes of the query plan
 
 ## Authors
 
