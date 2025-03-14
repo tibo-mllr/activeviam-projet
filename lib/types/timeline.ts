@@ -16,7 +16,7 @@ export type Timeline = Record<number, TimelineTiming[]>;
 
 export const TIMELINE_COLORS: Record<string, string> = {
   AggregateRetrieval: "secondary.dark",
-  AggregateRetrievalExecutionContext: "secondary.light",
+  AggregateRetrievalExecutionContext: "gold",
   DatabaseRetrieval: "primary.dark",
   DatabaseRetrievalExecutionContext: "primary.light",
 };
