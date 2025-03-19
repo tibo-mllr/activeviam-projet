@@ -112,8 +112,30 @@ export default function SubmitQueryPage(): ReactElement {
                 placement="right"
                 title={
                   <Box>
-                    <Typography variant="subtitle1">Query Mode</Typography>
-                    <Typography variant="body2">Text</Typography>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{ textDecoration: "underline", margin: 0.5 }}
+                    >
+                      MDX Request
+                    </Typography>
+                    <Typography variant="body2">
+                      Send an MDX request to a server and get a query plan back.
+                      You can paste text or enter a .txt file. You might need
+                      server credentials.
+                    </Typography>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{ textDecoration: "underline", margin: 0.5 }}
+                    >
+                      Query plan
+                    </Typography>
+                    <Typography variant="body2">
+                      Enter directly a query plan, that can be in JSON format
+                      (same as those sent by server) or in V1 format. You can
+                      paste text or enter a .txt or .json file. The tool will
+                      try to detect the format. If V1 format, it will be
+                      converted in JSON for our analysis.
+                    </Typography>
                   </Box>
                 }
               >
