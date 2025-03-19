@@ -1,6 +1,7 @@
 "use client";
 import { FileExporter, FileUploader } from "@/components";
 import { postRequest } from "@/lib/functions";
+import { convertV1toJson } from "@/lib/functions/convertV1ToJson";
 import { getQueryPlan, setQueryPlan, useAppDispatch } from "@/lib/redux";
 import { queryPlansSchema } from "@/lib/types";
 import { CopyAll } from "@mui/icons-material";
@@ -27,6 +28,15 @@ import { useSelector } from "react-redux";
 
 const DEFAULT_URL =
   "https://activepivot-ranch.activeviam.com:6100/activeviam/pivot/rest/v9/cube/query/mdx/queryplan";
+
+function isJsonString(str: string): boolean {
+  try {
+    JSON.parse(str);
+  } catch {
+    return false;
+  }
+  return true;
+}
 
 export default function SubmitQueryPage(): ReactElement {
   const [error, setError] = useState<string | null>(null);
@@ -66,26 +76,47 @@ export default function SubmitQueryPage(): ReactElement {
     }
   };
 
-  const handleManualSubmit = (): void => {
-    try {
-      setError(null);
-      dispatch(setQueryPlan(""));
-      if (!manualQueryPlan.trim()) {
-        setError("Query plan cannot be empty.");
-        return;
+  const handleManualSubmit = async (): Promise<void> => {
+    setError(null);
+    dispatch(setQueryPlan(""));
+    if (!manualQueryPlan.trim()) {
+      setError("Query plan cannot be empty.");
+      return;
+    }
+    if (isJsonString(manualQueryPlan)) {
+      // JSON is valid
+      // We expect the JSON query plan format given by the server
+      try {
+        const parsed = queryPlansSchema.safeParse(JSON.parse(manualQueryPlan));
+        if (!parsed.success) {
+          setError("Failed to parse JSON to query plan schema.");
+          console.error(parsed.error);
+          return;
+        }
+        dispatch(setQueryPlan(parsed.data));
+      } catch {
+        setError("Unexpected error parsing JSON.");
       }
-
-      const parsed = queryPlansSchema.safeParse(JSON.parse(manualQueryPlan));
-
-      if (!parsed.success) {
-        setError("Invalid JSON format in query plan.");
-        console.error(parsed.error);
-        return;
+    } else {
+      // Not a JSON, we try if it is a V1 format
+      try {
+        const convertedV1ToStringArray = JSON.stringify(
+          await convertV1toJson(manualQueryPlan),
+        );
+        const parsed = queryPlansSchema.safeParse(
+          JSON.parse(convertedV1ToStringArray),
+        );
+        if (!parsed.success) {
+          setError("Failed to parse JSON to query plan schema.");
+          console.error(parsed.error);
+          return;
+        }
+        dispatch(setQueryPlan(parsed.data));
+      } catch {
+        setError(
+          "The input doesn't seem to be a JSON format or a valid V1 format",
+        );
       }
-
-      dispatch(setQueryPlan(parsed.data));
-    } catch {
-      setError("Invalid JSON format in query plan.");
     }
   };
 
@@ -245,7 +276,7 @@ export default function SubmitQueryPage(): ReactElement {
                 multiline
                 minRows={6}
                 maxRows={12}
-                placeholder="Enter Query Plan JSON"
+                placeholder="Enter Query Plan : JSON or V1 format"
                 sx={{ width: "100%" }}
                 value={manualQueryPlan}
                 onChange={(e) => setManualQueryPlan(e.target.value)} // Update state
