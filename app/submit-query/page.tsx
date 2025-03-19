@@ -4,6 +4,7 @@ import { postRequest } from "@/lib/functions";
 import { getQueryPlan, setQueryPlan, useAppDispatch } from "@/lib/redux";
 import { queryPlansSchema } from "@/lib/types";
 import { CopyAll } from "@mui/icons-material";
+import InfoIcon from "@mui/icons-material/Info";
 import {
   Button,
   Card,
@@ -12,6 +13,7 @@ import {
   Grid2,
   TextField,
   Tooltip,
+  IconButton,
   Typography,
   Switch,
   CircularProgress,
@@ -88,17 +90,38 @@ export default function SubmitQueryPage(): ReactElement {
   };
 
   return (
-    <Card sx={{ width: "40%", padding: 4 }}>
+    <Card sx={{ width: "45%", padding: 4 }}>
       <CardHeader
-        title="Send an MDX request"
+        title={
+          <>
+            Send an MDX request <br /> or a Query Plan
+          </>
+        }
         action={
           // Toggle Switch
           <Grid2>
-            <Typography>Query plan mode</Typography>
-            <Switch
-              checked={isManualMode}
-              onChange={() => setIsManualMode((prev) => !prev)}
-            />
+            <Grid2>
+              <Typography>MDX request / Query plan</Typography>
+            </Grid2>
+            <Grid2 textAlign={"right"} sx={{ marginRight: 1 }}>
+              <Switch
+                checked={isManualMode}
+                onChange={() => setIsManualMode((prev) => !prev)}
+              />
+              <Tooltip
+                placement="right"
+                title={
+                  <Box>
+                    <Typography variant="subtitle1">Query Mode</Typography>
+                    <Typography variant="body2">Text</Typography>
+                  </Box>
+                }
+              >
+                <IconButton size="small" sx={{ ml: 2 }}>
+                  <InfoIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Grid2>
           </Grid2>
         }
       />
