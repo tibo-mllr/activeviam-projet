@@ -5,7 +5,6 @@ import { convertV1toJson } from "@/lib/functions/convertV1ToJson";
 import { getQueryPlan, setQueryPlan, useAppDispatch } from "@/lib/redux";
 import { queryPlansSchema } from "@/lib/types";
 import { CopyAll } from "@mui/icons-material";
-import InfoIcon from "@mui/icons-material/Info";
 import {
   Button,
   Card,
@@ -14,7 +13,6 @@ import {
   Grid2,
   TextField,
   Tooltip,
-  IconButton,
   Typography,
   Switch,
   CircularProgress,
@@ -123,7 +121,7 @@ export default function SubmitQueryPage(): ReactElement {
     }
   };
 
-  const handleClick = () => {
+  const handleClick = (): void => {
     setShowAdditionalCard((prev) => !prev);
 
     setTimeout(() => {
@@ -365,7 +363,7 @@ export default function SubmitQueryPage(): ReactElement {
               reply.
             </Typography>
             <Typography variant="body2" sx={{ marginBottom: 1 }}>
-              Structure:
+              MDX Structure:
             </Typography>
             <Box p={2} borderRadius={2} border={1} marginBottom={0.5}>
               <Typography variant="body2" component="pre">
@@ -395,10 +393,12 @@ WHERE ( [Dimension2].[Hierarchy2].[Filter1] )`}
               2. Query plan
             </Typography>
             <Typography variant="body2" sx={{ marginBottom: 3 }}>
-              Enter directly a query plan, that can be in JSON format (same as
-              those sent by server) or in V1 format. You can paste text or enter
-              a .txt or .json file. The tool will try to detect the format. If
-              V1 format, it will be converted in JSON for our analysis.
+              Enter directly a query plan, that can be in JSON format, the
+              format that is given by the Atoti server API or in V1 format, the
+              format given by the tool logs when enabled. You can paste text or
+              enter a .txt or .json file. The tool will try to detect the
+              format. If V1 format, it will be converted in JSON for our
+              analysis.
             </Typography>
             <Typography variant="body2" sx={{ marginBottom: 1 }}>
               JSON structure:
