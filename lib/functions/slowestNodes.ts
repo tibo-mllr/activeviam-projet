@@ -63,6 +63,8 @@ function computeTimingDetails(timingInfo: TimingInfo): {
 export function getSlowestNodes(
   queryPlan: QueryPlan | AggregatedQueryPlan,
   numberOfNodes: number,
+  sortColumn: keyof ProcessedNode = "totalTiming",
+  sortOrder: "asc" | "desc" = "desc",
 ): {
   minDuration: number;
   maxDuration: number;
@@ -160,11 +162,15 @@ export function getSlowestNodes(
       ? Math.max(...allNodes.map((node) => node.totalTiming))
       : 0;
 
+  allNodes.sort((a, b) => {
+    if (a[sortColumn] < b[sortColumn]) return sortOrder === "asc" ? -1 : 1;
+    if (a[sortColumn] > b[sortColumn]) return sortOrder === "asc" ? 1 : -1;
+    return 0;
+  });
+
   return {
     minDuration,
     maxDuration,
-    processedNodes: allNodes
-      .sort((a, b) => b.totalTiming - a.totalTiming)
-      .slice(0, numberOfNodes),
+    processedNodes: allNodes.slice(0, numberOfNodes),
   };
 }
