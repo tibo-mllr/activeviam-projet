@@ -15,6 +15,7 @@ import {
   AggregateRetrieval,
   DatabaseRetrieval,
   emptyAggregateRetrieval,
+  emptyQueryPlan,
   QueryPlan,
   TimingType,
 } from "@/lib/types";
@@ -40,7 +41,6 @@ export default function TimelinePage(): ReactElement {
 
   const [showDialog, setShowDialog] = useState<boolean>(false);
   const [timeMode, setTimeMode] = useState<boolean>(false);
-  const [threshold, setThreshold] = useState<number>(0);
   const [selectedRetrieval, setSelectedRetrieval] = useState<
     AggregateRetrieval | DatabaseRetrieval
   >(emptyAggregateRetrieval);
@@ -121,13 +121,42 @@ export default function TimelinePage(): ReactElement {
     }
   }
 
-  if (!queryPlan) return <>Please send a query to see the graph</>;
-
   let selectedQueryPlan: QueryPlan;
-  if (selectedIndex == -1) selectedQueryPlan = aggregateData(queryPlan);
+  if (selectedIndex == -1) selectedQueryPlan = aggregateData(queryPlan || []);
+  else if (!queryPlan) selectedQueryPlan = emptyQueryPlan;
   else selectedQueryPlan = queryPlan[selectedIndex];
 
   const { aggregateRetrievals, databaseRetrievals } = selectedQueryPlan;
+
+  const timeline = buildTimeline(selectedQueryPlan);
+
+  const {
+    nbCores,
+    maxDuration,
+    minDuration,
+    totalProcesses,
+    ...coresTimeline
+  } = timeline;
+
+  const maxItems = 100;
+  const [threshold, setThreshold] = useState<number>(0.9 * maxDuration);
+  const [hiddenNodes, setHiddenNodes] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (totalProcesses < maxItems && threshold !== 0) {
+      setThreshold(0);
+      setHiddenNodes(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [totalProcesses, maxItems]);
+
+  // Find the maximum end time to calculate the content width
+  maxEnd = Math.max(
+    ...Object.values(coresTimeline).flatMap((timings) =>
+      timings.map(({ end }) => end),
+    ),
+  );
+  const contentWidth = maxEnd * scale;
 
   const openRetrievalDialog = (
     retrievalId: number,
@@ -162,17 +191,7 @@ export default function TimelinePage(): ReactElement {
     }
   };
 
-  const timeline = buildTimeline(selectedQueryPlan);
-
-  const { nbCores, maxDuration, minDuration, ...coresTimeline } = timeline;
-
-  // Find the maximum end time to calculate the content width
-  maxEnd = Math.max(
-    ...Object.values(coresTimeline).flatMap((timings) =>
-      timings.map(({ end }) => end),
-    ),
-  );
-  const contentWidth = maxEnd * scale;
+  if (!queryPlan) return <>Please send a query to see the graph</>;
 
   return (
     <Box padding={2} paddingBottom={0} width="100%">
@@ -248,8 +267,10 @@ export default function TimelinePage(): ReactElement {
             value={threshold}
             onChange={(event) => {
               const value = Number(event.target.value);
-              if (value >= minDuration && value <= maxDuration)
+              if (value >= minDuration && value <= maxDuration) {
                 setThreshold(value);
+                setHiddenNodes(false);
+              }
             }}
             sx={{ width: "50px", marginX: 1 }}
           />
@@ -259,10 +280,20 @@ export default function TimelinePage(): ReactElement {
             min={minDuration}
             max={maxDuration}
             value={threshold}
-            onChange={(_event, value) => setThreshold(value as number)}
+            onChange={(_event, value) => {
+              setThreshold(value as number);
+              setHiddenNodes(false);
+            }}
           />
         </FormGroup>
       </Grid2>
+
+      {hiddenNodes && (
+        <Typography variant="caption" color="warning">
+          Careful! As there is a large number of processes, we hid the smaller
+          ones. To see them, change the threshold.
+        </Typography>
+      )}
 
       <TimelineLegend
         timeMode={timeMode}
@@ -273,7 +304,7 @@ export default function TimelinePage(): ReactElement {
       <Grid2
         container
         width="100%"
-        maxHeight="51vh"
+        maxHeight={hiddenNodes ? "48vh" : "53vh"}
         marginTop={2}
         flexDirection="row"
         sx={{ overflowY: "auto", overflowX: "hidden" }}

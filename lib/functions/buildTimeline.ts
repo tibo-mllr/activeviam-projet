@@ -9,10 +9,16 @@ import {
 
 export function buildTimeline(
   queryPlan: QueryPlan | AggregatedQueryPlan,
-): Timeline & { nbCores: number; minDuration: number; maxDuration: number } {
+): Timeline & {
+  nbCores: number;
+  minDuration: number;
+  maxDuration: number;
+  totalProcesses: number;
+} {
   let maxCores: number = 0;
   let minDuration: number = Number.MAX_SAFE_INTEGER;
   let maxDuration: number = 0;
+  let totalProcesses: number = 0;
 
   let aggregateRetrievals: AggregatedAggregateRetrieval[];
   let databaseRetrievals: AggregatedDatabaseRetrieval[];
@@ -29,16 +35,10 @@ export function buildTimeline(
       queryPlan.databaseRetrievals as AggregatedDatabaseRetrieval[];
   } else {
     aggregateRetrievals = (queryPlan.aggregateRetrievals ?? []).map(
-      (retrieval) => ({
-        ...retrieval,
-        pass: queryPlan.planInfo.mdxPass,
-      }),
+      (retrieval) => ({ ...retrieval, pass: queryPlan.planInfo.mdxPass }),
     );
     databaseRetrievals = (queryPlan.databaseRetrievals ?? []).map(
-      (retrieval) => ({
-        ...retrieval,
-        pass: queryPlan.planInfo.mdxPass,
-      }),
+      (retrieval) => ({ ...retrieval, pass: queryPlan.planInfo.mdxPass }),
     );
   }
 
@@ -150,8 +150,12 @@ export function buildTimeline(
 
   // Remove duplicates for easier grouping
   const filteredTimings = allTimings.reduce((acc, curr) => {
-    if (!acc.find(({ start, end }) => start === curr.start && end === curr.end))
+    if (
+      !acc.find(({ start, end }) => start === curr.start && end === curr.end)
+    ) {
       acc.push(curr);
+      totalProcesses += 1;
+    }
 
     return acc;
   }, [] as TimelineTiming[]);
@@ -181,5 +185,11 @@ export function buildTimeline(
     maxCores = Math.max(maxCores, core + 1);
   }
 
-  return { ...timeline, nbCores: maxCores, minDuration, maxDuration };
+  return {
+    ...timeline,
+    nbCores: maxCores,
+    minDuration,
+    maxDuration,
+    totalProcesses,
+  };
 }
