@@ -49,6 +49,7 @@ export default function TimelinePage(): ReactElement {
   const minScale = 10;
 
   const [containerWidth, setContainerWidth] = useState<number>(50);
+  const [scrollLeft, setScrollLeft] = useState<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const scaleRef = useRef<HTMLDivElement>(null);
   let maxEnd = 0;
@@ -110,9 +111,13 @@ export default function TimelinePage(): ReactElement {
 
     if (!containerDiv || !scaleDiv) return;
 
+    const newScrollLeft =
+      source === "container" ? containerDiv.scrollLeft : scaleDiv.scrollLeft;
+    setScrollLeft(newScrollLeft);
+
     if (containerDiv.scrollLeft !== scaleDiv.scrollLeft) {
-      if (source === "container") scaleDiv.scrollLeft = containerDiv.scrollLeft;
-      else containerDiv.scrollLeft = scaleDiv.scrollLeft;
+      if (source === "container") scaleDiv.scrollLeft = newScrollLeft;
+      else containerDiv.scrollLeft = newScrollLeft;
     }
   }
 
@@ -319,9 +324,11 @@ export default function TimelinePage(): ReactElement {
       {/* Time scale */}
       <TimelineFooter
         contentWidth={contentWidth}
+        containerWidth={containerWidth}
         scale={scale}
         maxEnd={maxEnd}
         onScroll={() => handleScroll("scale")}
+        scrollLeft={scrollLeft}
         ref={scaleRef}
       />
       {/* Dialog for retrieval details */}

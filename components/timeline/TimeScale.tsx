@@ -1,19 +1,40 @@
+"use client";
 import { Box, Typography } from "@mui/material";
-import { type ReactElement } from "react";
+import { useMemo, type ReactElement } from "react";
 
 type TimeScaleProps = {
   maxEnd: number;
   scale: number;
+  containerWidth: number;
+  scrollLeft: number;
 };
 
 const PIXELS_PER_TICK = 100;
 
-export function TimeScale({ maxEnd, scale }: TimeScaleProps): ReactElement {
+export function TimeScale({
+  maxEnd,
+  scale,
+  containerWidth,
+  scrollLeft,
+}: TimeScaleProps): ReactElement {
   // Dynamically calculate interval based on the desired number of ticks
-  const interval = Math.ceil(PIXELS_PER_TICK / scale);
-  const ticks = Array.from(
-    { length: Math.ceil(maxEnd / interval) },
-    (_, i) => i * interval,
+  const interval = useMemo(() => Math.ceil(PIXELS_PER_TICK / scale), [scale]);
+
+  const numVisibleTicks = Math.ceil(containerWidth / PIXELS_PER_TICK);
+
+  const startTick = Math.floor(scrollLeft / (interval * scale)) * interval;
+  const ticks = useMemo(
+    () =>
+      Array.from(
+        {
+          length: Math.min(
+            numVisibleTicks,
+            Math.ceil(maxEnd / interval) - startTick / interval,
+          ),
+        },
+        (_, i) => startTick + i * interval,
+      ),
+    [interval, maxEnd, numVisibleTicks, startTick],
   );
 
   return (

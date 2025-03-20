@@ -4,18 +4,22 @@ import { TimeScale } from "./TimeScale";
 
 type TimelineFooterProps = {
   contentWidth: number;
+  containerWidth: number;
   maxEnd: number;
   scale: number;
   ref: RefObject<HTMLDivElement>;
   onScroll: () => void;
+  scrollLeft: number;
 };
 
 export function TimelineFooter({
   contentWidth,
+  containerWidth,
   maxEnd,
   scale,
   ref,
   onScroll,
+  scrollLeft,
 }: TimelineFooterProps): ReactElement {
   return (
     <Grid2
@@ -41,7 +45,12 @@ export function TimelineFooter({
         ref={ref}
       >
         <Grid2 width={`${contentWidth}px`}>
-          <TimeScale maxEnd={maxEnd} scale={scale} />
+          <TimeScale
+            maxEnd={maxEnd}
+            scale={scale}
+            containerWidth={containerWidth}
+            scrollLeft={scrollLeft}
+          />
         </Grid2>
       </Grid2>
     </Grid2>
