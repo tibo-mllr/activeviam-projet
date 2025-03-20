@@ -130,13 +130,8 @@ export default function TimelinePage(): ReactElement {
 
   const timeline = buildTimeline(selectedQueryPlan);
 
-  const {
-    nbCores,
-    maxDuration,
-    minDuration,
-    totalProcesses,
-    ...coresTimeline
-  } = timeline;
+  const { maxDuration, minDuration, totalProcesses, ...coresTimeline } =
+    timeline;
 
   const maxItems = 100;
   const [threshold, setThreshold] = useState<number>(0.9 * maxDuration);
@@ -311,7 +306,7 @@ export default function TimelinePage(): ReactElement {
       >
         {/* First column: core labels */}
         <Grid2 container size={1} flexDirection="column">
-          {Array.from({ length: nbCores }).map((_, index) => (
+          {Object.keys(coresTimeline).map((_, index) => (
             <TimelineDiv key={index}>
               <Typography
                 variant="body2"
@@ -336,11 +331,11 @@ export default function TimelinePage(): ReactElement {
           onScroll={() => handleScroll("container")}
           ref={containerRef}
         >
-          {Array.from({ length: nbCores }).map((_, index) => (
+          {Object.entries(coresTimeline).map(([, timings], index) => (
             <TimelineDiv container key={index} width={`${contentWidth}px`}>
               <CoreProcesses
                 core={index}
-                timings={coresTimeline[index] || []}
+                timings={timings}
                 scale={scale}
                 openRetrievalDialog={openRetrievalDialog}
                 timeMode={timeMode}
