@@ -55,37 +55,33 @@ export function CoreProcesses({
       borderRadius={2}
       overflow="hidden"
     >
-      {timings.map(({ start, end, retrievalId, type, pass }) => (
-        <Tooltip
-          key={`${pass}-${core}-${start}-${end}`}
-          title={
-            <>
-              Retrieval ID: {retrievalId},<br />
-              Type: {type},<br />
-              Start time: {start}, End time: {end}
-            </>
-          }
-        >
-          <Box
-            component="button" // Behave like a button in a semantic way (cursor, focus, etc.) but no minimum size
-            width={(end - start) * scale}
-            height="100%"
-            position="absolute"
-            left={start * scale}
-            border={1}
-            borderColor="black"
-            borderRadius={2}
-            bgcolor={
-              end - start < threshold
-                ? "gray"
-                : timeMode
-                  ? getColor(start, end)
-                  : TIMELINE_COLORS[type]
+      {timings
+        .filter(({ start, end }) => end - start >= threshold)
+        .map(({ start, end, retrievalId, type, pass }) => (
+          <Tooltip
+            key={`${pass}-${core}-${start}-${end}`}
+            title={
+              <>
+                Retrieval ID: {retrievalId},<br />
+                Type: {type},<br />
+                Start time: {start}, End time: {end}
+              </>
             }
-            onClick={() => openRetrievalDialog(retrievalId, type, pass)}
-          />
-        </Tooltip>
-      ))}
+          >
+            <Box
+              component="button" // Behave like a button in a semantic way (cursor, focus, etc.) but no minimum size
+              width={(end - start) * scale}
+              height="100%"
+              position="absolute"
+              left={start * scale}
+              border={1}
+              borderColor="black"
+              borderRadius={2}
+              bgcolor={timeMode ? getColor(start, end) : TIMELINE_COLORS[type]}
+              onClick={() => openRetrievalDialog(retrievalId, type, pass)}
+            />
+          </Tooltip>
+        ))}
     </Box>
   );
 }
