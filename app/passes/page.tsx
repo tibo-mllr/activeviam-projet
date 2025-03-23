@@ -16,21 +16,23 @@ import {
   Tooltip,
   IconButton,
 } from "@mui/material";
-import { ReactElement } from "react";
+import { ReactElement, useMemo } from "react";
 import { useSelector } from "react-redux";
 
 export default function PassesPage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
 
-  if (!queryPlan || queryPlan.length === 0) {
+  const passesTimings = useMemo(
+    () => getPassesTimings(queryPlan || []),
+    [queryPlan],
+  );
+
+  if (!queryPlan || queryPlan.length === 0)
     return (
       <Typography>
         The query plan is empty. Please run a query to see the passes.
       </Typography>
     );
-  }
-
-  const passesTimings = getPassesTimings(queryPlan);
 
   return (
     <Box padding={2} width="100%">
