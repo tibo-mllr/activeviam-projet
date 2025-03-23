@@ -19,6 +19,7 @@ import {
   Box,
   Fade,
   Link,
+  DialogContent,
 } from "@mui/material";
 import { isAxiosError } from "axios";
 import { Formik, Field, Form } from "formik";
@@ -27,6 +28,18 @@ import { useSelector } from "react-redux";
 
 const DEFAULT_URL =
   "https://activepivot-ranch.activeviam.com:6100/activeviam/pivot/rest/v9/cube/query/mdx/queryplan";
+
+const sampleData = [
+  {
+    planInfo: {},
+    aggregateRetrievals: [],
+    dependencies: {},
+    databaseRetrievals: [],
+    databaseDependencies: {},
+    queryFilters: [],
+    querySummary: {},
+  },
+];
 
 function isJsonString(str: string): boolean {
   try {
@@ -147,7 +160,7 @@ export default function SubmitQueryPage(): ReactElement {
             // Toggle Switch
             <Grid2>
               <Grid2>
-                <Typography>MDX request / Query plan</Typography>
+                <Typography>MDX request / Direct query plan</Typography>
               </Grid2>
               <Grid2 textAlign={"right"} sx={{ marginRight: 1 }}>
                 <Switch
@@ -346,7 +359,7 @@ export default function SubmitQueryPage(): ReactElement {
       {showAdditionalCard && (
         <Card ref={additionalCardRef} sx={{ padding: 4, marginTop: 2 }}>
           <CardContent>
-            <Typography variant="body2" sx={{ marginBottom: 2 }}>
+            <Typography variant="body2" sx={{ marginBottom: 6 }}>
               You have two ways of loading a query plan: send an MDX request and
               get a JSON query plan, or enter yourself a JSON or V1 query plan.
             </Typography>
@@ -365,22 +378,32 @@ export default function SubmitQueryPage(): ReactElement {
             <Typography variant="body2" sx={{ marginBottom: 1 }}>
               MDX Structure:
             </Typography>
-            <Box p={2} borderRadius={2} border={1} marginBottom={0.5}>
-              <Typography variant="body2" component="pre">
+            <DialogContent
+              dividers
+              sx={{
+                maxHeight: "400px",
+                overflow: "auto",
+              }}
+            >
+              <Box
+                component="pre"
+                sx={{ whiteSpace: "pre", overflowX: "auto" }}
+              >
                 {`SELECT 
       { [Measures].[Measure1], [Measures].[Measure2] } ON COLUMNS, 
       { [Dimension1].[Hierarchy1].[Member1], [Dimension1].[Hierarchy1].[Member2] } ON ROWS 
 FROM [Cube1]
 WHERE ( [Dimension2].[Hierarchy2].[Filter1] )`}
-              </Typography>
-            </Box>
-            <Box p={2} borderRadius={2} border={1} marginBottom={4}>
+              </Box>
+            </DialogContent>
+            <Box p={2} borderRadius={2} border={1} marginBottom={6}>
               <Link
                 href="https://learn.microsoft.com/en-us/analysis-services/multidimensional-models/mdx/mdx-query-the-basic-query?view=asallproducts-allversions"
                 target="_blank"
                 rel="noopener noreferrer"
+                sx={{ fontSize: "0.875rem" }}
               >
-                Documentation
+                Complete documentation
               </Link>
             </Box>
             <Typography
@@ -401,28 +424,76 @@ WHERE ( [Dimension2].[Hierarchy2].[Filter1] )`}
               analysis.
             </Typography>
             <Typography variant="body2" sx={{ marginBottom: 1 }}>
-              JSON structure:
+              JSON structure : this is the structure given by the Atoti server
             </Typography>
-            <Box p={2} borderRadius={2} border={1} marginBottom={2}>
-              <Link
-                href="https://activepivot-ranch.activeviam.com:6100/activeviam/swagger-ui/index.html#/queries-rest-service-controller/mdxQueryPlan"
-                target="_blank"
-                rel="noopener noreferrer"
+            <DialogContent
+              dividers
+              sx={{ maxHeight: "400px", overflow: "auto" }}
+            >
+              <Box
+                component="pre"
+                sx={{ whiteSpace: "pre", overflowX: "auto" }}
               >
-                Documentation
-              </Link>
+                {JSON.stringify(sampleData, null, 2)}
+              </Box>
+            </DialogContent>
+            <Box p={2} borderRadius={2} border={1} marginBottom={2}>
+              <Typography variant="body2" sx={{ fontSize: "0.875rem" }}>
+                Detailed types in the{" "}
+                <Link
+                  href="https://activepivot-ranch.activeviam.com:6100/activeviam/swagger-ui/index.html#/queries-rest-service-controller/mdxQueryPlan"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{ fontSize: "0.875rem" }}
+                >
+                  documentation
+                </Link>{" "}
+                , in the section 'JsonQueryPlanData'.
+              </Typography>
             </Box>
             <Typography variant="body2" sx={{ marginBottom: 1 }}>
-              V1 structure:
+              V1 structure : given by the logs
             </Typography>
-            <Box p={2} borderRadius={2} border={1} marginBottom={2}>
-              <Link
-                href="https://docs.activeviam.com/products/atoti/server/5.9.14/docs/monitoring/query_execution_plan.html"
-                target="_blank"
-                rel="noopener noreferrer"
+            <DialogContent
+              dividers
+              sx={{
+                maxHeight: "400px",
+                overflow: "auto",
+              }}
+            >
+              <Box
+                component="pre"
+                sx={{ whiteSpace: "pre", overflowX: "auto" }}
               >
-                Documentation
-              </Link>
+                {`==============================
+General information:
+-------------------
+Context values:
+--------------
+Additional properties:
+---------------------
+Planning:
+--------
+Execution:
+---------
+Query plan:
+----------
+Query Plan Summary:
+-------------------`}
+              </Box>
+            </DialogContent>
+            <Box p={2} borderRadius={2} border={1} marginBottom={2}>
+              <Typography variant="body2" sx={{ fontSize: "0.875rem" }}>
+                This type is complex, here is the{" "}
+                <Link
+                  href="https://docs.activeviam.com/products/atoti/server/5.9.14/docs/monitoring/query_execution_plan.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{ fontSize: "0.875rem" }}
+                >
+                  documentation
+                </Link>
+              </Typography>
             </Box>
           </CardContent>
         </Card>
