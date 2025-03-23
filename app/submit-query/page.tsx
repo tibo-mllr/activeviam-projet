@@ -21,7 +21,7 @@ import {
 } from "@mui/material";
 import { isAxiosError } from "axios";
 import { Formik, Field, Form } from "formik";
-import { useState, ReactElement } from "react";
+import { useState, ReactElement, useCallback } from "react";
 import { useSelector } from "react-redux";
 
 const DEFAULT_URL =
@@ -44,37 +44,42 @@ export default function SubmitQueryPage(): ReactElement {
   const dispatch = useAppDispatch();
   const queryPlan = useSelector(getQueryPlan);
 
-  const handleSubmit = async (values: {
-    url: string;
-    username: string;
-    password: string;
-    text: string;
-  }): Promise<void> => {
-    setError(null);
-    dispatch(setQueryPlan(""));
-    if (values.text != "") {
-      const payload = { mdx: values.text };
-      try {
-        // POST using Axios
-        const res = await postRequest(
-          values.url,
-          payload,
-          values.username,
-          values.password,
-        );
-        dispatch(setQueryPlan(res));
-      } catch (err) {
-        if (isAxiosError(err)) setError(`Error: ${err.message}`);
-        else setError(`Error: ${err}`);
+  const handleSubmit = useCallback<
+    (values: {
+      url: string;
+      username: string;
+      password: string;
+      text: string;
+    }) => Promise<void>
+  >(
+    async (values) => {
+      setError(null);
+      dispatch(setQueryPlan(""));
+      if (values.text != "") {
+        const payload = { mdx: values.text };
+        try {
+          // POST using Axios
+          const res = await postRequest(
+            values.url,
+            payload,
+            values.username,
+            values.password,
+          );
+          dispatch(setQueryPlan(res));
+        } catch (err) {
+          if (isAxiosError(err)) setError(`Error: ${err.message}`);
+          else setError(`Error: ${err}`);
 
-        console.error(err);
+          console.error(err);
+        }
+      } else {
+        setError(`Query area is empty`);
       }
-    } else {
-      setError(`Query area is empty`);
-    }
-  };
+    },
+    [dispatch],
+  );
 
-  const handleManualSubmit = async (): Promise<void> => {
+  const handleManualSubmit = useCallback<() => Promise<void>>(async () => {
     setError(null);
     dispatch(setQueryPlan(""));
     if (!manualQueryPlan.trim()) {
@@ -116,7 +121,7 @@ export default function SubmitQueryPage(): ReactElement {
         );
       }
     }
-  };
+  }, [dispatch, manualQueryPlan]);
 
   return (
     <Card sx={{ width: "40%", padding: 4 }}>

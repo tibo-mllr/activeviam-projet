@@ -32,7 +32,14 @@ import {
   Tooltip,
   IconButton,
 } from "@mui/material";
-import { ReactElement, useEffect, useRef, useState } from "react";
+import {
+  ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useSelector } from "react-redux";
 
 export default function TimelinePage(): ReactElement {
@@ -52,83 +59,26 @@ export default function TimelinePage(): ReactElement {
   const [scrollLeft, setScrollLeft] = useState<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const scaleRef = useRef<HTMLDivElement>(null);
-  let maxEnd = 0;
-
-  // Keep track of container width
-  useEffect(() => {
-    function handleResize(): void {
-      if (containerRef.current) {
-        setContainerWidth(containerRef.current.offsetWidth);
-      }
-    }
-
-    const resizeObserver = new ResizeObserver(() => handleResize());
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current);
-      handleResize();
-    }
-
-    return () => resizeObserver.disconnect();
-  }, []);
-
-  // Handle zoom with mouse wheel
-  useEffect(() => {
-    function handleWheel(event: WheelEvent): void {
-      if (!containerRef.current) return;
-
-      const { deltaY, ctrlKey } = event;
-
-      // Zoom in/out only when holding Ctrl or Pinching on touchpad (it seems `ctrlKey` handles both)
-      if (ctrlKey) {
-        event.preventDefault(); // Prevent page scroll
-        const direction = deltaY > 0 ? -1 : 1;
-        const zoomFactor = 0.8;
-        const newScale = Math.max(
-          minScale,
-          Math.min(100, scale + direction * zoomFactor),
-        );
-        setScale(newScale);
-      }
-    }
-
-    const container = containerRef.current;
-    if (container) container.addEventListener("wheel", handleWheel);
-
-    return () => {
-      if (container) container.removeEventListener("wheel", handleWheel);
-    };
-  }, [scale]);
-
-  // Adjust scale at render and when container's width changes
-  useEffect(() => {
-    setScale(containerWidth / maxEnd);
-  }, [containerWidth, maxEnd]);
-
-  // Synchronize horizontal scroll between timeline and scale
-  function handleScroll(source: "container" | "scale"): void {
-    const containerDiv = containerRef.current;
-    const scaleDiv = scaleRef.current;
-
-    if (!containerDiv || !scaleDiv) return;
-
-    const newScrollLeft =
-      source === "container" ? containerDiv.scrollLeft : scaleDiv.scrollLeft;
-    setScrollLeft(newScrollLeft);
-
-    if (containerDiv.scrollLeft !== scaleDiv.scrollLeft) {
-      if (source === "container") scaleDiv.scrollLeft = newScrollLeft;
-      else containerDiv.scrollLeft = newScrollLeft;
-    }
-  }
 
   let selectedQueryPlan: QueryPlan;
-  if (selectedIndex == -1) selectedQueryPlan = aggregateData(queryPlan || []);
-  else if (!queryPlan) selectedQueryPlan = emptyQueryPlan;
+  if (!queryPlan) selectedQueryPlan = emptyQueryPlan;
+  else if (selectedIndex == -1) selectedQueryPlan = aggregateData(queryPlan);
   else selectedQueryPlan = queryPlan[selectedIndex];
 
   const { aggregateRetrievals, databaseRetrievals } = selectedQueryPlan;
+  const memoizedAggregateRetrievals = useMemo(
+    () => aggregateRetrievals,
+    [aggregateRetrievals],
+  );
+  const memoizedDatabaseRetrievals = useMemo(
+    () => databaseRetrievals,
+    [databaseRetrievals],
+  );
 
-  const timeline = buildTimeline(selectedQueryPlan);
+  const timeline = useMemo(
+    () => buildTimeline(selectedQueryPlan),
+    [selectedQueryPlan],
+  );
 
   const { maxDuration, minDuration, totalProcesses, ...coresTimeline } =
     timeline;
@@ -146,47 +96,131 @@ export default function TimelinePage(): ReactElement {
   }, [totalProcesses, maxItems]);
 
   // Find the maximum end time to calculate the content width
-  maxEnd = Math.max(
-    ...Object.values(coresTimeline).flatMap((timings) =>
-      timings.map(({ end }) => end),
-    ),
+  const maxEnd = useMemo(
+    () =>
+      Math.max(
+        ...Object.values(coresTimeline).flatMap((timings) =>
+          timings.map(({ end }) => end),
+        ),
+      ),
+    [coresTimeline],
   );
-  const contentWidth = maxEnd * scale;
+  const contentWidth = useMemo(() => maxEnd * scale, [maxEnd, scale]);
 
-  const openRetrievalDialog = (
-    retrievalId: number,
-    type: TimingType,
-    pass: string,
-  ): void => {
-    let retrieval: AggregateRetrieval | DatabaseRetrieval | undefined;
-
-    if (selectedIndex !== -1) {
-      if (type.startsWith("AggregateRetrieval"))
-        retrieval = aggregateRetrievals.find(
-          (r) => r.retrievalId === retrievalId,
-        );
-      else if (type.startsWith("DatabaseRetrieval"))
-        retrieval = databaseRetrievals.find(
-          (r) => r.retrievalId === retrievalId,
-        );
-    } else {
-      if (type.startsWith("AggregateRetrieval"))
-        retrieval = (
-          aggregateRetrievals as AggregatedAggregateRetrieval[]
-        ).find((r) => r.retrievalId === retrievalId && r.pass === pass);
-      else if (type.startsWith("DatabaseRetrieval"))
-        retrieval = (databaseRetrievals as AggregatedDatabaseRetrieval[]).find(
-          (r) => r.retrievalId === retrievalId && r.pass === pass,
-        );
+  // Keep track of container width
+  const handleResize = useCallback<() => void>(() => {
+    if (containerRef.current)
+      setContainerWidth(containerRef.current.offsetWidth);
+  }, []);
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(() => handleResize());
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+      handleResize();
     }
 
-    if (retrieval) {
-      setSelectedRetrieval(retrieval);
-      setShowDialog(true);
-    }
-  };
+    return () => resizeObserver.disconnect();
+  }, [handleResize]);
 
-  if (!queryPlan) return <>Please send a query to see the graph</>;
+  // Handle zoom with mouse wheel
+  const handleWheel = useCallback<(event: WheelEvent) => void>((event) => {
+    if (!containerRef.current) return;
+
+    const { deltaY, ctrlKey } = event;
+
+    // Zoom in/out only when holding Ctrl or Pinching on touchpad (it seems `ctrlKey` handles both)
+    if (ctrlKey) {
+      event.preventDefault(); // Prevent page scroll
+      const zoomFactor = 0.8;
+      setScale((prevScale) =>
+        Math.max(
+          minScale,
+          Math.min(100, prevScale + (deltaY > 0 ? -zoomFactor : zoomFactor)),
+        ),
+      );
+    }
+  }, []);
+  useEffect(() => {
+    const container = containerRef.current;
+    if (container) container.addEventListener("wheel", handleWheel);
+
+    return () => {
+      if (container) container.removeEventListener("wheel", handleWheel);
+    };
+  }, [handleWheel]);
+
+  // Adjust scale at render and when container's width changes
+  useEffect(() => {
+    setScale((prevScale) => {
+      const newScale = containerWidth / maxEnd;
+      return prevScale !== newScale ? newScale : prevScale;
+    });
+  }, [containerWidth, maxEnd]);
+
+  // Synchronize horizontal scroll between timeline and scale
+  const handleScroll = useCallback<(source: "container" | "scale") => void>(
+    (source) => {
+      const containerDiv = containerRef.current;
+      const scaleDiv = scaleRef.current;
+
+      if (!containerDiv || !scaleDiv) return;
+
+      const newScrollLeft =
+        source === "container" ? containerDiv.scrollLeft : scaleDiv.scrollLeft;
+      setScrollLeft(newScrollLeft);
+
+      if (containerDiv.scrollLeft !== scaleDiv.scrollLeft) {
+        if (source === "container") scaleDiv.scrollLeft = newScrollLeft;
+        else containerDiv.scrollLeft = newScrollLeft;
+      }
+    },
+    [],
+  );
+  const onScaleScroll = useCallback(
+    () => handleScroll("scale"),
+    [handleScroll],
+  );
+  const onContainerScroll = useCallback(
+    () => handleScroll("container"),
+    [handleScroll],
+  );
+
+  const openRetrievalDialog = useCallback<
+    (retrievalId: number, type: TimingType, pass: string) => void
+  >(
+    (retrievalId, type, pass) => {
+      let retrieval: AggregateRetrieval | DatabaseRetrieval | undefined;
+
+      if (selectedIndex !== -1) {
+        if (type.startsWith("AggregateRetrieval"))
+          retrieval = memoizedAggregateRetrievals.find(
+            (r) => r.retrievalId === retrievalId,
+          );
+        else if (type.startsWith("DatabaseRetrieval"))
+          retrieval = memoizedDatabaseRetrievals.find(
+            (r) => r.retrievalId === retrievalId,
+          );
+      } else {
+        if (type.startsWith("AggregateRetrieval"))
+          retrieval = (
+            memoizedAggregateRetrievals as AggregatedAggregateRetrieval[]
+          ).find((r) => r.retrievalId === retrievalId && r.pass === pass);
+        else if (type.startsWith("DatabaseRetrieval"))
+          retrieval = (
+            memoizedDatabaseRetrievals as AggregatedDatabaseRetrieval[]
+          ).find((r) => r.retrievalId === retrievalId && r.pass === pass);
+      }
+
+      if (retrieval) {
+        setSelectedRetrieval(retrieval);
+        setShowDialog(true);
+      }
+    },
+    [memoizedAggregateRetrievals, memoizedDatabaseRetrievals, selectedIndex],
+  );
+
+  if (!queryPlan || queryPlan.length == 0)
+    return <>Please send a query to see the graph</>;
 
   return (
     <Box padding={2} paddingBottom={0} width="100%">
@@ -328,7 +362,7 @@ export default function TimelinePage(): ReactElement {
             overscrollBehaviorX: "none",
             scrollbarWidth: "none",
           }}
-          onScroll={() => handleScroll("container")}
+          onScroll={onContainerScroll}
           ref={containerRef}
         >
           {Object.entries(coresTimeline).map(([, timings], index) => (
@@ -353,7 +387,7 @@ export default function TimelinePage(): ReactElement {
         containerWidth={containerWidth}
         scale={scale}
         maxEnd={maxEnd}
-        onScroll={() => handleScroll("scale")}
+        onScroll={onScaleScroll}
         scrollLeft={scrollLeft}
         ref={scaleRef}
       />

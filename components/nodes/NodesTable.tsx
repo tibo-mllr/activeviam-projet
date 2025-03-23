@@ -1,11 +1,9 @@
+"use client";
+import { getColor } from "@/lib/functions";
 import {
   ProcessedNode,
   AggregateRetrieval,
   DatabaseRetrieval,
-  MIN_RED,
-  MAX_RED,
-  MAX_GREEN,
-  MIN_GREEN,
 } from "@/lib/types";
 import InfoIcon from "@mui/icons-material/Info";
 import {
@@ -21,7 +19,7 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
-import { ReactElement } from "react";
+import { ReactElement, useCallback } from "react";
 
 interface NodesTableProps {
   displayedNodes: ProcessedNode[];
@@ -52,14 +50,18 @@ export function NodesTable({
   setShowDialog,
   selectedIndex,
 }: NodesTableProps): ReactElement {
-  const getColor = (duration: number, hover?: boolean): string => {
-    const percentage = (duration - minDuration) / (maxDuration - minDuration);
+  const handleHeaderClick = useCallback(
+    (columnId: keyof ProcessedNode) => () => handleSort(columnId),
+    [handleSort],
+  );
 
-    const red = MIN_RED + Math.floor((MAX_RED - MIN_RED) * percentage);
-    const green = MAX_GREEN - Math.floor((MAX_GREEN - MIN_GREEN) * percentage);
-
-    return `rgba(${red}, ${green}, 0, ${hover ? 0.5 : 0.8})`;
-  };
+  const handleRowClick = useCallback(
+    (node: ProcessedNode) => () => {
+      setSelectedRetrieval(getRetrievalFromNode(node));
+      setShowDialog(true);
+    },
+    [getRetrievalFromNode, setSelectedRetrieval, setShowDialog],
+  );
 
   return (
     <TableContainer component={Paper}>
@@ -110,7 +112,7 @@ export function NodesTable({
                 <TableSortLabel
                   active={sortColumn === column.id}
                   direction={sortOrder}
-                  onClick={() => handleSort(column.id as keyof ProcessedNode)}
+                  onClick={handleHeaderClick(column.id as keyof ProcessedNode)}
                 >
                   <Typography display="flex" alignItems="center">
                     {column.label}
@@ -129,14 +131,18 @@ export function NodesTable({
           {displayedNodes.map((node) => (
             <TableRow
               key={`${node.pass} ${node.type} ${node.id}`}
-              onClick={() => {
-                setSelectedRetrieval(getRetrievalFromNode(node));
-                setShowDialog(true);
-              }}
+              onClick={handleRowClick(node)}
               sx={{
                 cursor: "pointer",
-                bgcolor: getColor(node.totalTiming),
-                "&:hover": { bgcolor: getColor(node.totalTiming, true) },
+                bgcolor: getColor(node.totalTiming, minDuration, maxDuration),
+                "&:hover": {
+                  bgcolor: getColor(
+                    node.totalTiming,
+                    minDuration,
+                    maxDuration,
+                    true,
+                  ),
+                },
               }}
             >
               <TableCell>
