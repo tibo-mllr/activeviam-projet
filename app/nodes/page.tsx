@@ -42,12 +42,14 @@ export default function NodesPage(): ReactElement {
       const { minDuration, maxDuration, processedNodes } = getSlowestNodes(
         selectedQueryPlan,
         numberOfNodes,
+        sortColumn,
+        sortOrder,
       );
       setMinDuration(minDuration);
       setMaxDuration(maxDuration);
       setDisplayedNodes(processedNodes);
     }
-  }, [queryPlan, selectedIndex, numberOfNodes]);
+  }, [queryPlan, selectedIndex, numberOfNodes, sortColumn, sortOrder]);
 
   if (!queryPlan || queryPlan.length === 0) {
     return (
@@ -66,14 +68,6 @@ export default function NodesPage(): ReactElement {
     const newOrder = isAsc ? "desc" : "asc";
     setSortOrder(newOrder);
     setSortColumn(column);
-
-    const sortedNodes = [...displayedNodes].sort((a, b) => {
-      if (a[column] < b[column]) return newOrder === "asc" ? -1 : 1;
-      if (a[column] > b[column]) return newOrder === "asc" ? 1 : -1;
-      return 0;
-    });
-
-    setDisplayedNodes(sortedNodes);
   };
 
   const getRetrievalFromNode = (
