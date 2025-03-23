@@ -448,7 +448,7 @@ WHERE ( [Dimension2].[Hierarchy2].[Filter1] )`}
                 >
                   documentation
                 </Link>{" "}
-                , in the section 'JsonQueryPlanData'.
+                , in the section JsonQueryPlanData.
               </Typography>
             </Box>
             <Typography variant="body2" sx={{ marginBottom: 1 }}>
