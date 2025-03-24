@@ -11,15 +11,16 @@ import { usePathname } from "next/navigation";
 import { type ReactElement } from "react";
 import { useSelector } from "react-redux";
 
+const EXCLUDED_PATHS = ["/submit-query", "/passes"];
+
 export default function PlanSelector(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
   const selectedIndex = useSelector(getSelectedIndex);
   const dispatch = useAppDispatch();
 
   const pathname = usePathname();
-  const excludedPaths = ["/submit-query", "/passes"];
 
-  if (excludedPaths.includes(pathname) || !queryPlan || queryPlan.length < 2)
+  if (EXCLUDED_PATHS.includes(pathname) || !queryPlan || queryPlan.length < 2)
     return <></>;
 
   return (

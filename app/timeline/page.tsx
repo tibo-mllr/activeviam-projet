@@ -12,6 +12,7 @@ import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
   AggregatedAggregateRetrieval,
   AggregatedDatabaseRetrieval,
+  AggregatedQueryPlan,
   AggregateRetrieval,
   DatabaseRetrieval,
   emptyAggregateRetrieval,
@@ -42,6 +43,10 @@ import {
 } from "react";
 import { useSelector } from "react-redux";
 
+const MAX_ITEMS = 100;
+const MIN_SCALE = 10;
+const ZOOM_FACTOR = 0.8;
+
 export default function TimelinePage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
   const selectedIndex = useSelector(getSelectedIndex);
@@ -53,26 +58,25 @@ export default function TimelinePage(): ReactElement {
   >(emptyAggregateRetrieval);
 
   const [scale, setScale] = useState<number>(50);
-  const minScale = 10;
 
   const [containerWidth, setContainerWidth] = useState<number>(50);
   const [scrollLeft, setScrollLeft] = useState<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const scaleRef = useRef<HTMLDivElement>(null);
 
-  let selectedQueryPlan: QueryPlan;
-  if (!queryPlan) selectedQueryPlan = emptyQueryPlan;
-  else if (selectedIndex == -1) selectedQueryPlan = aggregateData(queryPlan);
-  else selectedQueryPlan = queryPlan[selectedIndex];
+  const selectedQueryPlan = useMemo<QueryPlan | AggregatedQueryPlan>(() => {
+    if (!queryPlan) return emptyQueryPlan;
+    if (selectedIndex == -1) return aggregateData(queryPlan);
+    return queryPlan[selectedIndex];
+  }, [queryPlan, selectedIndex]);
 
-  const { aggregateRetrievals, databaseRetrievals } = selectedQueryPlan;
   const memoizedAggregateRetrievals = useMemo(
-    () => aggregateRetrievals,
-    [aggregateRetrievals],
+    () => selectedQueryPlan.aggregateRetrievals,
+    [selectedQueryPlan.aggregateRetrievals],
   );
   const memoizedDatabaseRetrievals = useMemo(
-    () => databaseRetrievals,
-    [databaseRetrievals],
+    () => selectedQueryPlan.databaseRetrievals,
+    [selectedQueryPlan.databaseRetrievals],
   );
 
   const timeline = useMemo(
@@ -83,17 +87,17 @@ export default function TimelinePage(): ReactElement {
   const { maxDuration, minDuration, totalProcesses, ...coresTimeline } =
     timeline;
 
-  const maxItems = 100;
   const [threshold, setThreshold] = useState<number>(0.9 * maxDuration);
   const [hiddenNodes, setHiddenNodes] = useState<boolean>(true);
 
   useEffect(() => {
-    if (totalProcesses < maxItems && threshold !== 0) {
-      setThreshold(0);
+    if (totalProcesses < MAX_ITEMS) {
+      setThreshold((prevThreshold) =>
+        prevThreshold !== 0 ? 0 : prevThreshold,
+      );
       setHiddenNodes(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [totalProcesses, maxItems]);
+  }, [totalProcesses]);
 
   // Find the maximum end time to calculate the content width
   const maxEnd = useMemo(
@@ -131,11 +135,10 @@ export default function TimelinePage(): ReactElement {
     // Zoom in/out only when holding Ctrl or Pinching on touchpad (it seems `ctrlKey` handles both)
     if (ctrlKey) {
       event.preventDefault(); // Prevent page scroll
-      const zoomFactor = 0.8;
       setScale((prevScale) =>
         Math.max(
-          minScale,
-          Math.min(100, prevScale + (deltaY > 0 ? -zoomFactor : zoomFactor)),
+          MIN_SCALE,
+          Math.min(100, prevScale + (deltaY > 0 ? -ZOOM_FACTOR : ZOOM_FACTOR)),
         ),
       );
     }
@@ -231,7 +234,7 @@ export default function TimelinePage(): ReactElement {
         <Slider
           sx={{ width: { xs: "100%", md: "80%" } }}
           value={scale}
-          min={minScale}
+          min={MIN_SCALE}
           onChange={(_event, value) => setScale(value as number)}
         />
         <Button

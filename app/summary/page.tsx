@@ -36,10 +36,11 @@ export default function SummaryPage(): ReactElement {
   const [isGroupedNumbers, setIsGroupedNumbers] = useState<boolean>(false);
 
   // Select the currently active query plan
-  let selectedQueryPlan: QueryPlan | AggregatedQueryPlan;
-  if (!queryPlan) selectedQueryPlan = emptyQueryPlan;
-  else if (selectedIndex === -1) selectedQueryPlan = aggregateData(queryPlan);
-  else selectedQueryPlan = queryPlan[selectedIndex];
+  const selectedQueryPlan = useMemo<QueryPlan | AggregatedQueryPlan>(() => {
+    if (!queryPlan) return emptyQueryPlan;
+    if (selectedIndex == -1) return aggregateData(queryPlan);
+    return queryPlan[selectedIndex];
+  }, [queryPlan, selectedIndex]);
 
   const filteredMeasures = useMemo(
     () =>
