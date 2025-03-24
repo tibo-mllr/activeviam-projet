@@ -350,7 +350,12 @@ export default function SubmitQueryPage(): ReactElement {
                 <p>{error}</p>
               </Grid2>
             )}
-            <Button variant="contained" sx={{ mt: 2 }} onClick={handleClick}>
+            <Button
+              variant="contained"
+              color="info"
+              sx={{ mt: 2 }}
+              onClick={handleClick}
+            >
               {showAdditionalCard ? "Hide" : "Show"} help about types
             </Button>
           </Grid2>
