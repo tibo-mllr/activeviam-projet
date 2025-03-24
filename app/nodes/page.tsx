@@ -35,11 +35,14 @@ export default function NodesPage(): ReactElement {
     AggregateRetrieval | DatabaseRetrieval
   >(emptyAggregateRetrieval);
 
+  const selectedQueryPlan = useMemo<QueryPlan | AggregatedQueryPlan>(() => {
+    if (!queryPlan) return emptyQueryPlan;
+    if (selectedIndex == -1) return aggregateData(queryPlan);
+    return queryPlan[selectedIndex];
+  }, [queryPlan, selectedIndex]);
+
   useEffect(() => {
     if (queryPlan && queryPlan.length > 0) {
-      let selectedQueryPlan: QueryPlan | AggregatedQueryPlan;
-      if (selectedIndex === -1) selectedQueryPlan = aggregateData(queryPlan);
-      else selectedQueryPlan = queryPlan[selectedIndex];
       const { minDuration, maxDuration, processedNodes } = getSlowestNodes(
         selectedQueryPlan,
         numberOfNodes,
@@ -50,12 +53,7 @@ export default function NodesPage(): ReactElement {
       setMaxDuration(maxDuration);
       setDisplayedNodes(processedNodes);
     }
-  }, [queryPlan, selectedIndex, numberOfNodes, sortColumn, sortOrder]);
-
-  let selectedQueryPlan: QueryPlan | AggregatedQueryPlan;
-  if (!queryPlan) selectedQueryPlan = emptyQueryPlan;
-  else if (selectedIndex === -1) selectedQueryPlan = aggregateData(queryPlan);
-  else selectedQueryPlan = queryPlan[selectedIndex];
+  }, [queryPlan, selectedQueryPlan, numberOfNodes, sortColumn, sortOrder]);
 
   const handleSort = useCallback<(column: keyof ProcessedNode) => void>(
     (column) => {
@@ -69,14 +67,13 @@ export default function NodesPage(): ReactElement {
     [sortColumn],
   );
 
-  const { aggregateRetrievals, databaseRetrievals } = selectedQueryPlan;
   const memoizedAggregateRetrievals = useMemo(
-    () => aggregateRetrievals,
-    [aggregateRetrievals],
+    () => selectedQueryPlan.aggregateRetrievals,
+    [selectedQueryPlan.aggregateRetrievals],
   );
   const memoizedDatabaseRetrievals = useMemo(
-    () => databaseRetrievals,
-    [databaseRetrievals],
+    () => selectedQueryPlan.databaseRetrievals,
+    [selectedQueryPlan.databaseRetrievals],
   );
 
   const getRetrievalFromNode = useCallback<
@@ -131,7 +128,10 @@ export default function NodesPage(): ReactElement {
           value={numberOfNodes}
           onChange={(_event, value) => setNumberOfNodes(value as number)}
           min={1}
-          max={aggregateRetrievals.length + databaseRetrievals.length}
+          max={
+            memoizedAggregateRetrievals.length +
+            memoizedDatabaseRetrievals.length
+          }
         />
       </Grid2>
 
