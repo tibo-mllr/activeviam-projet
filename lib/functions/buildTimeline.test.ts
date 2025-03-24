@@ -73,9 +73,9 @@ describe("buildTimeline", () => {
   it("gives nothing when given nothing", () => {
     const result = buildTimeline(emptyQueryPlan);
     expect(result).toEqual({
-      nbCores: 0,
       maxDuration: 0,
       minDuration: Number.MAX_SAFE_INTEGER,
+      totalProcesses: 0,
     });
   });
 
@@ -83,9 +83,9 @@ describe("buildTimeline", () => {
     const result = buildTimeline({ ...emptyQueryPlan, aggregateRetrievals });
 
     const expected: Timeline & {
-      nbCores: number;
       minDuration: number;
       maxDuration: number;
+      totalProcesses: number;
     } = {
       "0": [
         {
@@ -105,9 +105,9 @@ describe("buildTimeline", () => {
           pass: "",
         },
       ],
-      nbCores: 2,
       minDuration: 10,
       maxDuration: 37,
+      totalProcesses: 2,
     };
 
     expect(result).toEqual(expected);
@@ -117,9 +117,9 @@ describe("buildTimeline", () => {
     const result = buildTimeline({ ...emptyQueryPlan, databaseRetrievals });
 
     const expected: Timeline & {
-      nbCores: number;
       minDuration: number;
       maxDuration: number;
+      totalProcesses: number;
     } = {
       "0": [
         {
@@ -137,9 +137,9 @@ describe("buildTimeline", () => {
           pass: "",
         },
       ],
-      nbCores: 1,
       minDuration: 1,
       maxDuration: 10,
+      totalProcesses: 2,
     };
 
     expect(result).toEqual(expected);
@@ -153,9 +153,9 @@ describe("buildTimeline", () => {
     });
 
     const expected: Timeline & {
-      nbCores: number;
       minDuration: number;
       maxDuration: number;
+      totalProcesses: number;
     } = {
       "0": [
         {
@@ -191,9 +191,9 @@ describe("buildTimeline", () => {
           pass: "",
         },
       ],
-      nbCores: 3,
       minDuration: 1,
       maxDuration: 37,
+      totalProcesses: 4,
     };
 
     expect(result).toEqual(expected);
@@ -209,9 +209,9 @@ describe("buildTimeline", () => {
     });
 
     const expected: Timeline & {
-      nbCores: number;
       minDuration: number;
       maxDuration: number;
+      totalProcesses: number;
     } = {
       "0": [
         {
@@ -247,9 +247,9 @@ describe("buildTimeline", () => {
           pass: "",
         },
       ],
-      nbCores: 3,
       minDuration: 1,
       maxDuration: 37,
+      totalProcesses: 4,
     };
 
     expect(result).toEqual(expected);
