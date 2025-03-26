@@ -1,4 +1,5 @@
 "use client";
+import { setIsLargeQueryPlan, useAppDispatch } from "@/lib/redux";
 import { Input, LinearProgress } from "@mui/material";
 import { ChangeEvent, ReactElement, useState } from "react";
 
@@ -16,6 +17,8 @@ export function FileUploader({
   const [progress, setProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
+  const dispatch = useAppDispatch();
+
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const file = e.target.files?.[0];
     if (!file) {
@@ -31,6 +34,9 @@ export function FileUploader({
     let start = 0;
     let end = chunkSize;
     let fileContent = "";
+
+    // We consider files bigger than 1MB as large
+    if (file.size > 1 * 1000 * 1000) dispatch(setIsLargeQueryPlan(true));
 
     const uploadNextChunk = (): void => {
       if (start < file.size) {
