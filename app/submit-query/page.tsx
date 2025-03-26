@@ -1,5 +1,5 @@
 "use client";
-import { getQueryPlan } from "@/lib/redux";
+import { getIsLargeQueryPlan, getQueryPlan } from "@/lib/redux";
 import {
   Card,
   CardContent,
@@ -19,6 +19,7 @@ export default function SubmitQueryPage(): ReactElement {
   const [isManualMode, setIsManualMode] = useState<boolean>(false);
 
   const queryPlan = useSelector(getQueryPlan);
+  const isLargeQueryPlan = useSelector(getIsLargeQueryPlan);
 
   return (
     <Card sx={{ width: "40%", padding: 4 }}>
@@ -55,7 +56,15 @@ export default function SubmitQueryPage(): ReactElement {
             </Grid2>
           )}
 
-          {queryPlan && <ResultQueryPlan queryPlan={queryPlan} />}
+          {queryPlan &&
+            (!isLargeQueryPlan ? (
+              <ResultQueryPlan queryPlan={queryPlan} />
+            ) : (
+              <Typography>
+                We don&apos;t display the query plan here because it is too
+                large, but it has been processed and is ready for you!
+              </Typography>
+            ))}
         </Grid2>
       </CardContent>
     </Card>
