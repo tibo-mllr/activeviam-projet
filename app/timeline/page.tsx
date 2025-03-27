@@ -12,6 +12,7 @@ import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
   AggregatedAggregateRetrieval,
   AggregatedDatabaseRetrieval,
+  AggregatedQueryPlan,
   AggregateRetrieval,
   DatabaseRetrieval,
   emptyAggregateRetrieval,
@@ -32,8 +33,19 @@ import {
   Tooltip,
   IconButton,
 } from "@mui/material";
-import { ReactElement, useEffect, useRef, useState } from "react";
+import {
+  ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useSelector } from "react-redux";
+
+const MAX_ITEMS = 100;
+const MIN_SCALE = 10;
+const ZOOM_FACTOR = 0.8;
 
 export default function TimelinePage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
@@ -46,22 +58,65 @@ export default function TimelinePage(): ReactElement {
   >(emptyAggregateRetrieval);
 
   const [scale, setScale] = useState<number>(50);
-  const minScale = 10;
 
   const [containerWidth, setContainerWidth] = useState<number>(50);
   const [scrollLeft, setScrollLeft] = useState<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const scaleRef = useRef<HTMLDivElement>(null);
-  let maxEnd = 0;
+
+  const selectedQueryPlan = useMemo<QueryPlan | AggregatedQueryPlan>(() => {
+    if (!queryPlan) return emptyQueryPlan;
+    if (selectedIndex == -1) return aggregateData(queryPlan);
+    return queryPlan[selectedIndex];
+  }, [queryPlan, selectedIndex]);
+
+  const memoizedAggregateRetrievals = useMemo(
+    () => selectedQueryPlan.aggregateRetrievals,
+    [selectedQueryPlan.aggregateRetrievals],
+  );
+  const memoizedDatabaseRetrievals = useMemo(
+    () => selectedQueryPlan.databaseRetrievals,
+    [selectedQueryPlan.databaseRetrievals],
+  );
+
+  const timeline = useMemo(
+    () => buildTimeline(selectedQueryPlan),
+    [selectedQueryPlan],
+  );
+
+  const { maxDuration, minDuration, totalProcesses, ...coresTimeline } =
+    timeline;
+
+  const [threshold, setThreshold] = useState<number>(0.9 * maxDuration);
+  const [hiddenNodes, setHiddenNodes] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (totalProcesses < MAX_ITEMS) {
+      setThreshold((prevThreshold) =>
+        prevThreshold !== 0 ? 0 : prevThreshold,
+      );
+      setHiddenNodes(false);
+    }
+  }, [totalProcesses]);
+
+  // Find the maximum end time to calculate the content width
+  const maxEnd = useMemo(
+    () =>
+      Math.max(
+        ...Object.values(coresTimeline).flatMap((timings) =>
+          timings.map(({ end }) => end),
+        ),
+      ),
+    [coresTimeline],
+  );
+  const contentWidth = useMemo(() => maxEnd * scale, [maxEnd, scale]);
 
   // Keep track of container width
+  const handleResize = useCallback<() => void>(() => {
+    if (containerRef.current)
+      setContainerWidth(containerRef.current.offsetWidth);
+  }, []);
   useEffect(() => {
-    function handleResize(): void {
-      if (containerRef.current) {
-        setContainerWidth(containerRef.current.offsetWidth);
-      }
-    }
-
     const resizeObserver = new ResizeObserver(() => handleResize());
     if (containerRef.current) {
       resizeObserver.observe(containerRef.current);
@@ -69,124 +124,106 @@ export default function TimelinePage(): ReactElement {
     }
 
     return () => resizeObserver.disconnect();
-  }, []);
+  }, [handleResize]);
 
   // Handle zoom with mouse wheel
-  useEffect(() => {
-    function handleWheel(event: WheelEvent): void {
-      if (!containerRef.current) return;
+  const handleWheel = useCallback<(event: WheelEvent) => void>((event) => {
+    if (!containerRef.current) return;
 
-      const { deltaY, ctrlKey } = event;
+    const { deltaY, ctrlKey } = event;
 
-      // Zoom in/out only when holding Ctrl or Pinching on touchpad (it seems `ctrlKey` handles both)
-      if (ctrlKey) {
-        event.preventDefault(); // Prevent page scroll
-        const direction = deltaY > 0 ? -1 : 1;
-        const zoomFactor = 0.8;
-        const newScale = Math.max(
-          minScale,
-          Math.min(100, scale + direction * zoomFactor),
-        );
-        setScale(newScale);
-      }
+    // Zoom in/out only when holding Ctrl or Pinching on touchpad (it seems `ctrlKey` handles both)
+    if (ctrlKey) {
+      event.preventDefault(); // Prevent page scroll
+      setScale((prevScale) =>
+        Math.max(
+          MIN_SCALE,
+          Math.min(100, prevScale + (deltaY > 0 ? -ZOOM_FACTOR : ZOOM_FACTOR)),
+        ),
+      );
     }
-
+  }, []);
+  useEffect(() => {
     const container = containerRef.current;
     if (container) container.addEventListener("wheel", handleWheel);
 
     return () => {
       if (container) container.removeEventListener("wheel", handleWheel);
     };
-  }, [scale]);
+  }, [handleWheel]);
 
   // Adjust scale at render and when container's width changes
   useEffect(() => {
-    setScale(containerWidth / maxEnd);
+    setScale((prevScale) => {
+      const newScale = containerWidth / maxEnd;
+      return prevScale !== newScale ? newScale : prevScale;
+    });
   }, [containerWidth, maxEnd]);
 
   // Synchronize horizontal scroll between timeline and scale
-  function handleScroll(source: "container" | "scale"): void {
-    const containerDiv = containerRef.current;
-    const scaleDiv = scaleRef.current;
+  const handleScroll = useCallback<(source: "container" | "scale") => void>(
+    (source) => {
+      const containerDiv = containerRef.current;
+      const scaleDiv = scaleRef.current;
 
-    if (!containerDiv || !scaleDiv) return;
+      if (!containerDiv || !scaleDiv) return;
 
-    const newScrollLeft =
-      source === "container" ? containerDiv.scrollLeft : scaleDiv.scrollLeft;
-    setScrollLeft(newScrollLeft);
+      const newScrollLeft =
+        source === "container" ? containerDiv.scrollLeft : scaleDiv.scrollLeft;
+      setScrollLeft(newScrollLeft);
 
-    if (containerDiv.scrollLeft !== scaleDiv.scrollLeft) {
-      if (source === "container") scaleDiv.scrollLeft = newScrollLeft;
-      else containerDiv.scrollLeft = newScrollLeft;
-    }
-  }
-
-  let selectedQueryPlan: QueryPlan;
-  if (selectedIndex == -1) selectedQueryPlan = aggregateData(queryPlan || []);
-  else if (!queryPlan) selectedQueryPlan = emptyQueryPlan;
-  else selectedQueryPlan = queryPlan[selectedIndex];
-
-  const { aggregateRetrievals, databaseRetrievals } = selectedQueryPlan;
-
-  const timeline = buildTimeline(selectedQueryPlan);
-
-  const { maxDuration, minDuration, totalProcesses, ...coresTimeline } =
-    timeline;
-
-  const maxItems = 100;
-  const [threshold, setThreshold] = useState<number>(0.9 * maxDuration);
-  const [hiddenNodes, setHiddenNodes] = useState<boolean>(true);
-
-  useEffect(() => {
-    if (totalProcesses < maxItems && threshold !== 0) {
-      setThreshold(0);
-      setHiddenNodes(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [totalProcesses, maxItems]);
-
-  // Find the maximum end time to calculate the content width
-  maxEnd = Math.max(
-    ...Object.values(coresTimeline).flatMap((timings) =>
-      timings.map(({ end }) => end),
-    ),
+      if (containerDiv.scrollLeft !== scaleDiv.scrollLeft) {
+        if (source === "container") scaleDiv.scrollLeft = newScrollLeft;
+        else containerDiv.scrollLeft = newScrollLeft;
+      }
+    },
+    [],
   );
-  const contentWidth = maxEnd * scale;
+  const onScaleScroll = useCallback(
+    () => handleScroll("scale"),
+    [handleScroll],
+  );
+  const onContainerScroll = useCallback(
+    () => handleScroll("container"),
+    [handleScroll],
+  );
 
-  const openRetrievalDialog = (
-    retrievalId: number,
-    type: TimingType,
-    pass: string,
-  ): void => {
-    let retrieval: AggregateRetrieval | DatabaseRetrieval | undefined;
+  const openRetrievalDialog = useCallback<
+    (retrievalId: number, type: TimingType, pass: string) => void
+  >(
+    (retrievalId, type, pass) => {
+      let retrieval: AggregateRetrieval | DatabaseRetrieval | undefined;
 
-    if (selectedIndex !== -1) {
-      if (type.startsWith("AggregateRetrieval"))
-        retrieval = aggregateRetrievals.find(
-          (r) => r.retrievalId === retrievalId,
-        );
-      else if (type.startsWith("DatabaseRetrieval"))
-        retrieval = databaseRetrievals.find(
-          (r) => r.retrievalId === retrievalId,
-        );
-    } else {
-      if (type.startsWith("AggregateRetrieval"))
-        retrieval = (
-          aggregateRetrievals as AggregatedAggregateRetrieval[]
-        ).find((r) => r.retrievalId === retrievalId && r.pass === pass);
-      else if (type.startsWith("DatabaseRetrieval"))
-        retrieval = (databaseRetrievals as AggregatedDatabaseRetrieval[]).find(
-          (r) => r.retrievalId === retrievalId && r.pass === pass,
-        );
-    }
+      if (selectedIndex !== -1) {
+        if (type.startsWith("AggregateRetrieval"))
+          retrieval = memoizedAggregateRetrievals.find(
+            (r) => r.retrievalId === retrievalId,
+          );
+        else if (type.startsWith("DatabaseRetrieval"))
+          retrieval = memoizedDatabaseRetrievals.find(
+            (r) => r.retrievalId === retrievalId,
+          );
+      } else {
+        if (type.startsWith("AggregateRetrieval"))
+          retrieval = (
+            memoizedAggregateRetrievals as AggregatedAggregateRetrieval[]
+          ).find((r) => r.retrievalId === retrievalId && r.pass === pass);
+        else if (type.startsWith("DatabaseRetrieval"))
+          retrieval = (
+            memoizedDatabaseRetrievals as AggregatedDatabaseRetrieval[]
+          ).find((r) => r.retrievalId === retrievalId && r.pass === pass);
+      }
 
-    if (retrieval) {
-      setSelectedRetrieval(retrieval);
-      setShowDialog(true);
-    }
-  };
+      if (retrieval) {
+        setSelectedRetrieval(retrieval);
+        setShowDialog(true);
+      }
+    },
+    [memoizedAggregateRetrievals, memoizedDatabaseRetrievals, selectedIndex],
+  );
 
-  if (!queryPlan) return <>Please send a query to see the graph</>;
+  if (!queryPlan || queryPlan.length == 0)
+    return <>Please send a query to see the graph</>;
 
   return (
     <Box padding={2} paddingBottom={0} width="100%">
@@ -197,7 +234,7 @@ export default function TimelinePage(): ReactElement {
         <Slider
           sx={{ width: { xs: "100%", md: "80%" } }}
           value={scale}
-          min={minScale}
+          min={MIN_SCALE}
           onChange={(_event, value) => setScale(value as number)}
         />
         <Button
@@ -328,7 +365,7 @@ export default function TimelinePage(): ReactElement {
             overscrollBehaviorX: "none",
             scrollbarWidth: "none",
           }}
-          onScroll={() => handleScroll("container")}
+          onScroll={onContainerScroll}
           ref={containerRef}
         >
           {Object.values(coresTimeline).map((timings, index) => (
@@ -353,7 +390,7 @@ export default function TimelinePage(): ReactElement {
         containerWidth={containerWidth}
         scale={scale}
         maxEnd={maxEnd}
-        onScroll={() => handleScroll("scale")}
+        onScroll={onScaleScroll}
         scrollLeft={scrollLeft}
         ref={scaleRef}
       />

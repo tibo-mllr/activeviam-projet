@@ -15,6 +15,8 @@ import {
 } from "@mui/material";
 import { type ReactElement } from "react";
 
+const EXCLUDED_KEYS = new Set(["timingInfo", "location"]);
+
 type RetrievalDialogProps = {
   retrieval: AggregateRetrieval | DatabaseRetrieval;
   open: boolean;
@@ -29,7 +31,6 @@ export function RetrievalDialog({
   if (!retrieval) return null;
 
   const isAggregate = "partialProviderName" in retrieval;
-  const excludedKeys = new Set(["timingInfo", "location"]);
   const maxDurationInfoLength = String(
     Math.max(...Object.values(retrieval.timingInfo).flat()),
   ).length;
@@ -64,7 +65,7 @@ export function RetrievalDialog({
             {/* General keys */}
             <List>
               {Object.entries(retrieval)
-                .filter(([key]) => !excludedKeys.has(key))
+                .filter(([key]) => !EXCLUDED_KEYS.has(key))
                 .map(([key, value]) => (
                   <ListItem key={key} disablePadding>
                     <ListItemText

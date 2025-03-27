@@ -11,11 +11,12 @@ import {
   AggregateRetrieval,
   DatabaseRetrieval,
   emptyAggregateRetrieval,
+  emptyQueryPlan,
   ProcessedNode,
   QueryPlan,
 } from "@/lib/types";
 import { Box, Typography, InputLabel, Grid2, Slider } from "@mui/material";
-import { ReactElement, useEffect, useState } from "react";
+import { ReactElement, useCallback, useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 
 export default function NodesPage(): ReactElement {
@@ -34,11 +35,14 @@ export default function NodesPage(): ReactElement {
     AggregateRetrieval | DatabaseRetrieval
   >(emptyAggregateRetrieval);
 
+  const selectedQueryPlan = useMemo<QueryPlan | AggregatedQueryPlan>(() => {
+    if (!queryPlan) return emptyQueryPlan;
+    if (selectedIndex == -1) return aggregateData(queryPlan);
+    return queryPlan[selectedIndex];
+  }, [queryPlan, selectedIndex]);
+
   useEffect(() => {
     if (queryPlan && queryPlan.length > 0) {
-      let selectedQueryPlan: QueryPlan | AggregatedQueryPlan;
-      if (selectedIndex === -1) selectedQueryPlan = aggregateData(queryPlan);
-      else selectedQueryPlan = queryPlan[selectedIndex];
       const { minDuration, maxDuration, processedNodes } = getSlowestNodes(
         selectedQueryPlan,
         numberOfNodes,
@@ -49,51 +53,65 @@ export default function NodesPage(): ReactElement {
       setMaxDuration(maxDuration);
       setDisplayedNodes(processedNodes);
     }
-  }, [queryPlan, selectedIndex, numberOfNodes, sortColumn, sortOrder]);
+  }, [queryPlan, selectedQueryPlan, numberOfNodes, sortColumn, sortOrder]);
 
-  if (!queryPlan || queryPlan.length === 0) {
+  const handleSort = useCallback<(column: keyof ProcessedNode) => void>(
+    (column) => {
+      setSortOrder((prevOrder) => {
+        const isAsc = sortColumn === column && prevOrder === "asc";
+        const newOrder = isAsc ? "desc" : "asc";
+        return newOrder;
+      });
+      setSortColumn(column);
+    },
+    [sortColumn],
+  );
+
+  const memoizedAggregateRetrievals = useMemo(
+    () => selectedQueryPlan.aggregateRetrievals,
+    [selectedQueryPlan.aggregateRetrievals],
+  );
+  const memoizedDatabaseRetrievals = useMemo(
+    () => selectedQueryPlan.databaseRetrievals,
+    [selectedQueryPlan.databaseRetrievals],
+  );
+
+  const getRetrievalFromNode = useCallback<
+    (node: ProcessedNode) => AggregateRetrieval | DatabaseRetrieval
+  >(
+    (node) => {
+      const retrievalId = node.id;
+
+      if (selectedIndex !== -1) {
+        const retrieval =
+          node.type == "Aggregate"
+            ? memoizedAggregateRetrievals.find(
+                (r) => r.retrievalId === retrievalId,
+              )
+            : memoizedDatabaseRetrievals.find(
+                (r) => r.retrievalId === retrievalId,
+              );
+
+        return retrieval || emptyAggregateRetrieval;
+      }
+      const retrieval =
+        node.type == "Aggregate"
+          ? (
+              memoizedAggregateRetrievals as AggregatedAggregateRetrieval[]
+            ).find((r) => r.retrievalId === retrievalId && r.pass === node.pass)
+          : (memoizedDatabaseRetrievals as AggregatedDatabaseRetrieval[]).find(
+              (r) => r.retrievalId === retrievalId && r.pass === node.pass,
+            );
+
+      return retrieval || emptyAggregateRetrieval;
+    },
+    [memoizedAggregateRetrievals, memoizedDatabaseRetrievals, selectedIndex],
+  );
+
+  if (!queryPlan || queryPlan.length === 0)
     return (
       <Typography>Please send a query to see the slowest nodes</Typography>
     );
-  }
-
-  let selectedQueryPlan: QueryPlan | AggregatedQueryPlan;
-  if (selectedIndex === -1) selectedQueryPlan = aggregateData(queryPlan);
-  else selectedQueryPlan = queryPlan[selectedIndex];
-
-  const { aggregateRetrievals, databaseRetrievals } = selectedQueryPlan;
-
-  const handleSort = (column: keyof ProcessedNode): void => {
-    const isAsc = sortColumn === column && sortOrder === "asc";
-    const newOrder = isAsc ? "desc" : "asc";
-    setSortOrder(newOrder);
-    setSortColumn(column);
-  };
-
-  const getRetrievalFromNode = (
-    node: ProcessedNode,
-  ): AggregateRetrieval | DatabaseRetrieval => {
-    const retrievalId = node.id;
-
-    if (selectedIndex !== -1) {
-      const retrieval =
-        node.type == "Aggregate"
-          ? aggregateRetrievals.find((r) => r.retrievalId === retrievalId)
-          : databaseRetrievals.find((r) => r.retrievalId === retrievalId);
-
-      return retrieval || emptyAggregateRetrieval;
-    }
-    const retrieval =
-      node.type == "Aggregate"
-        ? (aggregateRetrievals as AggregatedAggregateRetrieval[]).find(
-            (r) => r.retrievalId === retrievalId && r.pass === node.pass,
-          )
-        : (databaseRetrievals as AggregatedDatabaseRetrieval[]).find(
-            (r) => r.retrievalId === retrievalId && r.pass === node.pass,
-          );
-
-    return retrieval || emptyAggregateRetrieval;
-  };
 
   return (
     <Box padding={2} width="100%">
@@ -110,7 +128,10 @@ export default function NodesPage(): ReactElement {
           value={numberOfNodes}
           onChange={(_event, value) => setNumberOfNodes(value as number)}
           min={1}
-          max={aggregateRetrievals.length + databaseRetrievals.length}
+          max={
+            memoizedAggregateRetrievals.length +
+            memoizedDatabaseRetrievals.length
+          }
         />
       </Grid2>
 

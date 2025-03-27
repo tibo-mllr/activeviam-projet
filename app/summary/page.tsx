@@ -7,7 +7,7 @@ import {
   GROUP_COLORS,
 } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
-import { AggregatedQueryPlan, QueryPlan } from "@/lib/types";
+import { AggregatedQueryPlan, emptyQueryPlan, QueryPlan } from "@/lib/types";
 import InfoIcon from "@mui/icons-material/Info";
 import {
   Card,
@@ -24,49 +24,47 @@ import {
   IconButton,
 } from "@mui/material";
 
-import { ReactElement, useState } from "react";
+import { ReactElement, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
 export default function SummaryPage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
   const selectedIndex = useSelector(getSelectedIndex);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [isGroupedTimings, setIsGroupedTimings] = useState<boolean>(false);
   const [isGroupedNumbers, setIsGroupedNumbers] = useState<boolean>(false);
 
-  if (!queryPlan || queryPlan.length === 0) {
-    // Default display
-    return (
-      <Card>
-        <CardContent>
-          <Typography variant="body1">No data available</Typography>
-        </CardContent>
-      </Card>
-    );
-  }
-
   // Select the currently active query plan
+  const selectedQueryPlan = useMemo<QueryPlan | AggregatedQueryPlan>(() => {
+    if (!queryPlan) return emptyQueryPlan;
+    if (selectedIndex == -1) return aggregateData(queryPlan);
+    return queryPlan[selectedIndex];
+  }, [queryPlan, selectedIndex]);
 
-  let selectedQueryPlan: QueryPlan | AggregatedQueryPlan;
-  if (selectedIndex === -1) selectedQueryPlan = aggregateData(queryPlan);
-  else selectedQueryPlan = queryPlan[selectedIndex];
-
-  const filteredMeasures = Object.entries(
-    selectedQueryPlan.querySummary.measures,
-  ).filter(
-    ([key, value]) =>
-      key.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      value.toLowerCase().includes(searchTerm.toLowerCase()),
+  const filteredMeasures = useMemo(
+    () =>
+      Object.entries(selectedQueryPlan.querySummary.measures).filter(
+        ([key, value]) =>
+          key.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          value.toLowerCase().includes(searchTerm.toLowerCase()),
+      ),
+    [searchTerm, selectedQueryPlan.querySummary.measures],
   );
 
-  const {
-    querySummary: { retrievalsCountByType },
-  } = selectedQueryPlan;
+  const summary = useMemo(
+    () => buildSummary(selectedQueryPlan),
+    [selectedQueryPlan],
+  );
 
-  const summary = buildSummary(selectedQueryPlan);
-
-  const pieData = buildPieCharts(retrievalsCountByType, summary);
+  const pieData = useMemo(
+    () =>
+      buildPieCharts(
+        selectedQueryPlan.querySummary.retrievalsCountByType,
+        summary,
+      ),
+    [selectedQueryPlan.querySummary.retrievalsCountByType, summary],
+  );
 
   const {
     aggregateRetrievalsElapsedTimings,
@@ -86,6 +84,16 @@ export default function SummaryPage(): ReactElement {
     groupedPieDataRetrievalsTypeCounts,
     retrievalsColors,
   } = pieData;
+
+  if (!queryPlan || queryPlan.length === 0)
+    // Default display
+    return (
+      <Card>
+        <CardContent>
+          <Typography variant="body1">No data available</Typography>
+        </CardContent>
+      </Card>
+    );
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
