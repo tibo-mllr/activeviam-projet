@@ -1,23 +1,18 @@
 "use client";
 import { FileUploader } from "@/components";
-import { convertV1toJson } from "@/lib/functions/convertV1ToJson";
 import { setQueryPlan, useAppDispatch } from "@/lib/redux";
-import { queryPlansSchema } from "@/lib/types";
-import { Button, Grid2, TextField, Typography } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  Grid2,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { ReactElement, useCallback, useState } from "react";
 
 type ManualModeProps = {
   setError: (error: string | null) => void;
 };
-
-function isJsonString(str: string): boolean {
-  try {
-    JSON.parse(str);
-  } catch {
-    return false;
-  }
-  return true;
-}
 
 export default function ManualMode({
   setError,
@@ -25,6 +20,7 @@ export default function ManualMode({
   const dispatch = useAppDispatch();
   const [manualQueryPlan, setManualQueryPlan] = useState("");
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   const processQueryPlan = useCallback<(input: string) => Promise<void>>(
     async (input) => {
@@ -35,39 +31,22 @@ export default function ManualMode({
         return;
       }
 
-      if (isJsonString(input)) {
-        // JSON is valid
-        try {
-          const parsed = queryPlansSchema.safeParse(JSON.parse(input));
-          if (!parsed.success) {
-            setError("Failed to parse JSON to query plan schema.");
-            console.error(parsed.error);
-            return;
-          }
-          dispatch(setQueryPlan(parsed.data));
-        } catch {
-          setError("Unexpected error parsing JSON.");
-        }
-      } else {
-        // Not a JSON, try V1 format conversion
-        try {
-          const convertedV1ToStringArray = JSON.stringify(
-            await convertV1toJson(input),
-          );
-          const parsed = queryPlansSchema.safeParse(
-            JSON.parse(convertedV1ToStringArray),
-          );
-          if (!parsed.success) {
-            setError("Failed to parse JSON to query plan schema.");
-            console.error(parsed.error);
-            return;
-          }
-          dispatch(setQueryPlan(parsed.data));
-        } catch {
-          setError(
-            "The input doesn't seem to be a JSON format or a valid V1 format.",
-          );
-        }
+      try {
+        setProcessing(true);
+        const response = await fetch("/api/process-query-plan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ queryPlan: input }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) dispatch(setQueryPlan(data.queryPlan));
+        else setError(data.error || "Unexpected error.");
+      } catch (error) {
+        setError((error as string) || "Unexpected error.");
+      } finally {
+        setProcessing(false);
       }
     },
     [dispatch, setError],
@@ -109,6 +88,7 @@ export default function ManualMode({
         <Button variant="contained" onClick={handleManualSubmit} sx={{ mt: 2 }}>
           Submit Query Plan
         </Button>
+        {processing && <CircularProgress sx={{ mt: 1, ml: 2 }} disableShrink />}
         {uploadSuccess && (
           <Typography sx={{ color: "green", mt: 1, ml: 2 }}>
             ✔ Uploaded!
