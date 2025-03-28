@@ -9,11 +9,7 @@ import {
 
 export function buildTimeline(
   queryPlan: QueryPlan | AggregatedQueryPlan,
-): Timeline & {
-  minDuration: number;
-  maxDuration: number;
-  totalProcesses: number;
-} {
+): Timeline {
   let minDuration: number = Number.MAX_SAFE_INTEGER;
   let maxDuration: number = 0;
   let totalProcesses: number = 0;
@@ -149,7 +145,11 @@ export function buildTimeline(
   // Sort by start time
   filteredTimings.sort((a, b) => a.start - b.start);
 
-  const timeline: Timeline = {};
+  const timeline: Timeline = {
+    minDuration: 0,
+    maxDuration: 0,
+    totalProcesses: 0,
+  };
 
   // Group by core, by trying to fit time intervals into the first available core
   for (const timing of filteredTimings) {
