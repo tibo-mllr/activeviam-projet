@@ -16,7 +16,10 @@ const planInfoSchema = z.object({
   retrieverType: z.string().default(""),
   mdxPass: z.string().default(""),
   contextValues: contextSchema.default({}),
-  rangeSharing: z.number().default(0),
+  rangeSharing: z
+    .number()
+    .or(z.string().transform((string) => +string))
+    .default(0),
   missedPrefetchBehavior: z.string().default(""),
   aggregatesCache: z.string().default(""),
   globalTimings: z.record(z.string(), z.number()).default({}),

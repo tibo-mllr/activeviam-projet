@@ -1,14 +1,17 @@
 import { FileDownload } from "@mui/icons-material";
 import { Button, Tooltip } from "@mui/material";
+import { ReactElement } from "react";
 import { QueryPlan } from "../lib/types";
+
+type FileExporterProps = {
+  data: QueryPlan[];
+  filename?: string;
+};
 
 export function FileExporter({
   data,
   filename = "data.json",
-}: {
-  data: QueryPlan[];
-  filename?: string;
-}) {
+}: FileExporterProps): ReactElement {
   const handleExport = (): void => {
     const blob = new Blob([JSON.stringify(data, null, 2)], {
       type: "application/json",
