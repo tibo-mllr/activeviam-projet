@@ -12,7 +12,11 @@ export type TimelineTiming = {
   pass: string;
 };
 
-export type Timeline = Record<number, TimelineTiming[]>;
+export type Timeline = Record<number, TimelineTiming[]> & {
+  minDuration: number;
+  maxDuration: number;
+  totalProcesses: number;
+};
 
 export const TIMELINE_COLORS: Record<string, string> = {
   AggregateRetrieval: "secondary.dark",
