@@ -16,6 +16,7 @@ import {
   QueryPlan,
 } from "@/lib/types";
 import { Box, Typography, InputLabel, Grid2, Slider } from "@mui/material";
+import { debounce } from "lodash";
 import { ReactElement, useCallback, useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 
@@ -23,7 +24,15 @@ export default function NodesPage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
   const selectedIndex = useSelector(getSelectedIndex);
 
+  // Carefull, always use both at the same time
+  const [sliderValue, setSliderValue] = useState<number>(10);
   const [numberOfNodes, setNumberOfNodes] = useState<number>(10);
+  const [debouncedSetNumberOfNodes] = useState(() =>
+    debounce(setNumberOfNodes, 300, {
+      leading: false,
+      trailing: true,
+    }),
+  );
   const [sortColumn, setSortColumn] =
     useState<keyof ProcessedNode>("totalTiming");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
@@ -116,7 +125,7 @@ export default function NodesPage(): ReactElement {
   return (
     <Box padding={2} width="100%">
       <Typography variant="h4" gutterBottom>
-        Top {numberOfNodes} Slowest Nodes
+        Top {sliderValue} Slowest Nodes
       </Typography>
 
       <Grid2>
@@ -125,8 +134,11 @@ export default function NodesPage(): ReactElement {
         </InputLabel>
         <Slider
           sx={{ width: { xs: "100%", md: "30%" } }}
-          value={numberOfNodes}
-          onChange={(_event, value) => setNumberOfNodes(value as number)}
+          value={sliderValue}
+          onChange={(_event, value) => {
+            setSliderValue(value as number);
+            debouncedSetNumberOfNodes(value as number);
+          }}
           min={1}
           max={
             memoizedAggregateRetrievals.length +

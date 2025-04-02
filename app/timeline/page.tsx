@@ -33,6 +33,7 @@ import {
   Tooltip,
   IconButton,
 } from "@mui/material";
+import { debounce } from "lodash";
 import {
   ReactElement,
   useCallback,
@@ -56,7 +57,15 @@ export default function TimelinePage(): ReactElement {
     AggregateRetrieval | DatabaseRetrieval
   >(emptyAggregateRetrieval);
 
+  // Carefull, always use both at the same time
+  const [scaleSliderValue, setScaleSliderValue] = useState<number>(50);
   const [scale, setScale] = useState<number>(50);
+  const [debouncedSetScale] = useState(() =>
+    debounce(setScale, 300, {
+      leading: false,
+      trailing: true,
+    }),
+  );
 
   const [containerWidth, setContainerWidth] = useState<number>(50);
   const [scrollLeft, setScrollLeft] = useState<number>(0);
@@ -86,14 +95,27 @@ export default function TimelinePage(): ReactElement {
   const { maxDuration, minDuration, totalProcesses, ...coresTimeline } =
     timeline;
 
+  // Carefull, always use both at the same time
+  const [thresholdInputValue, setThresholdInputValue] = useState<number>(
+    0.9 * maxDuration,
+  );
   const [threshold, setThreshold] = useState<number>(0.9 * maxDuration);
+  const [debouncedSetThreshold] = useState(() =>
+    debounce(setThreshold, 300, {
+      leading: false,
+      trailing: true,
+    }),
+  );
   const [hiddenNodes, setHiddenNodes] = useState<boolean>(true);
 
   useEffect(() => {
     if (totalProcesses < MAX_ITEMS) {
-      setThreshold((prevThreshold) =>
-        prevThreshold !== 0 ? 0 : prevThreshold,
-      );
+      setThreshold((prevThreshold) => {
+        const newThreshold = prevThreshold !== 0 ? 0 : prevThreshold;
+
+        setThresholdInputValue(newThreshold);
+        return newThreshold;
+      });
       setHiddenNodes(false);
     }
   }, [totalProcesses]);
@@ -134,9 +156,15 @@ export default function TimelinePage(): ReactElement {
     // Zoom in/out only when holding Ctrl or Pinching on touchpad (it seems `ctrlKey` handles both)
     if (ctrlKey) {
       event.preventDefault(); // Prevent page scroll
-      setScale((prevScale) =>
-        Math.min(100, prevScale + (deltaY > 0 ? -ZOOM_FACTOR : ZOOM_FACTOR)),
-      );
+      setScale((prevScale) => {
+        const newScale = Math.min(
+          100,
+          prevScale + (deltaY > 0 ? -ZOOM_FACTOR : ZOOM_FACTOR),
+        );
+
+        setScaleSliderValue(newScale);
+        return newScale;
+      });
     }
   }, []);
   useEffect(() => {
@@ -152,6 +180,7 @@ export default function TimelinePage(): ReactElement {
   useEffect(() => {
     setScale((prevScale) => {
       const newScale = containerWidth / maxEnd;
+      setScaleSliderValue(newScale);
       return prevScale !== newScale ? newScale : prevScale;
     });
   }, [containerWidth, maxEnd]);
@@ -229,14 +258,20 @@ export default function TimelinePage(): ReactElement {
       <FormGroup row sx={{ justifyContent: "space-between" }}>
         <Slider
           sx={{ width: { xs: "100%", md: "80%" } }}
-          value={scale}
+          value={scaleSliderValue}
           min={containerWidth / maxEnd}
           max={25} // With this setting, the smaller nodes (1ms) are maximum ~1cm wide when zoomed in
-          onChange={(_event, value) => setScale(value as number)}
+          onChange={(_event, value) => {
+            setScaleSliderValue(value as number);
+            debouncedSetScale(value as number);
+          }}
         />
         <Button
           variant="outlined"
-          onClick={() => setScale(containerWidth / maxEnd)}
+          onClick={() => {
+            setScaleSliderValue(containerWidth / maxEnd);
+            setScale(containerWidth / maxEnd);
+          }}
         >
           Fit entire timeline
         </Button>
@@ -293,11 +328,12 @@ export default function TimelinePage(): ReactElement {
           <Typography variant="body2">Use a threshold:</Typography>
           <Input
             type="number"
-            value={threshold}
+            value={thresholdInputValue}
             onChange={(event) => {
               const value = Number(event.target.value);
               if (value >= minDuration && value <= maxDuration) {
-                setThreshold(value);
+                setThresholdInputValue(value);
+                debouncedSetThreshold(value);
                 setHiddenNodes(false);
               }
             }}
@@ -308,9 +344,10 @@ export default function TimelinePage(): ReactElement {
             sx={{ width: 200, marginLeft: 2 }}
             min={minDuration}
             max={maxDuration}
-            value={threshold}
+            value={thresholdInputValue}
             onChange={(_event, value) => {
-              setThreshold(value as number);
+              setThresholdInputValue(value as number);
+              debouncedSetThreshold(value as number);
               setHiddenNodes(false);
             }}
           />
