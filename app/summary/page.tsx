@@ -104,7 +104,6 @@ export default function SummaryPage(): ReactElement {
       <Card>
         <CardContent>
           <Grid2 container padding={1} spacing={2}>
-            {/* Line 1*/}
             <Grid2 container padding={1} spacing={2} justifyContent="center">
               <Grid2 padding={1} spacing={1} direction="column">
                 <Box display="flex" alignItems="center" gap={1}>
@@ -393,7 +392,6 @@ export default function SummaryPage(): ReactElement {
                 )}
               </Grid2>
             </Grid2>
-            {/* Line 2*/}
             <Grid2 container padding={1} spacing={2} justifyContent="center">
               <Grid2 padding={1} spacing={1} direction="column">
                 <Box display="flex" alignItems="center" gap={1}>
@@ -563,8 +561,6 @@ export default function SummaryPage(): ReactElement {
                 </Box>
               </Grid2>
             </Grid2>
-            {/* Line 3*/}
-
             {selectedIndex !== -1 && (
               <Grid2 container padding={1} spacing={2} justifyContent="center">
                 <Grid2 padding={1} spacing={1}>
@@ -575,12 +571,19 @@ export default function SummaryPage(): ReactElement {
                       marginTop: 2,
                     }}
                   >
-                    <Typography variant="body1" fontWeight="bold">
-                      Partial Providers (
-                      {selectedQueryPlan.querySummary?.partialProviders
-                        ?.length || 0}
-                      ) :
-                    </Typography>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Typography variant="body1" fontWeight="bold">
+                        Partial Providers (
+                        {selectedQueryPlan.querySummary?.partialProviders
+                          ?.length || 0}
+                        ) :
+                      </Typography>
+                      <Tooltip title="Data sources or operators that process only a subset of the required data.">
+                        <IconButton size="small" style={{ marginLeft: 8 }}>
+                          <InfoIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
                     {selectedQueryPlan.querySummary?.partialProviders ? (
                       <List dense sx={{ marginLeft: 4 }}>
                         {Object.entries(
@@ -606,10 +609,16 @@ export default function SummaryPage(): ReactElement {
                       marginTop: 2,
                     }}
                   >
-                    <Typography variant="body1" fontWeight="bold">
-                      Partitioning Count by Type:
-                    </Typography>
-
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Typography variant="body1" fontWeight="bold">
+                        Partitioning Count by Type:
+                      </Typography>
+                      <Tooltip title="Different types of partitioning, and how much retrievals use each of them. Partitioning can be constant, single or multiple (separated with | )">
+                        <IconButton size="small">
+                          <InfoIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
                     <List dense sx={{ marginLeft: 4 }}>
                       {Object.entries(
                         selectedQueryPlan.querySummary.partitioningCountByType,
@@ -629,9 +638,16 @@ export default function SummaryPage(): ReactElement {
                       marginTop: 2,
                     }}
                   >
-                    <Typography variant="body1" fontWeight="bold">
-                      Result Size by Partitioning:
-                    </Typography>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Typography variant="body1" fontWeight="bold">
+                        Partitioning by result size:
+                      </Typography>
+                      <Tooltip title="Size of the results given by each type of partioning">
+                        <IconButton size="small" style={{ marginLeft: 8 }}>
+                          <InfoIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
                     <List dense sx={{ marginLeft: 4 }}>
                       {Object.entries(
                         selectedQueryPlan.querySummary.resultSizeByPartitioning,
@@ -642,13 +658,6 @@ export default function SummaryPage(): ReactElement {
                       ))}
                     </List>
                   </Box>
-                </Grid2>
-                <Grid2 padding={1} spacing={1}>
-                  <Tooltip title="How much of each partitioning is used. Partitioning can be constant, single or multiple (separated with | )">
-                    <IconButton size="small" style={{ marginLeft: 8 }}>
-                      <InfoIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
                 </Grid2>
               </Grid2>
             )}
