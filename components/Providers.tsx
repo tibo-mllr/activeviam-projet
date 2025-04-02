@@ -1,13 +1,13 @@
 "use client";
 
 import { makeStore, AppStore } from "@/lib/redux";
-import { createTheme } from "@mui/material";
+import { extendTheme } from "@mui/material";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import { ThemeProvider } from "@mui/material/styles";
 import { ReactElement, useRef } from "react";
 import { Provider } from "react-redux";
 
-const theme = createTheme({
+const theme = extendTheme({
   colorSchemes: {
     dark: { palette: { secondary: { main: "#FFB84D", dark: "#FFA85D" } } },
     light: { palette: { secondary: { main: "#FFB84D", dark: "#FFA04D" } } },
