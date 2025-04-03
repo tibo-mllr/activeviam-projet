@@ -63,10 +63,11 @@ export const CoreProcesses = memo(
                 Start time: {start}, End time: {end}
               </>
             }
+            sx={{ position: "absolute", left: start * scale }}
           >
             <Box
               component="button" // Behave like a button in a semantic way (cursor, focus, etc.) but no minimum size
-              width={(end - start) * scale}
+              width={`${(end - start) * scale}px`}
               height="100%"
               position="absolute"
               left={start * scale}

@@ -44,7 +44,6 @@ import {
 import { useSelector } from "react-redux";
 
 const MAX_ITEMS = 100;
-const MIN_SCALE = 10;
 const ZOOM_FACTOR = 0.8;
 
 export default function TimelinePage(): ReactElement {
@@ -136,10 +135,7 @@ export default function TimelinePage(): ReactElement {
     if (ctrlKey) {
       event.preventDefault(); // Prevent page scroll
       setScale((prevScale) =>
-        Math.max(
-          MIN_SCALE,
-          Math.min(100, prevScale + (deltaY > 0 ? -ZOOM_FACTOR : ZOOM_FACTOR)),
-        ),
+        Math.min(100, prevScale + (deltaY > 0 ? -ZOOM_FACTOR : ZOOM_FACTOR)),
       );
     }
   }, []);
@@ -234,7 +230,8 @@ export default function TimelinePage(): ReactElement {
         <Slider
           sx={{ width: { xs: "100%", md: "80%" } }}
           value={scale}
-          min={MIN_SCALE}
+          min={containerWidth / maxEnd}
+          max={25} // With this setting, the smaller nodes (1ms) are maximum ~1cm wide when zoomed in
           onChange={(_event, value) => setScale(value as number)}
         />
         <Button
