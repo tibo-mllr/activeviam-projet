@@ -18,6 +18,7 @@ import {
   IconButton,
   Paper,
   Typography,
+  CircularProgress,
 } from "@mui/material";
 import { ReactElement, useCallback } from "react";
 
@@ -36,6 +37,7 @@ interface NodesTableProps {
   ) => void;
   setShowDialog: (open: boolean) => void;
   selectedIndex: number;
+  isLoading?: boolean;
 }
 
 export function NodesTable({
@@ -49,6 +51,7 @@ export function NodesTable({
   setSelectedRetrieval,
   setShowDialog,
   selectedIndex,
+  isLoading,
 }: NodesTableProps): ReactElement {
   const handleHeaderClick = useCallback(
     (columnId: keyof ProcessedNode) => () => handleSort(columnId),
@@ -128,34 +131,47 @@ export function NodesTable({
           </TableRow>
         </TableHead>
         <TableBody>
-          {displayedNodes.map((node) => (
-            <TableRow
-              key={`${node.pass} ${node.type} ${node.id}`}
-              onClick={handleRowClick(node)}
-              sx={{
-                cursor: "pointer",
-                bgcolor: getColor(node.totalTiming, minDuration, maxDuration),
-                "&:hover": {
-                  bgcolor: getColor(
-                    node.totalTiming,
-                    minDuration,
-                    maxDuration,
-                    true,
-                  ),
-                },
-              }}
-            >
-              <TableCell>
-                {selectedIndex === -1 && `${node.pass} `}
-                {node.type} {node.id}
+          {isLoading ? (
+            <TableRow>
+              <TableCell
+                colSpan={6}
+                style={{ textAlign: "center", height: "50vh" }}
+              >
+                <CircularProgress size={50} />
               </TableCell>
-              <TableCell align="right">{node.maxTiming.toFixed(2)}</TableCell>
-              <TableCell align="right">{node.totalTiming.toFixed(2)}</TableCell>
-              <TableCell align="right">{node.mean.toFixed(2)}</TableCell>
-              <TableCell align="right">{node.stdDev.toFixed(2)}</TableCell>
-              <TableCell align="right">{node.parallelCount}</TableCell>
             </TableRow>
-          ))}
+          ) : (
+            displayedNodes.map((node) => (
+              <TableRow
+                key={`${node.pass} ${node.type} ${node.id}`}
+                onClick={handleRowClick(node)}
+                sx={{
+                  cursor: "pointer",
+                  bgcolor: getColor(node.totalTiming, minDuration, maxDuration),
+                  "&:hover": {
+                    bgcolor: getColor(
+                      node.totalTiming,
+                      minDuration,
+                      maxDuration,
+                      true,
+                    ),
+                  },
+                }}
+              >
+                <TableCell>
+                  {selectedIndex === -1 && `${node.pass} `}
+                  {node.type} {node.id}
+                </TableCell>
+                <TableCell align="right">{node.maxTiming.toFixed(2)}</TableCell>
+                <TableCell align="right">
+                  {node.totalTiming.toFixed(2)}
+                </TableCell>
+                <TableCell align="right">{node.mean.toFixed(2)}</TableCell>
+                <TableCell align="right">{node.stdDev.toFixed(2)}</TableCell>
+                <TableCell align="right">{node.parallelCount}</TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </TableContainer>

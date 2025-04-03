@@ -5,12 +5,11 @@ import { NodesLegend } from "@/components/nodes/NodesLegend";
 import { aggregateData, getSlowestNodes } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
-  AggregatedAggregateRetrieval,
-  AggregatedDatabaseRetrieval,
   AggregatedQueryPlan,
   AggregateRetrieval,
   DatabaseRetrieval,
   emptyAggregateRetrieval,
+  emptyDatabaseRetrieval,
   emptyQueryPlan,
   ProcessedNode,
   QueryPlan,
@@ -33,11 +32,13 @@ export default function NodesPage(): ReactElement {
       trailing: true,
     }),
   );
+  const [isTableLoading, setIsTableLoading] = useState<boolean>(true);
   const [sortColumn, setSortColumn] =
     useState<keyof ProcessedNode>("totalTiming");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [minDuration, setMinDuration] = useState<number>(0);
   const [maxDuration, setMaxDuration] = useState<number>(0);
+  const [sortedNodes, setSortedNodes] = useState<ProcessedNode[]>([]);
   const [displayedNodes, setDisplayedNodes] = useState<ProcessedNode[]>([]);
   const [showDialog, setShowDialog] = useState<boolean>(false);
   const [selectedRetrieval, setSelectedRetrieval] = useState<
@@ -52,17 +53,28 @@ export default function NodesPage(): ReactElement {
 
   useEffect(() => {
     if (queryPlan && queryPlan.length > 0) {
+      setIsTableLoading(true);
+
       const { minDuration, maxDuration, processedNodes } = getSlowestNodes(
         selectedQueryPlan,
-        numberOfNodes,
+        Infinity,
         sortColumn,
         sortOrder,
       );
+
       setMinDuration(minDuration);
       setMaxDuration(maxDuration);
-      setDisplayedNodes(processedNodes);
+      setSortedNodes(processedNodes);
+
+      setIsTableLoading(false);
+    } else {
+      setIsTableLoading(false);
     }
-  }, [queryPlan, selectedQueryPlan, numberOfNodes, sortColumn, sortOrder]);
+  }, [queryPlan, selectedQueryPlan, sortColumn, sortOrder]);
+
+  useEffect(() => {
+    setDisplayedNodes(sortedNodes.slice(0, numberOfNodes));
+  }, [numberOfNodes, sortedNodes]);
 
   const handleSort = useCallback<(column: keyof ProcessedNode) => void>(
     (column) => {
@@ -76,45 +88,32 @@ export default function NodesPage(): ReactElement {
     [sortColumn],
   );
 
-  const memoizedAggregateRetrievals = useMemo(
-    () => selectedQueryPlan.aggregateRetrievals,
-    [selectedQueryPlan.aggregateRetrievals],
+  const memoizedRetrievals = useMemo(
+    () => ({
+      aggregate: selectedQueryPlan.aggregateRetrievals,
+      database: selectedQueryPlan.databaseRetrievals,
+    }),
+    [selectedQueryPlan],
   );
-  const memoizedDatabaseRetrievals = useMemo(
-    () => selectedQueryPlan.databaseRetrievals,
-    [selectedQueryPlan.databaseRetrievals],
-  );
 
-  const getRetrievalFromNode = useCallback<
-    (node: ProcessedNode) => AggregateRetrieval | DatabaseRetrieval
-  >(
-    (node) => {
-      const retrievalId = node.id;
+  const retrievalMaps = useMemo(() => {
+    return {
+      aggregate: new Map(
+        memoizedRetrievals.aggregate.map((r) => [r.retrievalId, r]),
+      ),
+      database: new Map(
+        memoizedRetrievals.database.map((r) => [r.retrievalId, r]),
+      ),
+    };
+  }, [memoizedRetrievals]);
 
-      if (selectedIndex !== -1) {
-        const retrieval =
-          node.type == "Aggregate"
-            ? memoizedAggregateRetrievals.find(
-                (r) => r.retrievalId === retrievalId,
-              )
-            : memoizedDatabaseRetrievals.find(
-                (r) => r.retrievalId === retrievalId,
-              );
-
-        return retrieval || emptyAggregateRetrieval;
-      }
-      const retrieval =
-        node.type == "Aggregate"
-          ? (
-              memoizedAggregateRetrievals as AggregatedAggregateRetrieval[]
-            ).find((r) => r.retrievalId === retrievalId && r.pass === node.pass)
-          : (memoizedDatabaseRetrievals as AggregatedDatabaseRetrieval[]).find(
-              (r) => r.retrievalId === retrievalId && r.pass === node.pass,
-            );
-
-      return retrieval || emptyAggregateRetrieval;
+  const getRetrievalFromNode = useCallback(
+    (node: ProcessedNode) => {
+      return node.type === "Aggregate"
+        ? retrievalMaps.aggregate.get(node.id) || emptyAggregateRetrieval
+        : retrievalMaps.database.get(node.id) || emptyDatabaseRetrieval;
     },
-    [memoizedAggregateRetrievals, memoizedDatabaseRetrievals, selectedIndex],
+    [retrievalMaps],
   );
 
   if (!queryPlan || queryPlan.length === 0)
@@ -141,8 +140,8 @@ export default function NodesPage(): ReactElement {
           }}
           min={1}
           max={
-            memoizedAggregateRetrievals.length +
-            memoizedDatabaseRetrievals.length
+            memoizedRetrievals.aggregate.length +
+            memoizedRetrievals.database.length
           }
         />
       </Grid2>
@@ -160,6 +159,7 @@ export default function NodesPage(): ReactElement {
         setSelectedRetrieval={setSelectedRetrieval}
         setShowDialog={setShowDialog}
         selectedIndex={selectedIndex}
+        isLoading={isTableLoading}
       />
 
       <RetrievalDialog
