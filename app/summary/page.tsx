@@ -535,6 +535,9 @@ export default function SummaryPage(): ReactElement {
                     border: "1px solid #ccc",
                     padding: 2,
                     marginTop: 2,
+                    maxHeight: 407.5,
+                    display: "flex",
+                    flexDirection: "column",
                   }}
                 >
                   <TextField
@@ -546,8 +549,9 @@ export default function SummaryPage(): ReactElement {
                   />
                   <Box
                     sx={{
-                      padding: 2,
                       marginTop: 2,
+                      overflowY: "auto",
+                      flexGrow: 1,
                     }}
                   >
                     <List dense sx={{ marginLeft: 4 }}>
