@@ -87,13 +87,34 @@ export default function TimelinePage(): ReactElement {
     return queryPlan[selectedIndex];
   }, [queryPlan, selectedIndex]);
 
-  const memoizedAggregateRetrievals = useMemo(
-    () => selectedQueryPlan.aggregateRetrievals,
-    [selectedQueryPlan.aggregateRetrievals],
-  );
-  const memoizedDatabaseRetrievals = useMemo(
-    () => selectedQueryPlan.databaseRetrievals,
-    [selectedQueryPlan.databaseRetrievals],
+  const retrievalMaps = useMemo(
+    () => ({
+      aggregate: new Map(
+        selectedQueryPlan.aggregateRetrievals.map((retrieval) =>
+          selectedIndex == -1
+            ? [
+                `id:${retrieval.retrievalId},pass:${(retrieval as AggregatedAggregateRetrieval).pass}`,
+                retrieval,
+              ]
+            : [retrieval.retrievalId.toString(), retrieval],
+        ),
+      ),
+      database: new Map(
+        selectedQueryPlan.databaseRetrievals.map((retrieval) =>
+          selectedIndex == -1
+            ? [
+                `id:${retrieval.retrievalId},pass:${(retrieval as AggregatedDatabaseRetrieval).pass}`,
+                retrieval,
+              ]
+            : [retrieval.retrievalId.toString(), retrieval],
+        ),
+      ),
+    }),
+    [
+      selectedQueryPlan.aggregateRetrievals,
+      selectedQueryPlan.databaseRetrievals,
+      selectedIndex,
+    ],
   );
 
   useEffect(() => {
@@ -248,34 +269,22 @@ export default function TimelinePage(): ReactElement {
     (retrievalId: number, type: TimingType, pass: string) => void
   >(
     (retrievalId, type, pass) => {
-      let retrieval: AggregateRetrieval | DatabaseRetrieval | undefined;
+      const mapSubObject = type.startsWith("AggregateRetrieval")
+        ? "aggregate"
+        : "database";
+      const mapKey =
+        selectedIndex === -1
+          ? `id:${retrievalId},pass:${pass}`
+          : retrievalId.toString();
 
-      if (selectedIndex !== -1) {
-        if (type.startsWith("AggregateRetrieval"))
-          retrieval = memoizedAggregateRetrievals.find(
-            (r) => r.retrievalId === retrievalId,
-          );
-        else if (type.startsWith("DatabaseRetrieval"))
-          retrieval = memoizedDatabaseRetrievals.find(
-            (r) => r.retrievalId === retrievalId,
-          );
-      } else {
-        if (type.startsWith("AggregateRetrieval"))
-          retrieval = (
-            memoizedAggregateRetrievals as AggregatedAggregateRetrieval[]
-          ).find((r) => r.retrievalId === retrievalId && r.pass === pass);
-        else if (type.startsWith("DatabaseRetrieval"))
-          retrieval = (
-            memoizedDatabaseRetrievals as AggregatedDatabaseRetrieval[]
-          ).find((r) => r.retrievalId === retrievalId && r.pass === pass);
-      }
+      const retrieval = retrievalMaps[mapSubObject].get(mapKey);
 
       if (retrieval) {
         setSelectedRetrieval(retrieval);
         setShowDialog(true);
       }
     },
-    [memoizedAggregateRetrievals, memoizedDatabaseRetrievals, selectedIndex],
+    [retrievalMaps, selectedIndex],
   );
 
   if (!queryPlan || queryPlan.length == 0)
