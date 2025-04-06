@@ -1,10 +1,6 @@
 "use client";
 import { getColor } from "@/lib/functions";
-import {
-  ProcessedNode,
-  AggregateRetrieval,
-  DatabaseRetrieval,
-} from "@/lib/types";
+import { ProcessedNode } from "@/lib/types";
 import InfoIcon from "@mui/icons-material/Info";
 import {
   Table,
@@ -29,13 +25,7 @@ interface NodesTableProps {
   minDuration: number;
   maxDuration: number;
   handleSort: (column: keyof ProcessedNode) => void;
-  getRetrievalFromNode: (
-    node: ProcessedNode,
-  ) => AggregateRetrieval | DatabaseRetrieval;
-  setSelectedRetrieval: (
-    retrieval: AggregateRetrieval | DatabaseRetrieval,
-  ) => void;
-  setShowDialog: (open: boolean) => void;
+  openRetrievalDialog: (node: ProcessedNode) => void;
   selectedIndex: number;
   isLoading?: boolean;
 }
@@ -47,9 +37,7 @@ export function NodesTable({
   minDuration,
   maxDuration,
   handleSort,
-  getRetrievalFromNode,
-  setSelectedRetrieval,
-  setShowDialog,
+  openRetrievalDialog,
   selectedIndex,
   isLoading,
 }: NodesTableProps): ReactElement {
@@ -60,10 +48,9 @@ export function NodesTable({
 
   const handleRowClick = useCallback(
     (node: ProcessedNode) => () => {
-      setSelectedRetrieval(getRetrievalFromNode(node));
-      setShowDialog(true);
+      openRetrievalDialog(node);
     },
-    [getRetrievalFromNode, setSelectedRetrieval, setShowDialog],
+    [openRetrievalDialog],
   );
 
   return (
