@@ -7,7 +7,7 @@ import {
   TimelineFooter,
   TimelineLegend,
 } from "@/components";
-import { aggregateData, buildTimeline } from "@/lib/functions";
+import { aggregateData } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
   AggregatedAggregateRetrieval,
@@ -18,6 +18,7 @@ import {
   emptyAggregateRetrieval,
   emptyQueryPlan,
   QueryPlan,
+  Timeline,
   TimingType,
 } from "@/lib/types";
 import InfoIcon from "@mui/icons-material/Info";
@@ -32,6 +33,7 @@ import {
   Typography,
   Tooltip,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import { debounce } from "lodash";
 import {
@@ -67,6 +69,13 @@ export default function TimelinePage(): ReactElement {
     }),
   );
 
+  const [timeline, setTimeline] = useState<Timeline>({
+    minDuration: 0,
+    maxDuration: 0,
+    totalProcesses: 0,
+  });
+  const [loading, setLoading] = useState<boolean>(true);
+
   const [containerWidth, setContainerWidth] = useState<number>(50);
   const [scrollLeft, setScrollLeft] = useState<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -78,28 +87,66 @@ export default function TimelinePage(): ReactElement {
     return queryPlan[selectedIndex];
   }, [queryPlan, selectedIndex]);
 
-  const memoizedAggregateRetrievals = useMemo(
-    () => selectedQueryPlan.aggregateRetrievals,
-    [selectedQueryPlan.aggregateRetrievals],
-  );
-  const memoizedDatabaseRetrievals = useMemo(
-    () => selectedQueryPlan.databaseRetrievals,
-    [selectedQueryPlan.databaseRetrievals],
+  const retrievalMaps = useMemo(
+    () => ({
+      aggregate: new Map(
+        selectedQueryPlan.aggregateRetrievals.map((retrieval) =>
+          selectedIndex == -1
+            ? [
+                `id:${retrieval.retrievalId},pass:${(retrieval as AggregatedAggregateRetrieval).pass}`,
+                retrieval,
+              ]
+            : [retrieval.retrievalId.toString(), retrieval],
+        ),
+      ),
+      database: new Map(
+        selectedQueryPlan.databaseRetrievals.map((retrieval) =>
+          selectedIndex == -1
+            ? [
+                `id:${retrieval.retrievalId},pass:${(retrieval as AggregatedDatabaseRetrieval).pass}`,
+                retrieval,
+              ]
+            : [retrieval.retrievalId.toString(), retrieval],
+        ),
+      ),
+    }),
+    [
+      selectedQueryPlan.aggregateRetrievals,
+      selectedQueryPlan.databaseRetrievals,
+      selectedIndex,
+    ],
   );
 
-  const timeline = useMemo(
-    () => buildTimeline(selectedQueryPlan),
-    [selectedQueryPlan],
-  );
+  useEffect(() => {
+    const fetchTimeline = async (): Promise<void> => {
+      setLoading(true);
+      const res = await fetch("/api/timeline", {
+        method: "POST",
+        body: JSON.stringify({ queryPlan: selectedQueryPlan }),
+        headers: { "Content-Type": "application/json" },
+      });
+      const result = await res.json();
+      setTimeline(result);
+    };
+    if (selectedQueryPlan) {
+      fetchTimeline().finally(() => setLoading(false));
+    }
+  }, [selectedQueryPlan]);
+
+  useEffect(() => {
+    if (!loading && containerRef.current) {
+      setContainerWidth(containerRef.current.offsetWidth);
+    }
+  }, [loading]);
 
   const { maxDuration, minDuration, totalProcesses, ...coresTimeline } =
     timeline;
 
   // Carefull, always use both at the same time
   const [thresholdInputValue, setThresholdInputValue] = useState<number>(
-    0.9 * maxDuration,
+    Number.MAX_SAFE_INTEGER,
   );
-  const [threshold, setThreshold] = useState<number>(0.9 * maxDuration);
+  const [threshold, setThreshold] = useState<number>(Number.MAX_SAFE_INTEGER);
   const [debouncedSetThreshold] = useState(() =>
     debounce(setThreshold, 300, {
       leading: false,
@@ -109,27 +156,31 @@ export default function TimelinePage(): ReactElement {
   const [hiddenNodes, setHiddenNodes] = useState<boolean>(true);
 
   useEffect(() => {
-    if (totalProcesses < MAX_ITEMS) {
-      setThreshold((prevThreshold) => {
-        const newThreshold = prevThreshold !== 0 ? 0 : prevThreshold;
-
-        setThresholdInputValue(newThreshold);
-        return newThreshold;
-      });
-      setHiddenNodes(false);
+    if (!loading) {
+      if (totalProcesses < MAX_ITEMS) {
+        setThreshold((prev) => (prev !== 0 ? 0 : prev));
+        setThresholdInputValue((prev) => (prev !== 0 ? 0 : prev));
+        setHiddenNodes(false);
+      } else if (totalProcesses > MAX_ITEMS) {
+        setThreshold((prev) =>
+          prev !== 0.95 * maxDuration ? 0.95 * maxDuration : prev,
+        );
+        setThresholdInputValue((prev) =>
+          prev !== 0.95 * maxDuration ? 0.95 * maxDuration : prev,
+        );
+        setHiddenNodes(true);
+      }
     }
-  }, [totalProcesses]);
+  }, [totalProcesses, loading, maxDuration]);
 
   // Find the maximum end time to calculate the content width
-  const maxEnd = useMemo(
-    () =>
-      Math.max(
-        ...Object.values(coresTimeline).flatMap((timings) =>
-          timings.map(({ end }) => end),
-        ),
-      ),
-    [coresTimeline],
-  );
+  const maxEnd = useMemo(() => {
+    const allEnds = Object.values(coresTimeline)
+      .flatMap((timings) => timings.map(({ end }) => end))
+      .filter((end) => typeof end === "number"); // Remove undefined values
+
+    return allEnds.length > 0 ? Math.max(...allEnds) : 1; // Avoid -Infinity
+  }, [coresTimeline]);
   const contentWidth = useMemo(() => maxEnd * scale, [maxEnd, scale]);
 
   // Keep track of container width
@@ -178,11 +229,12 @@ export default function TimelinePage(): ReactElement {
 
   // Adjust scale at render and when container's width changes
   useEffect(() => {
-    setScale((prevScale) => {
-      const newScale = containerWidth / maxEnd;
-      setScaleSliderValue(newScale);
-      return prevScale !== newScale ? newScale : prevScale;
-    });
+    if (maxEnd > 0)
+      setScale((prevScale) => {
+        const newScale = containerWidth / maxEnd;
+        setScaleSliderValue(newScale);
+        return prevScale !== newScale ? newScale : prevScale;
+      });
   }, [containerWidth, maxEnd]);
 
   // Synchronize horizontal scroll between timeline and scale
@@ -217,38 +269,41 @@ export default function TimelinePage(): ReactElement {
     (retrievalId: number, type: TimingType, pass: string) => void
   >(
     (retrievalId, type, pass) => {
-      let retrieval: AggregateRetrieval | DatabaseRetrieval | undefined;
+      const mapSubObject = type.startsWith("AggregateRetrieval")
+        ? "aggregate"
+        : "database";
+      const mapKey =
+        selectedIndex === -1
+          ? `id:${retrievalId},pass:${pass}`
+          : retrievalId.toString();
 
-      if (selectedIndex !== -1) {
-        if (type.startsWith("AggregateRetrieval"))
-          retrieval = memoizedAggregateRetrievals.find(
-            (r) => r.retrievalId === retrievalId,
-          );
-        else if (type.startsWith("DatabaseRetrieval"))
-          retrieval = memoizedDatabaseRetrievals.find(
-            (r) => r.retrievalId === retrievalId,
-          );
-      } else {
-        if (type.startsWith("AggregateRetrieval"))
-          retrieval = (
-            memoizedAggregateRetrievals as AggregatedAggregateRetrieval[]
-          ).find((r) => r.retrievalId === retrievalId && r.pass === pass);
-        else if (type.startsWith("DatabaseRetrieval"))
-          retrieval = (
-            memoizedDatabaseRetrievals as AggregatedDatabaseRetrieval[]
-          ).find((r) => r.retrievalId === retrievalId && r.pass === pass);
-      }
+      const retrieval = retrievalMaps[mapSubObject].get(mapKey);
 
       if (retrieval) {
         setSelectedRetrieval(retrieval);
         setShowDialog(true);
       }
     },
-    [memoizedAggregateRetrievals, memoizedDatabaseRetrievals, selectedIndex],
+    [retrievalMaps, selectedIndex],
   );
 
   if (!queryPlan || queryPlan.length == 0)
     return <>Please send a query to see the graph</>;
+
+  if (loading)
+    return (
+      <Grid2
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center"
+      >
+        <CircularProgress size="15rem" disableShrink />
+        <Typography variant="h4" marginTop={2}>
+          Computing timeline... Please be patient.
+        </Typography>
+      </Grid2>
+    );
 
   return (
     <Box padding={2} paddingBottom={0} width="100%">

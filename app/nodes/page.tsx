@@ -5,11 +5,12 @@ import { NodesLegend } from "@/components/nodes/NodesLegend";
 import { aggregateData, getSlowestNodes } from "@/lib/functions";
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import {
+  AggregatedAggregateRetrieval,
+  AggregatedDatabaseRetrieval,
   AggregatedQueryPlan,
   AggregateRetrieval,
   DatabaseRetrieval,
   emptyAggregateRetrieval,
-  emptyDatabaseRetrieval,
   emptyQueryPlan,
   ProcessedNode,
   QueryPlan,
@@ -88,32 +89,57 @@ export default function NodesPage(): ReactElement {
     [sortColumn],
   );
 
-  const memoizedRetrievals = useMemo(
-    () => ({
-      aggregate: selectedQueryPlan.aggregateRetrievals,
-      database: selectedQueryPlan.databaseRetrievals,
-    }),
-    [selectedQueryPlan],
+  const memoizedAggregateRetrievals = useMemo(
+    () => selectedQueryPlan.aggregateRetrievals,
+    [selectedQueryPlan.aggregateRetrievals],
+  );
+  const memoizedDatabaseRetrievals = useMemo(
+    () => selectedQueryPlan.databaseRetrievals,
+    [selectedQueryPlan.databaseRetrievals],
   );
 
-  const retrievalMaps = useMemo(() => {
-    return {
+  const retrievalMaps = useMemo(
+    () => ({
       aggregate: new Map(
-        memoizedRetrievals.aggregate.map((r) => [r.retrievalId, r]),
+        memoizedAggregateRetrievals.map((retrieval) =>
+          selectedIndex == -1
+            ? [
+                `id:${retrieval.retrievalId},pass:${(retrieval as AggregatedAggregateRetrieval).pass}`,
+                retrieval,
+              ]
+            : [retrieval.retrievalId.toString(), retrieval],
+        ),
       ),
       database: new Map(
-        memoizedRetrievals.database.map((r) => [r.retrievalId, r]),
+        memoizedDatabaseRetrievals.map((retrieval) =>
+          selectedIndex == -1
+            ? [
+                `id:${retrieval.retrievalId},pass:${(retrieval as AggregatedDatabaseRetrieval).pass}`,
+                retrieval,
+              ]
+            : [retrieval.retrievalId.toString(), retrieval],
+        ),
       ),
-    };
-  }, [memoizedRetrievals]);
+    }),
+    [memoizedAggregateRetrievals, memoizedDatabaseRetrievals, selectedIndex],
+  );
 
-  const getRetrievalFromNode = useCallback(
+  const openRetrievalDialog = useCallback(
     (node: ProcessedNode) => {
-      return node.type === "Aggregate"
-        ? retrievalMaps.aggregate.get(node.id) || emptyAggregateRetrieval
-        : retrievalMaps.database.get(node.id) || emptyDatabaseRetrieval;
+      const mapSubObject = node.type === "Aggregate" ? "aggregate" : "database";
+      const mapKey =
+        selectedIndex === -1
+          ? `id:${node.id},pass:${node.pass}`
+          : node.id.toString();
+
+      const retrieval = retrievalMaps[mapSubObject].get(mapKey);
+
+      if (retrieval) {
+        setSelectedRetrieval(retrieval);
+        setShowDialog(true);
+      }
     },
-    [retrievalMaps],
+    [retrievalMaps, selectedIndex],
   );
 
   if (!queryPlan || queryPlan.length === 0)
@@ -140,8 +166,8 @@ export default function NodesPage(): ReactElement {
           }}
           min={1}
           max={
-            memoizedRetrievals.aggregate.length +
-            memoizedRetrievals.database.length
+            memoizedAggregateRetrievals.length +
+            memoizedDatabaseRetrievals.length
           }
         />
       </Grid2>
@@ -155,9 +181,7 @@ export default function NodesPage(): ReactElement {
         minDuration={minDuration}
         maxDuration={maxDuration}
         handleSort={handleSort}
-        getRetrievalFromNode={getRetrievalFromNode}
-        setSelectedRetrieval={setSelectedRetrieval}
-        setShowDialog={setShowDialog}
+        openRetrievalDialog={openRetrievalDialog}
         selectedIndex={selectedIndex}
         isLoading={isTableLoading}
       />
