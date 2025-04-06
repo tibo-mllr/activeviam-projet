@@ -80,13 +80,12 @@ describe("buildTimeline", () => {
   });
 
   it("builds a timeline from aggregate retrievals", () => {
-    const result = buildTimeline({ ...emptyQueryPlan, aggregateRetrievals });
+    const result = buildTimeline({
+      ...emptyQueryPlan,
+      aggregateRetrievals,
+    });
 
-    const expected: Timeline & {
-      minDuration: number;
-      maxDuration: number;
-      totalProcesses: number;
-    } = {
+    const expected: Timeline = {
       "0": [
         {
           start: 0,
@@ -114,13 +113,12 @@ describe("buildTimeline", () => {
   });
 
   it("builds a timeline from database retrievals", () => {
-    const result = buildTimeline({ ...emptyQueryPlan, databaseRetrievals });
+    const result = buildTimeline({
+      ...emptyQueryPlan,
+      databaseRetrievals,
+    });
 
-    const expected: Timeline & {
-      minDuration: number;
-      maxDuration: number;
-      totalProcesses: number;
-    } = {
+    const expected: Timeline = {
       "0": [
         {
           start: 8,
@@ -152,11 +150,7 @@ describe("buildTimeline", () => {
       databaseRetrievals,
     });
 
-    const expected: Timeline & {
-      minDuration: number;
-      maxDuration: number;
-      totalProcesses: number;
-    } = {
+    const expected: Timeline = {
       "0": [
         {
           start: 0,
@@ -208,11 +202,7 @@ describe("buildTimeline", () => {
       databaseRetrievals,
     });
 
-    const expected: Timeline & {
-      minDuration: number;
-      maxDuration: number;
-      totalProcesses: number;
-    } = {
+    const expected: Timeline = {
       "0": [
         {
           start: 0,
