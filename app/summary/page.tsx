@@ -408,6 +408,9 @@ export default function SummaryPage(): ReactElement {
                     border: "1px solid #ccc",
                     padding: 2,
                     marginTop: 2,
+                    maxHeight: 500,
+                    display: "flex",
+                    flexDirection: "column",
                   }}
                 >
                   <Typography>Group retrievals</Typography>
@@ -416,109 +419,86 @@ export default function SummaryPage(): ReactElement {
                     onChange={() => setIsGroupedNumbers((prev) => !prev)}
                   />
 
-                  {!isGroupedNumbers ? (
+                  <Box
+                    sx={{
+                      padding: 2,
+                      marginTop: 2,
+                      display: "flex",
+                      width: "40vw",
+                      minWidth: "670px",
+                      flex: 1,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <ResponsiveContainer width={250} height={250}>
+                      <PieChart>
+                        <Pie
+                          data={
+                            isGroupedNumbers
+                              ? groupedPieDataRetrievalsTypeCounts
+                              : pieDataRetrievalsTypeCounts
+                          }
+                          dataKey="value"
+                          nameKey="name"
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={100}
+                          isAnimationActive={false}
+                        >
+                          {(isGroupedNumbers
+                            ? groupedPieDataRetrievalsTypeCounts
+                            : pieDataRetrievalsTypeCounts
+                          ).map((entry) => (
+                            <Cell key={entry.name} fill={entry.fill} />
+                          ))}
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
+
                     <Box
                       sx={{
-                        padding: 2,
-                        marginTop: 2,
+                        marginLeft: 2,
+                        flex: 1,
                         display: "flex",
-                        width: "40vw",
-                        minWidth: "670px",
+                        flexDirection: "column",
                       }}
                     >
-                      <ResponsiveContainer width={250} height={250}>
-                        <PieChart>
-                          <Pie
-                            data={pieDataRetrievalsTypeCounts}
-                            dataKey="value"
-                            nameKey="name"
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={100}
-                            isAnimationActive={false}
-                          >
-                            {pieDataRetrievalsTypeCounts.map((entry) => (
-                              <Cell key={entry.name} fill={entry.fill} />
-                            ))}
-                          </Pie>
-                        </PieChart>
-                      </ResponsiveContainer>
-                      <Box sx={{ marginLeft: 2, flex: 1 }}>
-                        <Typography variant="body1" fontWeight="bold">
-                          Retrievals (
-                          {selectedQueryPlan.querySummary.totalRetrievals}) :
-                        </Typography>
-                        <List dense sx={{ marginLeft: 4 }}>
-                          {Object.entries(retrievalsTypeCounts)
-                            .sort((a, b) => b[1] - a[1])
-                            .map(([key, value]) => (
-                              <ListItem key={key} disablePadding>
-                                <Box
-                                  sx={{
-                                    width: 12,
-                                    height: 12,
-                                    backgroundColor: retrievalsColors[key],
-                                    marginRight: 1,
-                                  }}
-                                />
-                                <ListItemText primary={`${key} : ${value}`} />
-                              </ListItem>
-                            ))}
-                        </List>
-                      </Box>
+                      <Typography variant="body1" fontWeight="bold">
+                        Retrievals (
+                        {selectedQueryPlan.querySummary.totalRetrievals}) :
+                      </Typography>
+
+                      <List
+                        dense
+                        sx={{
+                          marginLeft: 2,
+                          overflowY: "auto",
+                          flex: 1,
+                        }}
+                      >
+                        {(isGroupedNumbers
+                          ? Object.entries(groupedRetrievalsTypeCounts)
+                          : Object.entries(retrievalsTypeCounts)
+                        )
+                          .sort((a, b) => b[1] - a[1])
+                          .map(([key, value]) => (
+                            <ListItem key={key} disablePadding>
+                              <Box
+                                sx={{
+                                  width: 12,
+                                  height: 12,
+                                  backgroundColor: isGroupedNumbers
+                                    ? GROUP_COLORS[key]
+                                    : retrievalsColors[key],
+                                  marginRight: 1,
+                                }}
+                              />
+                              <ListItemText primary={`${key} : ${value}`} />
+                            </ListItem>
+                          ))}
+                      </List>
                     </Box>
-                  ) : (
-                    <Box
-                      sx={{
-                        padding: 2,
-                        marginTop: 2,
-                        display: "flex",
-                        width: "40vw",
-                        minWidth: "670px",
-                      }}
-                    >
-                      <ResponsiveContainer width={250} height={250}>
-                        <PieChart>
-                          <Pie
-                            data={groupedPieDataRetrievalsTypeCounts}
-                            dataKey="value"
-                            nameKey="name"
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={100}
-                            isAnimationActive={false}
-                          >
-                            {groupedPieDataRetrievalsTypeCounts.map((entry) => (
-                              <Cell key={entry.name} fill={entry.fill} />
-                            ))}
-                          </Pie>
-                        </PieChart>
-                      </ResponsiveContainer>
-                      <Box sx={{ marginLeft: 2, flex: 1 }}>
-                        <Typography variant="body1" fontWeight="bold">
-                          Retrievals (
-                          {selectedQueryPlan.querySummary.totalRetrievals}) :
-                        </Typography>
-                        <List dense sx={{ marginLeft: 2 }}>
-                          {Object.entries(groupedRetrievalsTypeCounts)
-                            .sort((a, b) => b[1] - a[1])
-                            .map(([key, value]) => (
-                              <ListItem key={key} disablePadding>
-                                <Box
-                                  sx={{
-                                    width: 12,
-                                    height: 12,
-                                    backgroundColor: GROUP_COLORS[key],
-                                    marginRight: 1,
-                                  }}
-                                />
-                                <ListItemText primary={`${key} : ${value}`} />
-                              </ListItem>
-                            ))}
-                        </List>
-                      </Box>
-                    </Box>
-                  )}
+                  </Box>
                 </Box>
               </Grid2>
               <Grid2 padding={1} spacing={1} direction="column">
@@ -535,6 +515,9 @@ export default function SummaryPage(): ReactElement {
                     border: "1px solid #ccc",
                     padding: 2,
                     marginTop: 2,
+                    maxHeight: 500,
+                    display: "flex",
+                    flexDirection: "column",
                   }}
                 >
                   <TextField
@@ -546,8 +529,9 @@ export default function SummaryPage(): ReactElement {
                   />
                   <Box
                     sx={{
-                      padding: 2,
                       marginTop: 2,
+                      overflowY: "auto",
+                      flexGrow: 1,
                     }}
                   >
                     <List dense sx={{ marginLeft: 4 }}>
