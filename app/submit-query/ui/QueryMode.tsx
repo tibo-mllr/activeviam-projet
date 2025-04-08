@@ -17,13 +17,11 @@ import { ReactElement, useCallback } from "react";
 const DEFAULT_URL =
   "https://activepivot-ranch.activeviam.com:6100/activeviam/pivot/rest/v9/cube/query/mdx/queryplan";
 
-type QueryPlanModeProps = {
+type QueryModeProps = {
   setError: (error: string | null) => void;
 };
 
-export default function QueryPlanMode({
-  setError,
-}: QueryPlanModeProps): ReactElement {
+export default function QueryMode({ setError }: QueryModeProps): ReactElement {
   const dispatch = useAppDispatch();
 
   const handleSubmit = useCallback<
