@@ -12,7 +12,7 @@ export type ProcessedNode = {
   pass: string;
 };
 
-type PiePartData = {
+export type PiePartData = {
   name: string;
   value: number;
   fill: string;

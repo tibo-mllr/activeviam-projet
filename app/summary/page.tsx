@@ -28,6 +28,7 @@ import {
 import { ReactElement, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import TimingPieChart from "./ui/TimingPieChart";
 
 export default function SummaryPage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
@@ -143,23 +144,9 @@ export default function SummaryPage(): ReactElement {
                         minHeight: "500px",
                       }}
                     >
-                      <ResponsiveContainer width={250} height={250}>
-                        <PieChart>
-                          <Pie
-                            data={pieDataElapsedTimings}
-                            dataKey="value"
-                            nameKey="name"
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={100}
-                            isAnimationActive={false}
-                          >
-                            {pieDataElapsedTimings.map((entry) => (
-                              <Cell key={entry.name} fill={entry.fill} />
-                            ))}
-                          </Pie>
-                        </PieChart>
-                      </ResponsiveContainer>
+                      <TimingPieChart
+                        data={pieDataElapsedTimings}
+                      ></TimingPieChart>
 
                       <Box sx={{ marginLeft: 2, flex: 1 }}>
                         <Typography
@@ -223,23 +210,9 @@ export default function SummaryPage(): ReactElement {
                         minHeight: "500px",
                       }}
                     >
-                      <ResponsiveContainer width={250} height={250}>
-                        <PieChart>
-                          <Pie
-                            data={groupedPieDataElaspedTimings}
-                            dataKey="value"
-                            nameKey="name"
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={100}
-                            isAnimationActive={false}
-                          >
-                            {groupedPieDataElaspedTimings.map((entry) => (
-                              <Cell key={entry.name} fill={entry.fill} />
-                            ))}
-                          </Pie>
-                        </PieChart>
-                      </ResponsiveContainer>
+                      <TimingPieChart
+                        data={groupedPieDataElaspedTimings}
+                      ></TimingPieChart>
 
                       <Box sx={{ marginLeft: 2, flex: 1 }}>
                         <Typography
@@ -341,30 +314,13 @@ export default function SummaryPage(): ReactElement {
                       overflow: "hidden",
                     }}
                   >
-                    <ResponsiveContainer width={250} height={250}>
-                      <PieChart>
-                        <Pie
-                          data={
-                            isGroupedNumbers
-                              ? groupedPieDataRetrievalsTypeCounts
-                              : pieDataRetrievalsTypeCounts
-                          }
-                          dataKey="value"
-                          nameKey="name"
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={100}
-                          isAnimationActive={false}
-                        >
-                          {(isGroupedNumbers
-                            ? groupedPieDataRetrievalsTypeCounts
-                            : pieDataRetrievalsTypeCounts
-                          ).map((entry) => (
-                            <Cell key={entry.name} fill={entry.fill} />
-                          ))}
-                        </Pie>
-                      </PieChart>
-                    </ResponsiveContainer>
+                    <TimingPieChart
+                      data={
+                        isGroupedNumbers
+                          ? groupedPieDataRetrievalsTypeCounts
+                          : pieDataRetrievalsTypeCounts
+                      }
+                    ></TimingPieChart>
 
                     <Box
                       sx={{
