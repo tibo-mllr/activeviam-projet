@@ -9,6 +9,7 @@ import {
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import { AggregatedQueryPlan, emptyQueryPlan, QueryPlan } from "@/lib/types";
 import InfoIcon from "@mui/icons-material/Info";
+import TimingList from "./ui/TimingList";
 import {
   Card,
   CardContent,
@@ -171,47 +172,18 @@ export default function SummaryPage(): ReactElement {
                         <Typography variant="body2" marginLeft={2}>
                           Aggregate retrievals
                         </Typography>
-                        <List dense sx={{ marginLeft: 4 }}>
-                          {Object.entries(aggregateRetrievalsElapsedTimings)
-                            .sort((a, b) => b[1] - a[1])
-                            .map(([key, value]) => (
-                              <ListItem key={key} disablePadding>
-                                <Box
-                                  sx={{
-                                    width: 12,
-                                    height: 12,
-                                    backgroundColor: retrievalsColors[key],
-                                    marginRight: 1,
-                                  }}
-                                />
-                                <ListItemText
-                                  primary={`${key} : ${value} ms`}
-                                />
-                              </ListItem>
-                            ))}
-                        </List>
+                        <TimingList
+                          data={aggregateRetrievalsElapsedTimings}
+                          colorMap={retrievalsColors}
+                        ></TimingList>
+
                         <Typography variant="body2" marginLeft={2}>
                           Database retrievals
                         </Typography>
-                        <List dense sx={{ marginLeft: 4 }}>
-                          {Object.entries(databaseRetrievalsElapsedTimings)
-                            .sort((a, b) => b[1] - a[1])
-                            .map(([key, value]) => (
-                              <ListItem key={key} disablePadding>
-                                <Box
-                                  sx={{
-                                    width: 12,
-                                    height: 12,
-                                    backgroundColor: retrievalsColors[key],
-                                    marginRight: 1,
-                                  }}
-                                />
-                                <ListItemText
-                                  primary={`${key} : ${value} ms`}
-                                />
-                              </ListItem>
-                            ))}
-                        </List>
+                        <TimingList
+                          data={databaseRetrievalsElapsedTimings}
+                          colorMap={retrievalsColors}
+                        ></TimingList>
 
                         <Typography
                           variant="body1"
@@ -223,49 +195,20 @@ export default function SummaryPage(): ReactElement {
                         <Typography variant="body2" marginLeft={2}>
                           Aggregate
                         </Typography>
-                        <List dense sx={{ marginLeft: 4 }}>
-                          {Object.entries(
-                            aggregateRetrievalsExecutionContextElapsedTimings,
-                          )
-                            .sort((a, b) => b[1] - a[1])
-                            .map(([key, value]) => (
-                              <ListItem key={key} disablePadding>
-                                <Box
-                                  sx={{
-                                    width: 12,
-                                    height: 12,
-                                    marginRight: 1,
-                                  }}
-                                />
-                                <ListItemText
-                                  primary={`${key} : ${value} ms`}
-                                />
-                              </ListItem>
-                            ))}
-                        </List>
+                        <TimingList
+                          data={
+                            aggregateRetrievalsExecutionContextElapsedTimings
+                          }
+                        ></TimingList>
+
                         <Typography variant="body2" marginLeft={2}>
                           Database
                         </Typography>
-                        <List dense sx={{ marginLeft: 4 }}>
-                          {Object.entries(
-                            databaseRetrievalsExecutionContextElapsedTimings,
-                          )
-                            .sort((a, b) => b[1] - a[1])
-                            .map(([key, value]) => (
-                              <ListItem key={key} disablePadding>
-                                <Box
-                                  sx={{
-                                    width: 12,
-                                    height: 12,
-                                    marginRight: 1,
-                                  }}
-                                />
-                                <ListItemText
-                                  primary={`${key} : ${value} ms`}
-                                />
-                              </ListItem>
-                            ))}
-                        </List>
+                        <TimingList
+                          data={
+                            databaseRetrievalsExecutionContextElapsedTimings
+                          }
+                        ></TimingList>
                       </Box>
                     </Box>
                   ) : (
@@ -306,25 +249,10 @@ export default function SummaryPage(): ReactElement {
                         >
                           Elapsed timings
                         </Typography>
-                        <List dense sx={{ marginLeft: 2 }}>
-                          {Object.entries(groupedRetrievalsElapsedTimings)
-                            .sort((a, b) => b[1] - a[1])
-                            .map(([key, value]) => (
-                              <ListItem key={key} disablePadding>
-                                <Box
-                                  sx={{
-                                    width: 12,
-                                    height: 12,
-                                    backgroundColor: GROUP_COLORS[key],
-                                    marginRight: 1,
-                                  }}
-                                />
-                                <ListItemText
-                                  primary={`${key} : ${value} ms`}
-                                />
-                              </ListItem>
-                            ))}
-                        </List>
+                        <TimingList
+                          data={groupedRetrievalsElapsedTimings}
+                          colorMap={GROUP_COLORS}
+                        ></TimingList>
 
                         <Typography
                           variant="body1"
@@ -333,26 +261,9 @@ export default function SummaryPage(): ReactElement {
                         >
                           Elapsed timings (execution context)
                         </Typography>
-                        <List dense sx={{ marginLeft: 2 }}>
-                          {Object.entries(
-                            groupedRetrievalsExecutionContextElapsedTimings,
-                          )
-                            .sort((a, b) => b[1] - a[1])
-                            .map(([key, value]) => (
-                              <ListItem key={key} disablePadding>
-                                <Box
-                                  sx={{
-                                    width: 12,
-                                    height: 12,
-                                    marginRight: 1,
-                                  }}
-                                />
-                                <ListItemText
-                                  primary={`${key} : ${value} ms`}
-                                />
-                              </ListItem>
-                            ))}
-                        </List>
+                        <TimingList
+                          data={groupedRetrievalsExecutionContextElapsedTimings}
+                        ></TimingList>
                       </Box>
                     </Box>
                   )}
@@ -467,36 +378,16 @@ export default function SummaryPage(): ReactElement {
                         Retrievals (
                         {selectedQueryPlan.querySummary.totalRetrievals}) :
                       </Typography>
-
-                      <List
-                        dense
-                        sx={{
-                          marginLeft: 2,
-                          overflowY: "auto",
-                          flex: 1,
-                        }}
-                      >
-                        {(isGroupedNumbers
-                          ? Object.entries(groupedRetrievalsTypeCounts)
-                          : Object.entries(retrievalsTypeCounts)
-                        )
-                          .sort((a, b) => b[1] - a[1])
-                          .map(([key, value]) => (
-                            <ListItem key={key} disablePadding>
-                              <Box
-                                sx={{
-                                  width: 12,
-                                  height: 12,
-                                  backgroundColor: isGroupedNumbers
-                                    ? GROUP_COLORS[key]
-                                    : retrievalsColors[key],
-                                  marginRight: 1,
-                                }}
-                              />
-                              <ListItemText primary={`${key} : ${value}`} />
-                            </ListItem>
-                          ))}
-                      </List>
+                      <TimingList
+                        data={
+                          isGroupedNumbers
+                            ? groupedRetrievalsTypeCounts
+                            : retrievalsTypeCounts
+                        }
+                        colorMap={
+                          isGroupedNumbers ? GROUP_COLORS : retrievalsColors
+                        }
+                      ></TimingList>
                     </Box>
                   </Box>
                 </Box>
