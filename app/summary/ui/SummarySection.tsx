@@ -1,3 +1,4 @@
+import InfoIcon from "@mui/icons-material/Info";
 import {
   Grid2,
   Box,
@@ -8,7 +9,6 @@ import {
   IconButton,
   Tooltip,
 } from "@mui/material";
-import InfoIcon from "@mui/icons-material/Info";
 
 interface SummarySectionProps {
   title: string;

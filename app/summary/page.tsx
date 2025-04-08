@@ -9,7 +9,6 @@ import {
 import { getQueryPlan, getSelectedIndex } from "@/lib/redux";
 import { AggregatedQueryPlan, emptyQueryPlan, QueryPlan } from "@/lib/types";
 import InfoIcon from "@mui/icons-material/Info";
-import TimingList from "./ui/TimingList";
 import {
   Card,
   CardContent,
@@ -27,9 +26,9 @@ import {
 
 import { ReactElement, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-import TimingPieChart from "./ui/TimingPieChart";
 import SummarySection from "./ui/SummarySection";
+import TimingList from "./ui/TimingList";
+import TimingPieChart from "./ui/TimingPieChart";
 
 export default function SummaryPage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
