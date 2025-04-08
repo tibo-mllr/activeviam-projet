@@ -29,6 +29,7 @@ import { ReactElement, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import TimingPieChart from "./ui/TimingPieChart";
+import SummarySection from "./ui/SummarySection";
 
 export default function SummaryPage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
@@ -394,102 +395,27 @@ export default function SummaryPage(): ReactElement {
             </Grid2>
             {selectedIndex !== -1 && (
               <Grid2 container padding={1} spacing={2} justifyContent="center">
-                <Grid2 padding={1} spacing={1}>
-                  <Box
-                    sx={{
-                      border: "1px solid #ccc",
-                      padding: 2,
-                      marginTop: 2,
-                    }}
-                  >
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <Typography variant="body1" fontWeight="bold">
-                        Partial Providers (
-                        {selectedQueryPlan.querySummary?.partialProviders
-                          ?.length || 0}
-                        ) :
-                      </Typography>
-                      <Tooltip title="Data sources or operators that process only a subset of the required data.">
-                        <IconButton size="small" style={{ marginLeft: 8 }}>
-                          <InfoIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                    {selectedQueryPlan.querySummary?.partialProviders ? (
-                      <List dense sx={{ marginLeft: 4 }}>
-                        {Object.entries(
-                          selectedQueryPlan.querySummary.partialProviders,
-                        ).map(([key, value]) => (
-                          <ListItem key={key} disablePadding>
-                            <ListItemText primary={value} />
-                          </ListItem>
-                        ))}
-                      </List>
-                    ) : (
-                      <Typography variant="body2" sx={{ marginLeft: 4 }}>
-                        No partial providers available.
-                      </Typography>
-                    )}
-                  </Box>
-                </Grid2>
-                <Grid2 padding={1} spacing={1}>
-                  <Box
-                    sx={{
-                      border: "1px solid #ccc",
-                      padding: 2,
-                      marginTop: 2,
-                    }}
-                  >
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <Typography variant="body1" fontWeight="bold">
-                        Partitioning Count by Type:
-                      </Typography>
-                      <Tooltip title="Different types of partitioning, and how much retrievals use each of them. Partitioning can be constant, single or multiple (separated with | )">
-                        <IconButton size="small">
-                          <InfoIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                    <List dense sx={{ marginLeft: 4 }}>
-                      {Object.entries(
-                        selectedQueryPlan.querySummary.partitioningCountByType,
-                      ).map(([key, value]) => (
-                        <ListItem key={key} disablePadding>
-                          <ListItemText primary={`${key} : ${value}`} />
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Box>
-                </Grid2>
-                <Grid2 padding={1} spacing={1}>
-                  <Box
-                    sx={{
-                      border: "1px solid #ccc",
-                      padding: 2,
-                      marginTop: 2,
-                    }}
-                  >
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <Typography variant="body1" fontWeight="bold">
-                        Partitioning by result size:
-                      </Typography>
-                      <Tooltip title="Size of the results given by each type of partioning">
-                        <IconButton size="small" style={{ marginLeft: 8 }}>
-                          <InfoIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                    <List dense sx={{ marginLeft: 4 }}>
-                      {Object.entries(
-                        selectedQueryPlan.querySummary.resultSizeByPartitioning,
-                      ).map(([key, value]) => (
-                        <ListItem key={key} disablePadding>
-                          <ListItemText primary={`${key} : ${value}`} />
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Box>
-                </Grid2>
+                <SummarySection
+                  title={`Partial Providers (${selectedQueryPlan.querySummary?.partialProviders?.length || 0}) :`}
+                  description={
+                    "Data sources or operators that process only a subset of the required data."
+                  }
+                  data={selectedQueryPlan.querySummary?.partialProviders}
+                ></SummarySection>
+                <SummarySection
+                  title={"Partitioning Count by Type:"}
+                  description={
+                    "Different types of partitioning, and how much retrievals use each of them. Partitioning can be constant, single or multiple (separated with | )"
+                  }
+                  data={selectedQueryPlan.querySummary.partitioningCountByType}
+                ></SummarySection>
+                <SummarySection
+                  title={"Partitioning by result size:"}
+                  description={
+                    "Size of the results given by each type of partioning"
+                  }
+                  data={selectedQueryPlan.querySummary.resultSizeByPartitioning}
+                ></SummarySection>
               </Grid2>
             )}
           </Grid2>
