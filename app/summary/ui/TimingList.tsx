@@ -8,7 +8,14 @@ type TimingListProps = {
 
 export function TimingList({ data, colorMap }: TimingListProps): ReactElement {
   return (
-    <List dense sx={{ marginLeft: 4 }}>
+    <List
+      dense
+      sx={{
+        marginLeft: 2,
+        overflowY: "auto",
+        flex: 1,
+      }}
+    >
       {Object.entries(data)
         .sort((a, b) => b[1] - a[1])
         .map(([key, value]) => (
