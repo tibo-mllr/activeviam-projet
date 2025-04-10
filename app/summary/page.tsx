@@ -26,7 +26,9 @@ import {
 
 import { ReactElement, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { SummarySection } from "./ui/SummarySection";
+import { TimingList } from "./ui/TimingList";
+import { TimingPieChart } from "./ui/TimingPieChart";
 
 export default function SummaryPage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
@@ -142,23 +144,7 @@ export default function SummaryPage(): ReactElement {
                         minHeight: "500px",
                       }}
                     >
-                      <ResponsiveContainer width={250} height={250}>
-                        <PieChart>
-                          <Pie
-                            data={pieDataElapsedTimings}
-                            dataKey="value"
-                            nameKey="name"
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={100}
-                            isAnimationActive={false}
-                          >
-                            {pieDataElapsedTimings.map((entry) => (
-                              <Cell key={entry.name} fill={entry.fill} />
-                            ))}
-                          </Pie>
-                        </PieChart>
-                      </ResponsiveContainer>
+                      <TimingPieChart data={pieDataElapsedTimings} />
 
                       <Box sx={{ marginLeft: 2, flex: 1 }}>
                         <Typography
@@ -171,47 +157,18 @@ export default function SummaryPage(): ReactElement {
                         <Typography variant="body2" marginLeft={2}>
                           Aggregate retrievals
                         </Typography>
-                        <List dense sx={{ marginLeft: 4 }}>
-                          {Object.entries(aggregateRetrievalsElapsedTimings)
-                            .sort((a, b) => b[1] - a[1])
-                            .map(([key, value]) => (
-                              <ListItem key={key} disablePadding>
-                                <Box
-                                  sx={{
-                                    width: 12,
-                                    height: 12,
-                                    backgroundColor: retrievalsColors[key],
-                                    marginRight: 1,
-                                  }}
-                                />
-                                <ListItemText
-                                  primary={`${key} : ${value} ms`}
-                                />
-                              </ListItem>
-                            ))}
-                        </List>
+                        <TimingList
+                          data={aggregateRetrievalsElapsedTimings}
+                          colorMap={retrievalsColors}
+                        />
+
                         <Typography variant="body2" marginLeft={2}>
                           Database retrievals
                         </Typography>
-                        <List dense sx={{ marginLeft: 4 }}>
-                          {Object.entries(databaseRetrievalsElapsedTimings)
-                            .sort((a, b) => b[1] - a[1])
-                            .map(([key, value]) => (
-                              <ListItem key={key} disablePadding>
-                                <Box
-                                  sx={{
-                                    width: 12,
-                                    height: 12,
-                                    backgroundColor: retrievalsColors[key],
-                                    marginRight: 1,
-                                  }}
-                                />
-                                <ListItemText
-                                  primary={`${key} : ${value} ms`}
-                                />
-                              </ListItem>
-                            ))}
-                        </List>
+                        <TimingList
+                          data={databaseRetrievalsElapsedTimings}
+                          colorMap={retrievalsColors}
+                        />
 
                         <Typography
                           variant="body1"
@@ -223,49 +180,20 @@ export default function SummaryPage(): ReactElement {
                         <Typography variant="body2" marginLeft={2}>
                           Aggregate
                         </Typography>
-                        <List dense sx={{ marginLeft: 4 }}>
-                          {Object.entries(
-                            aggregateRetrievalsExecutionContextElapsedTimings,
-                          )
-                            .sort((a, b) => b[1] - a[1])
-                            .map(([key, value]) => (
-                              <ListItem key={key} disablePadding>
-                                <Box
-                                  sx={{
-                                    width: 12,
-                                    height: 12,
-                                    marginRight: 1,
-                                  }}
-                                />
-                                <ListItemText
-                                  primary={`${key} : ${value} ms`}
-                                />
-                              </ListItem>
-                            ))}
-                        </List>
+                        <TimingList
+                          data={
+                            aggregateRetrievalsExecutionContextElapsedTimings
+                          }
+                        />
+
                         <Typography variant="body2" marginLeft={2}>
                           Database
                         </Typography>
-                        <List dense sx={{ marginLeft: 4 }}>
-                          {Object.entries(
-                            databaseRetrievalsExecutionContextElapsedTimings,
-                          )
-                            .sort((a, b) => b[1] - a[1])
-                            .map(([key, value]) => (
-                              <ListItem key={key} disablePadding>
-                                <Box
-                                  sx={{
-                                    width: 12,
-                                    height: 12,
-                                    marginRight: 1,
-                                  }}
-                                />
-                                <ListItemText
-                                  primary={`${key} : ${value} ms`}
-                                />
-                              </ListItem>
-                            ))}
-                        </List>
+                        <TimingList
+                          data={
+                            databaseRetrievalsExecutionContextElapsedTimings
+                          }
+                        />
                       </Box>
                     </Box>
                   ) : (
@@ -280,23 +208,7 @@ export default function SummaryPage(): ReactElement {
                         minHeight: "500px",
                       }}
                     >
-                      <ResponsiveContainer width={250} height={250}>
-                        <PieChart>
-                          <Pie
-                            data={groupedPieDataElaspedTimings}
-                            dataKey="value"
-                            nameKey="name"
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={100}
-                            isAnimationActive={false}
-                          >
-                            {groupedPieDataElaspedTimings.map((entry) => (
-                              <Cell key={entry.name} fill={entry.fill} />
-                            ))}
-                          </Pie>
-                        </PieChart>
-                      </ResponsiveContainer>
+                      <TimingPieChart data={groupedPieDataElaspedTimings} />
 
                       <Box sx={{ marginLeft: 2, flex: 1 }}>
                         <Typography
@@ -306,25 +218,10 @@ export default function SummaryPage(): ReactElement {
                         >
                           Elapsed timings
                         </Typography>
-                        <List dense sx={{ marginLeft: 2 }}>
-                          {Object.entries(groupedRetrievalsElapsedTimings)
-                            .sort((a, b) => b[1] - a[1])
-                            .map(([key, value]) => (
-                              <ListItem key={key} disablePadding>
-                                <Box
-                                  sx={{
-                                    width: 12,
-                                    height: 12,
-                                    backgroundColor: GROUP_COLORS[key],
-                                    marginRight: 1,
-                                  }}
-                                />
-                                <ListItemText
-                                  primary={`${key} : ${value} ms`}
-                                />
-                              </ListItem>
-                            ))}
-                        </List>
+                        <TimingList
+                          data={groupedRetrievalsElapsedTimings}
+                          colorMap={GROUP_COLORS}
+                        />
 
                         <Typography
                           variant="body1"
@@ -333,26 +230,9 @@ export default function SummaryPage(): ReactElement {
                         >
                           Elapsed timings (execution context)
                         </Typography>
-                        <List dense sx={{ marginLeft: 2 }}>
-                          {Object.entries(
-                            groupedRetrievalsExecutionContextElapsedTimings,
-                          )
-                            .sort((a, b) => b[1] - a[1])
-                            .map(([key, value]) => (
-                              <ListItem key={key} disablePadding>
-                                <Box
-                                  sx={{
-                                    width: 12,
-                                    height: 12,
-                                    marginRight: 1,
-                                  }}
-                                />
-                                <ListItemText
-                                  primary={`${key} : ${value} ms`}
-                                />
-                              </ListItem>
-                            ))}
-                        </List>
+                        <TimingList
+                          data={groupedRetrievalsExecutionContextElapsedTimings}
+                        />
                       </Box>
                     </Box>
                   )}
@@ -430,30 +310,13 @@ export default function SummaryPage(): ReactElement {
                       overflow: "hidden",
                     }}
                   >
-                    <ResponsiveContainer width={250} height={250}>
-                      <PieChart>
-                        <Pie
-                          data={
-                            isGroupedNumbers
-                              ? groupedPieDataRetrievalsTypeCounts
-                              : pieDataRetrievalsTypeCounts
-                          }
-                          dataKey="value"
-                          nameKey="name"
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={100}
-                          isAnimationActive={false}
-                        >
-                          {(isGroupedNumbers
-                            ? groupedPieDataRetrievalsTypeCounts
-                            : pieDataRetrievalsTypeCounts
-                          ).map((entry) => (
-                            <Cell key={entry.name} fill={entry.fill} />
-                          ))}
-                        </Pie>
-                      </PieChart>
-                    </ResponsiveContainer>
+                    <TimingPieChart
+                      data={
+                        isGroupedNumbers
+                          ? groupedPieDataRetrievalsTypeCounts
+                          : pieDataRetrievalsTypeCounts
+                      }
+                    />
 
                     <Box
                       sx={{
@@ -467,36 +330,16 @@ export default function SummaryPage(): ReactElement {
                         Retrievals (
                         {selectedQueryPlan.querySummary.totalRetrievals}) :
                       </Typography>
-
-                      <List
-                        dense
-                        sx={{
-                          marginLeft: 2,
-                          overflowY: "auto",
-                          flex: 1,
-                        }}
-                      >
-                        {(isGroupedNumbers
-                          ? Object.entries(groupedRetrievalsTypeCounts)
-                          : Object.entries(retrievalsTypeCounts)
-                        )
-                          .sort((a, b) => b[1] - a[1])
-                          .map(([key, value]) => (
-                            <ListItem key={key} disablePadding>
-                              <Box
-                                sx={{
-                                  width: 12,
-                                  height: 12,
-                                  backgroundColor: isGroupedNumbers
-                                    ? GROUP_COLORS[key]
-                                    : retrievalsColors[key],
-                                  marginRight: 1,
-                                }}
-                              />
-                              <ListItemText primary={`${key} : ${value}`} />
-                            </ListItem>
-                          ))}
-                      </List>
+                      <TimingList
+                        data={
+                          isGroupedNumbers
+                            ? groupedRetrievalsTypeCounts
+                            : retrievalsTypeCounts
+                        }
+                        colorMap={
+                          isGroupedNumbers ? GROUP_COLORS : retrievalsColors
+                        }
+                      />
                     </Box>
                   </Box>
                 </Box>
@@ -547,102 +390,27 @@ export default function SummaryPage(): ReactElement {
             </Grid2>
             {selectedIndex !== -1 && (
               <Grid2 container padding={1} spacing={2} justifyContent="center">
-                <Grid2 padding={1} spacing={1}>
-                  <Box
-                    sx={{
-                      border: "1px solid #ccc",
-                      padding: 2,
-                      marginTop: 2,
-                    }}
-                  >
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <Typography variant="body1" fontWeight="bold">
-                        Partial Providers (
-                        {selectedQueryPlan.querySummary?.partialProviders
-                          ?.length || 0}
-                        ) :
-                      </Typography>
-                      <Tooltip title="Data sources or operators that process only a subset of the required data.">
-                        <IconButton size="small" style={{ marginLeft: 8 }}>
-                          <InfoIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                    {selectedQueryPlan.querySummary?.partialProviders ? (
-                      <List dense sx={{ marginLeft: 4 }}>
-                        {Object.entries(
-                          selectedQueryPlan.querySummary.partialProviders,
-                        ).map(([key, value]) => (
-                          <ListItem key={key} disablePadding>
-                            <ListItemText primary={value} />
-                          </ListItem>
-                        ))}
-                      </List>
-                    ) : (
-                      <Typography variant="body2" sx={{ marginLeft: 4 }}>
-                        No partial providers available.
-                      </Typography>
-                    )}
-                  </Box>
-                </Grid2>
-                <Grid2 padding={1} spacing={1}>
-                  <Box
-                    sx={{
-                      border: "1px solid #ccc",
-                      padding: 2,
-                      marginTop: 2,
-                    }}
-                  >
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <Typography variant="body1" fontWeight="bold">
-                        Partitioning Count by Type:
-                      </Typography>
-                      <Tooltip title="Different types of partitioning, and how much retrievals use each of them. Partitioning can be constant, single or multiple (separated with | )">
-                        <IconButton size="small">
-                          <InfoIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                    <List dense sx={{ marginLeft: 4 }}>
-                      {Object.entries(
-                        selectedQueryPlan.querySummary.partitioningCountByType,
-                      ).map(([key, value]) => (
-                        <ListItem key={key} disablePadding>
-                          <ListItemText primary={`${key} : ${value}`} />
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Box>
-                </Grid2>
-                <Grid2 padding={1} spacing={1}>
-                  <Box
-                    sx={{
-                      border: "1px solid #ccc",
-                      padding: 2,
-                      marginTop: 2,
-                    }}
-                  >
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <Typography variant="body1" fontWeight="bold">
-                        Partitioning by result size:
-                      </Typography>
-                      <Tooltip title="Size of the results given by each type of partioning">
-                        <IconButton size="small" style={{ marginLeft: 8 }}>
-                          <InfoIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                    <List dense sx={{ marginLeft: 4 }}>
-                      {Object.entries(
-                        selectedQueryPlan.querySummary.resultSizeByPartitioning,
-                      ).map(([key, value]) => (
-                        <ListItem key={key} disablePadding>
-                          <ListItemText primary={`${key} : ${value}`} />
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Box>
-                </Grid2>
+                <SummarySection
+                  title={`Partial Providers (${selectedQueryPlan.querySummary?.partialProviders?.length || 0}) :`}
+                  description={
+                    "Data sources or operators that process only a subset of the required data."
+                  }
+                  data={selectedQueryPlan.querySummary?.partialProviders}
+                />
+                <SummarySection
+                  title={"Partitioning Count by Type:"}
+                  description={
+                    "Different types of partitioning, and how much retrievals use each of them. Partitioning can be constant, single or multiple (separated with | )"
+                  }
+                  data={selectedQueryPlan.querySummary.partitioningCountByType}
+                />
+                <SummarySection
+                  title={"Partitioning by result size:"}
+                  description={
+                    "Size of the results given by each type of partioning"
+                  }
+                  data={selectedQueryPlan.querySummary.resultSizeByPartitioning}
+                />
               </Grid2>
             )}
           </Grid2>
