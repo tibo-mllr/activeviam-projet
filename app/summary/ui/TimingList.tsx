@@ -1,12 +1,12 @@
 import { Box, List, ListItem, ListItemText } from "@mui/material";
-import React from "react";
+import { ReactElement } from "react";
 
-interface TimingListProps {
+type TimingListProps = {
   data: Record<string, number>;
-  colorMap?: Record<string, string>; // color not mandatory
-}
+  colorMap?: Record<string, string>;
+};
 
-const TimingList: React.FC<TimingListProps> = ({ data, colorMap }) => {
+export function TimingList({ data, colorMap }: TimingListProps): ReactElement {
   return (
     <List dense sx={{ marginLeft: 4 }}>
       {Object.entries(data)
@@ -26,6 +26,4 @@ const TimingList: React.FC<TimingListProps> = ({ data, colorMap }) => {
         ))}
     </List>
   );
-};
-
-export default TimingList;
+}

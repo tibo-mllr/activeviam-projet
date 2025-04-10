@@ -9,18 +9,19 @@ import {
   IconButton,
   Tooltip,
 } from "@mui/material";
+import { ReactElement } from "react";
 
-interface SummarySectionProps {
+type SummarySectionProps = {
   title: string;
   description: string;
   data: string[] | Record<string, number>;
-}
+};
 
-const SummarySection: React.FC<SummarySectionProps> = ({
+export function SummarySection({
   title,
   description,
   data,
-}) => {
+}: SummarySectionProps): ReactElement {
   return (
     <Grid2 padding={1} spacing={1}>
       <Box
@@ -56,6 +57,4 @@ const SummarySection: React.FC<SummarySectionProps> = ({
       </Box>
     </Grid2>
   );
-};
-
-export default SummarySection;
+}

@@ -1,12 +1,12 @@
 import { PiePartData } from "@/lib/types";
-import React from "react";
+import { ReactElement } from "react";
 import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
-interface TimingPieChartProps {
+type TimingPieChartProps = {
   data: PiePartData[];
-}
+};
 
-const TimingPieChart: React.FC<TimingPieChartProps> = ({ data }) => {
+export function TimingPieChart({ data }: TimingPieChartProps): ReactElement {
   return (
     <ResponsiveContainer width={250} height={250}>
       <PieChart>
@@ -26,6 +26,4 @@ const TimingPieChart: React.FC<TimingPieChartProps> = ({ data }) => {
       </PieChart>
     </ResponsiveContainer>
   );
-};
-
-export default TimingPieChart;
+}

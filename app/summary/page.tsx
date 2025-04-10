@@ -26,9 +26,9 @@ import {
 
 import { ReactElement, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import SummarySection from "./ui/SummarySection";
-import TimingList from "./ui/TimingList";
-import TimingPieChart from "./ui/TimingPieChart";
+import { SummarySection } from "./ui/SummarySection";
+import { TimingList } from "./ui/TimingList";
+import { TimingPieChart } from "./ui/TimingPieChart";
 
 export default function SummaryPage(): ReactElement {
   const queryPlan = useSelector(getQueryPlan);
