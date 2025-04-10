@@ -144,9 +144,7 @@ export default function SummaryPage(): ReactElement {
                         minHeight: "500px",
                       }}
                     >
-                      <TimingPieChart
-                        data={pieDataElapsedTimings}
-                      ></TimingPieChart>
+                      <TimingPieChart data={pieDataElapsedTimings} />
 
                       <Box sx={{ marginLeft: 2, flex: 1 }}>
                         <Typography
@@ -162,7 +160,7 @@ export default function SummaryPage(): ReactElement {
                         <TimingList
                           data={aggregateRetrievalsElapsedTimings}
                           colorMap={retrievalsColors}
-                        ></TimingList>
+                        />
 
                         <Typography variant="body2" marginLeft={2}>
                           Database retrievals
@@ -170,7 +168,7 @@ export default function SummaryPage(): ReactElement {
                         <TimingList
                           data={databaseRetrievalsElapsedTimings}
                           colorMap={retrievalsColors}
-                        ></TimingList>
+                        />
 
                         <Typography
                           variant="body1"
@@ -186,7 +184,7 @@ export default function SummaryPage(): ReactElement {
                           data={
                             aggregateRetrievalsExecutionContextElapsedTimings
                           }
-                        ></TimingList>
+                        />
 
                         <Typography variant="body2" marginLeft={2}>
                           Database
@@ -195,7 +193,7 @@ export default function SummaryPage(): ReactElement {
                           data={
                             databaseRetrievalsExecutionContextElapsedTimings
                           }
-                        ></TimingList>
+                        />
                       </Box>
                     </Box>
                   ) : (
@@ -210,9 +208,7 @@ export default function SummaryPage(): ReactElement {
                         minHeight: "500px",
                       }}
                     >
-                      <TimingPieChart
-                        data={groupedPieDataElaspedTimings}
-                      ></TimingPieChart>
+                      <TimingPieChart data={groupedPieDataElaspedTimings} />
 
                       <Box sx={{ marginLeft: 2, flex: 1 }}>
                         <Typography
@@ -225,7 +221,7 @@ export default function SummaryPage(): ReactElement {
                         <TimingList
                           data={groupedRetrievalsElapsedTimings}
                           colorMap={GROUP_COLORS}
-                        ></TimingList>
+                        />
 
                         <Typography
                           variant="body1"
@@ -236,7 +232,7 @@ export default function SummaryPage(): ReactElement {
                         </Typography>
                         <TimingList
                           data={groupedRetrievalsExecutionContextElapsedTimings}
-                        ></TimingList>
+                        />
                       </Box>
                     </Box>
                   )}
@@ -320,7 +316,7 @@ export default function SummaryPage(): ReactElement {
                           ? groupedPieDataRetrievalsTypeCounts
                           : pieDataRetrievalsTypeCounts
                       }
-                    ></TimingPieChart>
+                    />
 
                     <Box
                       sx={{
@@ -343,7 +339,7 @@ export default function SummaryPage(): ReactElement {
                         colorMap={
                           isGroupedNumbers ? GROUP_COLORS : retrievalsColors
                         }
-                      ></TimingList>
+                      />
                     </Box>
                   </Box>
                 </Box>
@@ -400,21 +396,21 @@ export default function SummaryPage(): ReactElement {
                     "Data sources or operators that process only a subset of the required data."
                   }
                   data={selectedQueryPlan.querySummary?.partialProviders}
-                ></SummarySection>
+                />
                 <SummarySection
                   title={"Partitioning Count by Type:"}
                   description={
                     "Different types of partitioning, and how much retrievals use each of them. Partitioning can be constant, single or multiple (separated with | )"
                   }
                   data={selectedQueryPlan.querySummary.partitioningCountByType}
-                ></SummarySection>
+                />
                 <SummarySection
                   title={"Partitioning by result size:"}
                   description={
                     "Size of the results given by each type of partioning"
                   }
                   data={selectedQueryPlan.querySummary.resultSizeByPartitioning}
-                ></SummarySection>
+                />
               </Grid2>
             )}
           </Grid2>
