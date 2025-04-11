@@ -14,7 +14,7 @@ import { useState, ReactElement, useRef, useCallback } from "react";
 import { useSelector } from "react-redux";
 import HelpCard from "./ui/HelpCard";
 import ManualMode from "./ui/ManualMode";
-import QueryPlanMode from "./ui/QueryPlanMode";
+import QueryMode from "./ui/QueryMode";
 import ResultQueryPlan from "./ui/ResultQueryPlan";
 
 export default function SubmitQueryPage(): ReactElement {
@@ -66,10 +66,10 @@ export default function SubmitQueryPage(): ReactElement {
 
         <CardContent>
           <Grid2 container spacing={4}>
-            {!isManualMode ? (
-              <QueryPlanMode setError={setError} />
-            ) : (
+            {isManualMode ? (
               <ManualMode setError={setError} />
+            ) : (
+              <QueryMode setError={setError} />
             )}
 
             <Button
