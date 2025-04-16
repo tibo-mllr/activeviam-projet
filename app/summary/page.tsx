@@ -160,6 +160,7 @@ export default function SummaryPage(): ReactElement {
                         <TimingList
                           data={aggregateRetrievalsElapsedTimings}
                           colorMap={retrievalsColors}
+                          unit="ms"
                         />
 
                         <Typography variant="body2" marginLeft={2}>
@@ -168,6 +169,7 @@ export default function SummaryPage(): ReactElement {
                         <TimingList
                           data={databaseRetrievalsElapsedTimings}
                           colorMap={retrievalsColors}
+                          unit="ms"
                         />
 
                         <Typography
@@ -184,6 +186,7 @@ export default function SummaryPage(): ReactElement {
                           data={
                             aggregateRetrievalsExecutionContextElapsedTimings
                           }
+                          unit="ms"
                         />
 
                         <Typography variant="body2" marginLeft={2}>
@@ -193,6 +196,7 @@ export default function SummaryPage(): ReactElement {
                           data={
                             databaseRetrievalsExecutionContextElapsedTimings
                           }
+                          unit="ms"
                         />
                       </Box>
                     </Box>
@@ -221,6 +225,7 @@ export default function SummaryPage(): ReactElement {
                         <TimingList
                           data={groupedRetrievalsElapsedTimings}
                           colorMap={GROUP_COLORS}
+                          unit="ms"
                         />
 
                         <Typography
@@ -232,6 +237,7 @@ export default function SummaryPage(): ReactElement {
                         </Typography>
                         <TimingList
                           data={groupedRetrievalsExecutionContextElapsedTimings}
+                          unit="ms"
                         />
                       </Box>
                     </Box>
