@@ -4,9 +4,14 @@ import { ReactElement } from "react";
 type TimingListProps = {
   data: Record<string, number>;
   colorMap?: Record<string, string>;
+  unit?: string;
 };
 
-export function TimingList({ data, colorMap }: TimingListProps): ReactElement {
+export function TimingList({
+  data,
+  colorMap,
+  unit = "", // by default no unit is shown
+}: TimingListProps): ReactElement {
   return (
     <List
       dense
@@ -28,7 +33,7 @@ export function TimingList({ data, colorMap }: TimingListProps): ReactElement {
                 marginRight: 1,
               }}
             />
-            <ListItemText primary={`${key} : ${value} ms`} />
+            <ListItemText primary={`${key} : ${value} ${unit}`} />
           </ListItem>
         ))}
     </List>
